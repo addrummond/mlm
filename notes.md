@@ -45,3 +45,7 @@ EFM32TG108
 CR2016 cell holder
 
 https://www.digikey.com/product-detail/en/mpd-memory-protection-devices/BLP2016SM-GTR/BLP2016SM-GCT-ND/5430470
+
+Neat looking boost converter:
+
+http://www.farnell.com/datasheets/71091.pdf
