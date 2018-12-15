@@ -12,7 +12,7 @@
   (page A4)
   (layers
     (0 F.Cu signal)
-    (31 B.Cu signal)
+    (31 B.Cu signal hide)
     (32 B.Adhes user)
     (33 F.Adhes user)
     (34 B.Paste user)
@@ -168,7 +168,7 @@
     (descr "Mounting Hole 2.2mm, no annular, M2")
     (tags "mounting hole 2.2mm no annular m2")
     (attr virtual)
-    (fp_text reference REF** (at 0 -3.2) (layer F.SilkS)
+    (fp_text reference REF** (at 4.67 -0.5) (layer F.SilkS) hide
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value MountingHole_2.2mm_M2 (at 0 3.2) (layer F.Fab)
@@ -187,7 +187,7 @@
     (descr "Mounting Hole 2.2mm, no annular, M2")
     (tags "mounting hole 2.2mm no annular m2")
     (attr virtual)
-    (fp_text reference REF** (at 0 -3.2) (layer F.SilkS)
+    (fp_text reference REF** (at 0 -3.2) (layer F.SilkS) hide
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value MountingHole_2.2mm_M2 (at 0 3.2) (layer F.Fab)
@@ -854,7 +854,7 @@
   (module mlm:BLP2016SM-G (layer B.Cu) (tedit 5C1263D9) (tstamp 5C1338AD)
     (at 100 119 180)
     (path /5C9DC92F)
-    (fp_text reference BT1 (at 0.08 -25 180) (layer B.SilkS)
+    (fp_text reference BT1 (at 0.08 -25 180) (layer B.SilkS) hide
       (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
     )
     (fp_text value Battery_Cell (at 0.2 10 180) (layer B.Fab)
@@ -917,7 +917,7 @@
     (at 100 131.875)
     (path /5C3DD769)
     (attr smd)
-    (fp_text reference J2 (at 0 9.914) (layer F.SilkS)
+    (fp_text reference J2 (at 0 9.914) (layer F.SilkS) hide
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value Conn_01x04_Female (at 0 -6.15) (layer F.Fab)
@@ -1113,7 +1113,7 @@
     (descr "Through hole straight pin header, 1x05, 2.54mm pitch, single row")
     (tags "Through hole pin header THT 1x05 2.54mm single row")
     (path /5C3453EA)
-    (fp_text reference J1 (at 0 -3.64) (layer F.SilkS)
+    (fp_text reference J1 (at 0 -3.64) (layer F.SilkS) hide
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value Conn_01x05_Male (at 0 12.49) (layer F.Fab)
@@ -1953,7 +1953,7 @@
     (descr "Mounting Hole 2.2mm, no annular, M2")
     (tags "mounting hole 2.2mm no annular m2")
     (attr virtual)
-    (fp_text reference REF** (at 0 -3.2) (layer F.SilkS)
+    (fp_text reference REF** (at 0 -3.2) (layer F.SilkS) hide
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value MountingHole_2.2mm_M2 (at 0 3.2) (layer F.Fab)
