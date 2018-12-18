@@ -11,7 +11,7 @@
 
   (page A4)
   (layers
-    (0 F.Cu signal)
+    (0 F.Cu signal hide)
     (31 B.Cu signal)
     (32 B.Adhes user)
     (33 F.Adhes user)
@@ -246,7 +246,7 @@
     (tags "resistor 0603")
     (path /5C68D2EB)
     (attr smd)
-    (fp_text reference R1 (at -0.79 1.63 270) (layer F.SilkS)
+    (fp_text reference R1 (at 2 0) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value 400 (at 0 1.5 180) (layer F.Fab)
@@ -374,7 +374,7 @@
     (tags "capacitor 0603")
     (path /5C51EE93)
     (attr smd)
-    (fp_text reference C3 (at -1.665139 1.26561) (layer F.SilkS)
+    (fp_text reference C3 (at -2.5 -0.75 90) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value 10u (at 0 1.5 90) (layer F.Fab)
@@ -410,7 +410,7 @@
     (tags "capacitor 0603")
     (path /5C81D255)
     (attr smd)
-    (fp_text reference C2 (at 2.5 -0.14 270) (layer F.SilkS)
+    (fp_text reference C2 (at 2 -1.25 270) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value u1 (at 0 1.5 270) (layer F.Fab)
@@ -1438,7 +1438,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C110A6A)
     (at 118 78)
     (path /5C19F75D)
-    (fp_text reference D26 (at 1.254 -0.098 90) (layer F.SilkS)
+    (fp_text reference D26 (at 1.254 -0.098 90) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75) (layer F.Fab)
@@ -1462,7 +1462,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C110A5D)
     (at 82 78)
     (path /5C16CC0C)
-    (fp_text reference D25 (at 1.67 -2) (layer F.SilkS)
+    (fp_text reference D25 (at 1.67 -2) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75) (layer F.Fab)
@@ -1486,7 +1486,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C11051E)
     (at 95.5 83.1 15)
     (path /5C1669A4)
-    (fp_text reference D24 (at -1.312222 -1.014186 105) (layer F.SilkS)
+    (fp_text reference D24 (at -1.312222 -1.014186 105) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 15) (layer F.Fab)
@@ -1510,7 +1510,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103B5F)
     (at 91.3 84.8 30)
     (path /5C10E693)
-    (fp_text reference D23 (at -1.363583 -1.018205 120) (layer F.SilkS)
+    (fp_text reference D23 (at -1.363583 -1.018205 120) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 30) (layer F.Fab)
@@ -1534,7 +1534,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103B54)
     (at 87.6 87.6 45)
     (path /5C10CA90)
-    (fp_text reference D22 (at 1.301076 -0.919239 135) (layer F.SilkS)
+    (fp_text reference D22 (at 1.301076 -0.919239 135) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 45) (layer F.Fab)
@@ -1558,7 +1558,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103B49)
     (at 84.8 91.3 60)
     (path /5C10B305)
-    (fp_text reference D21 (at 1.355282 -0.932583 150) (layer F.SilkS)
+    (fp_text reference D21 (at 1.355282 -0.932583 150) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 60) (layer F.Fab)
@@ -1582,7 +1582,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103B3E)
     (at 83.1 95.5 75)
     (path /5C109749)
-    (fp_text reference D20 (at 1.307567 1.016203 165) (layer F.SilkS)
+    (fp_text reference D20 (at 1.307567 1.016203 165) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 75) (layer F.Fab)
@@ -1606,7 +1606,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103B33)
     (at 82.5 100 90)
     (path /5C107C58)
-    (fp_text reference D19 (at 1.25 1.03 180) (layer F.SilkS)
+    (fp_text reference D19 (at 1.25 1.03 180) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 90) (layer F.Fab)
@@ -1630,7 +1630,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103B28)
     (at 83.1 104.5 105)
     (path /5C10F4EB)
-    (fp_text reference D18 (at 1.409336 -1.00964 195) (layer F.SilkS)
+    (fp_text reference D18 (at 1.409336 -1.00964 195) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 105) (layer F.Fab)
@@ -1654,7 +1654,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103B1D)
     (at 84.8 108.8 120)
     (path /5C10E1CB)
-    (fp_text reference D17 (at -1.419564 -0.981244 210) (layer F.SilkS)
+    (fp_text reference D17 (at -1.419564 -0.981244 210) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 120) (layer F.Fab)
@@ -1678,7 +1678,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103B12)
     (at 87.6 112.4 135)
     (path /5C10BF36)
-    (fp_text reference D16 (at 1.739483 -0.735391 135) (layer F.SilkS)
+    (fp_text reference D16 (at 1.739483 -0.735391 135) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 135) (layer F.Fab)
@@ -1702,7 +1702,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103B07)
     (at 91.3 115.2 150)
     (path /5C10AD72)
-    (fp_text reference D15 (at -1.724589 -0.667077 150) (layer F.SilkS)
+    (fp_text reference D15 (at -1.724589 -0.667077 150) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 150) (layer F.Fab)
@@ -1726,7 +1726,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103AFC)
     (at 95.5 116.9 165)
     (path /5C108E6D)
-    (fp_text reference D14 (at -1.700823 -0.745186 165) (layer F.SilkS)
+    (fp_text reference D14 (at -1.700824 -0.745186 165) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 165) (layer F.Fab)
@@ -1750,7 +1750,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103AF1)
     (at 100 117.5 180)
     (path /5C10766E)
-    (fp_text reference D13 (at -1.68 -0.74) (layer F.SilkS)
+    (fp_text reference D13 (at -1.68 -0.74) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 180) (layer F.Fab)
@@ -1774,7 +1774,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C1338F0)
     (at 104.5 116.9 195)
     (path /5C10EF92)
-    (fp_text reference D12 (at -1.29808 -0.989691 285) (layer F.SilkS)
+    (fp_text reference D12 (at -1.29808 -0.989691 285) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 195) (layer F.Fab)
@@ -1798,7 +1798,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103ADB)
     (at 108.75 115.2 210)
     (path /5C10DB6D)
-    (fp_text reference D11 (at 1.221936 -0.876455 300) (layer F.SilkS)
+    (fp_text reference D11 (at 1.221936 -0.876455 300) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 210) (layer F.Fab)
@@ -1822,7 +1822,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103AD0)
     (at 112.4 112.4 225)
     (path /5C10B881)
-    (fp_text reference D10 (at 1.357645 -0.961665 315) (layer F.SilkS)
+    (fp_text reference D10 (at 1.357645 -0.961665 315) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 225) (layer F.Fab)
@@ -1846,7 +1846,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103AC5)
     (at 115.2 108.8 240)
     (path /5C10A62C)
-    (fp_text reference D9 (at 1.50698 -0.569833 240) (layer F.SilkS)
+    (fp_text reference D9 (at 1.50698 -0.569833 240) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 240) (layer F.Fab)
@@ -1870,7 +1870,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103ABA)
     (at 116.9 104.5 255)
     (path /5C1088A0)
-    (fp_text reference D8 (at 1.378822 -0.80427 345) (layer F.SilkS)
+    (fp_text reference D8 (at 1.378822 -0.80427 345) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 255) (layer F.Fab)
@@ -1894,7 +1894,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103AAF)
     (at 117.5 100 270)
     (path /5C10656A)
-    (fp_text reference D7 (at 1.37 -0.73) (layer F.SilkS)
+    (fp_text reference D7 (at 1.37 -0.73) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 270) (layer F.Fab)
@@ -1918,7 +1918,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C104263)
     (at 116.9 95.4 285)
     (path /5C10E9E2)
-    (fp_text reference D6 (at 1.470709 -0.620495 285) (layer F.SilkS)
+    (fp_text reference D6 (at 1.470709 -0.620495 285) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 285) (layer F.Fab)
@@ -1942,7 +1942,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103A99)
     (at 115.2 91.25 300)
     (path /5C10D631)
-    (fp_text reference D5 (at 1.458705 -0.566551 300) (layer F.SilkS)
+    (fp_text reference D5 (at 1.458705 -0.566551 300) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 300) (layer F.Fab)
@@ -1966,7 +1966,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103A8E)
     (at 112.4 87.6 315)
     (path /5C10B654)
-    (fp_text reference D4 (at 1.463711 -0.516188 315) (layer F.SilkS)
+    (fp_text reference D4 (at 1.463711 -0.516188 315) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 315) (layer F.Fab)
@@ -1990,7 +1990,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103A83)
     (at 108.8 84.8 330)
     (path /5C109D50)
-    (fp_text reference D3 (at 1.408801 0.780115 330) (layer F.SilkS)
+    (fp_text reference D3 (at 1.408801 0.780115 330) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 330) (layer F.Fab)
@@ -2014,7 +2014,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103A78)
     (at 104.5 83.1 345)
     (path /5C108242)
-    (fp_text reference D2 (at 1.510448 -0.622131 345) (layer F.SilkS)
+    (fp_text reference D2 (at 1.510448 -0.622131 345) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75 345) (layer F.Fab)
@@ -2038,7 +2038,7 @@
   (module mlm:DURISS2 (layer F.Cu) (tedit 5C104E22) (tstamp 5C103A6D)
     (at 100 82.5)
     (path /5C1039C9)
-    (fp_text reference D1 (at 1.43 -0.77 180) (layer F.SilkS)
+    (fp_text reference D1 (at 1.43 -0.77 180) (layer F.SilkS) hide
       (effects (font (size 0.5 0.5) (thickness 0.125)))
     )
     (fp_text value LED (at 0 -2.75) (layer F.Fab)
@@ -2233,7 +2233,7 @@
   (gr_text "15\n" (at 111.17 118.5) (layer F.SilkS) (tstamp 5C112682)
     (effects (font (size 2.5 2.5) (thickness 0.5)))
   )
-  (gr_text 8 (at 114.67 115) (layer F.SilkS) (tstamp 5C112680)
+  (gr_text 8 (at 115.17 112.75) (layer F.SilkS) (tstamp 5C112680)
     (effects (font (size 2.5 2.5) (thickness 0.5)))
   )
   (gr_text 4 (at 118.17 110) (layer F.SilkS) (tstamp 5C11267E)
