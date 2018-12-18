@@ -1356,10 +1356,6 @@ Text GLabel 3500 4500 0    50   Input ~ 0
 VBAT
 Wire Wire Line
 	4250 4500 4500 4500
-Text GLabel 5600 6250 2    50   Input ~ 0
-SENSORINT
-Wire Wire Line
-	5450 6250 5600 6250
 Text GLabel 4350 6050 0    50   Input ~ 0
 PVREG
 Text GLabel 5600 6150 2    50   Input ~ 0
@@ -1667,4 +1663,5 @@ Wire Wire Line
 	7600 2900 7600 2600
 Text GLabel 7600 2600 1    50   Input ~ 0
 REGMODE
+NoConn ~ 5450 6250
 $EndSCHEMATC
