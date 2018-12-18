@@ -1307,9 +1307,9 @@ Wire Wire Line
 Wire Wire Line
 	8550 2100 8700 2100
 Text GLabel 8700 1750 2    50   Input ~ 0
-VREG
+PVREG
 Text GLabel 8700 2100 2    50   Input ~ 0
-VREG
+PVREG
 Text Notes 6700 4300 0    50   ~ 0
 XTALP
 Text Notes 6700 4500 0    50   ~ 0
