@@ -1,5 +1,5 @@
 /***************************************************************************//**
- * Linker script for Silicon Labs EFM32TG devices
+ * Linker script for Silicon Labs EFM/EFR/EZR devices
  * @version 5.7.0
  *******************************************************************************
  * # License
@@ -30,9 +30,10 @@
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 32768
-  RAM (rwx)  : ORIGIN = 0x20000000, LENGTH = 4096
+	FLASH (rx) : ORIGIN = 0x0, LENGTH = 0x8000 /* 32k */
+	RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x1000 /* 4k */
 }
+
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
