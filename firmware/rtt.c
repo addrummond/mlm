@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <rtt.h>
 
 uint8_t rtt_up_buf[32];
