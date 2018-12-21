@@ -6,38 +6,50 @@
 #define DPIN1_GPIO_PORT gpioPortB
 #define DPIN1_GPIO_PIN  11
 #define DPIN1_TIMER     TIMER1
-#define DPIN1_ROUTE     2
-#define DPIN1_CHAN      TIMER_ROUTE_CC2PEN
+#define DPIN1_CLOCK     cmuClock_TIMER1
+#define DPIN1_CHAN      2
+#define DPIN1_ROUTE     TIMER_ROUTE_CC2PEN
+#define DPIN1_LOCATION  3
 
 #define DPIN2_GPIO_PORT gpioPortD
 #define DPIN2_GPIO_PIN  6
 #define DPIN2_TIMER     TIMER1
-#define DPIN2_ROUTE     4
-#define DPIN2_CHAN      TIMER_ROUTE_CC0PEN
+#define DPIN2_CLOCK     cmuClock_TIMER1
+#define DPIN2_CHAN      0
+#define DPIN2_ROUTE     TIMER_ROUTE_CC0PEN
+#define DPIN2_LOCATION  4
 
 #define DPIN3_GPIO_PORT gpioPortD
 #define DPIN3_GPIO_PIN  7
 #define DPIN3_TIMER     TIMER1
-#define DPIN3_ROUTE     4
-#define DPIN3_CHAN      TIMER_ROUTE_CC1PEN
+#define DPIN3_CLOCK     cmuClock_TIMER1
+#define DPIN3_CHAN      1
+#define DPIN3_ROUTE     TIMER_ROUTE_CC1PEN
+#define DPIN3_LOCATION  4
 
 #define DPIN4_GPIO_PORT gpioPortC
 #define DPIN4_GPIO_PIN  14
 #define DPIN4_TIMER     TIMER1
-#define DPIN4_ROUTE     0
-#define DPIN4_CHAN      TIMER_ROUTE_CC1PEN
+#define DPIN4_CLOCK     cmuClock_TIMER1
+#define DPIN4_CHAN      1
+#define DPIN4_ROUTE     TIMER_ROUTE_CC1PEN
+#define DPIN4_LOCATION  0
 
 #define DPIN5_GPIO_PORT gpioPortC
 #define DPIN5_GPIO_PIN  15
 #define DPIN5_TIMER     TIMER1
-#define DPIN5_ROUTE     0
-#define DPIN5_CHAN      TIMER_ROUTE_CC2PEN
+#define DPIN5_CLOCK     cmuClock_TIMER1
+#define DPIN5_CHAN      2
+#define DPIN5_ROUTE     TIMER_ROUTE_CC2PEN
+#define DPIN5_LOCATION  0
 
 #define DPIN6_GPIO_PORT gpioPortA
 #define DPIN6_GPIO_PIN  0
 #define DPIN6_TIMER     TIMER0
-#define DPIN6_ROUTE     0
-#define DPIN6_CHAN      TIMER_ROUTE_CC0PEN
+#define DPIN6_CLOCK     cmuClock_TIMER0
+#define DPIN6_CHAN      0
+#define DPIN6_ROUTE     TIMER_ROUTE_CC0PEN
+#define DPIN6_LOCATION  0
 
 #define LED1_CAT_DPIN   1
 #define LED2_CAT_DPIN   2
@@ -96,5 +108,10 @@
 #define LED27_AN_DPIN   1
 
 #define LED_FOR_EACH(m) m(1) m(2) m(3) m(4) m(5) m(6) m(7) m(8) m(9) m(10) m(11) m(12) m(13) m(14) m(15) m(16) m(17) m(18) m(19) m(20) m(21) m(22) m(23) m(24) m(25) m(26) m(27)
+
+#define DPIN_FOR_EACH(m) m(1) m(2) m(3) m(4) m(5) m(6)
+
+void led_on(unsigned n);
+void leds_all_off();
 
 #endif
