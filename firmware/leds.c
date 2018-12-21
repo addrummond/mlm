@@ -50,7 +50,7 @@ static const uint32_t led_cat_route[] = {
 #undef M
 
 #define M(n) mcat3(DPIN, LED ## n ## _CAT_DPIN, _LOCATION) ,
-static const uint8_t led_cat_location[] = {  
+static const uint32_t led_cat_location[] = {  
     LED_FOR_EACH(M)
 };
 #undef M
@@ -74,20 +74,20 @@ void led_on(unsigned n)
     TIMER_TypeDef *cat_timer = led_cat_timer[nn];
     int cat_chan = led_cat_chan[nn];
     uint32_t cat_route = led_cat_route[nn];
-    int cat_location = led_cat_location[nn];
+    uint32_t cat_location = led_cat_location[nn];
     CMU_Clock_TypeDef cat_clock = led_cat_clock[nn];
 
     CMU_ClockEnable(cat_clock, true);
 
-    GPIO_PinModeSet(cat_port, cat_pin, gpioModePushPull, 0);
-    GPIO_PinModeSet(an_port, an_pin, gpioModePushPull, 0);
+    GPIO_PinModeSet(cat_port, cat_pin, gpioModePushPull, 1);
+    GPIO_PinModeSet(an_port, an_pin, gpioModePushPull, 1);
     TIMER_InitCC_TypeDef timerCCInit = TIMER_INITCC_DEFAULT;
     timerCCInit.mode = timerCCModePWM;
     timerCCInit.cmoa = timerOutputActionToggle;
     TIMER_InitCC(cat_timer, cat_chan, &timerCCInit);
     cat_timer->ROUTE |= (cat_route | cat_location);
     TIMER_TopSet(cat_timer, 100);
-    TIMER_CompareBufSet(cat_timer, cat_chan, 1); // duty cycle
+    TIMER_CompareBufSet(cat_timer, cat_chan, 99); // duty cycle
     TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
     timerInit.prescale = timerPrescale256;
     TIMER_Init(cat_timer, &timerInit);

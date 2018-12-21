@@ -9,7 +9,7 @@
 #define DPIN1_CLOCK     cmuClock_TIMER1
 #define DPIN1_CHAN      2
 #define DPIN1_ROUTE     TIMER_ROUTE_CC2PEN
-#define DPIN1_LOCATION  3
+#define DPIN1_LOCATION  TIMER_ROUTE_LOCATION_LOC3
 
 #define DPIN2_GPIO_PORT gpioPortD
 #define DPIN2_GPIO_PIN  6
@@ -17,7 +17,7 @@
 #define DPIN2_CLOCK     cmuClock_TIMER1
 #define DPIN2_CHAN      0
 #define DPIN2_ROUTE     TIMER_ROUTE_CC0PEN
-#define DPIN2_LOCATION  4
+#define DPIN2_LOCATION  TIMER_ROUTE_LOCATION_LOC4
 
 #define DPIN3_GPIO_PORT gpioPortD
 #define DPIN3_GPIO_PIN  7
@@ -25,7 +25,7 @@
 #define DPIN3_CLOCK     cmuClock_TIMER1
 #define DPIN3_CHAN      1
 #define DPIN3_ROUTE     TIMER_ROUTE_CC1PEN
-#define DPIN3_LOCATION  4
+#define DPIN3_LOCATION  TIMER_ROUTE_LOCATION_LOC4
 
 #define DPIN4_GPIO_PORT gpioPortC
 #define DPIN4_GPIO_PIN  14
@@ -33,7 +33,7 @@
 #define DPIN4_CLOCK     cmuClock_TIMER1
 #define DPIN4_CHAN      1
 #define DPIN4_ROUTE     TIMER_ROUTE_CC1PEN
-#define DPIN4_LOCATION  0
+#define DPIN4_LOCATION  TIMER_ROUTE_LOCATION_LOC0
 
 #define DPIN5_GPIO_PORT gpioPortC
 #define DPIN5_GPIO_PIN  15
@@ -41,7 +41,7 @@
 #define DPIN5_CLOCK     cmuClock_TIMER1
 #define DPIN5_CHAN      2
 #define DPIN5_ROUTE     TIMER_ROUTE_CC2PEN
-#define DPIN5_LOCATION  0
+#define DPIN5_LOCATION  TIMER_ROUTE_LOCATION_LOC0
 
 #define DPIN6_GPIO_PORT gpioPortA
 #define DPIN6_GPIO_PIN  0
@@ -49,7 +49,7 @@
 #define DPIN6_CLOCK     cmuClock_TIMER0
 #define DPIN6_CHAN      0
 #define DPIN6_ROUTE     TIMER_ROUTE_CC0PEN
-#define DPIN6_LOCATION  0
+#define DPIN6_LOCATION  TIMER_ROUTE_LOCATION_LOC0
 
 #define LED1_CAT_DPIN   1
 #define LED2_CAT_DPIN   2
