@@ -30,6 +30,7 @@ endif
 override ARMASMFLAGS += $(DEPFLAGS)
 
 OBJS := main.out \
+        leds.out \
         $(EFM32)/EFM32TG/Source/system_efm32tg.out \
         $(patsubst %.c,%.out,$(shell find $(EFM32)/emlib/src -name '*.c'))
 
