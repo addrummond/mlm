@@ -85,7 +85,7 @@ void led_on(unsigned n)
     timerCCInit.mode = timerCCModePWM;
     timerCCInit.cmoa = timerOutputActionToggle;
     TIMER_InitCC(cat_timer, cat_chan, &timerCCInit);
-    cat_timer->ROUTE |= (cat_route | cat_location);
+    cat_timer->ROUTE = (cat_route | cat_location);
     TIMER_TopSet(cat_timer, 100);
     TIMER_CompareBufSet(cat_timer, cat_chan, 99); // duty cycle
     TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
@@ -95,10 +95,10 @@ void led_on(unsigned n)
 
 void leds_all_off()
 {
-    CMU_ClockEnable(cmuClock_TIMER0, false);
-    CMU_ClockEnable(cmuClock_TIMER1, false);
-
 #define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeInput, 0);
     DPIN_FOR_EACH(M)
 #undef M
+
+    CMU_ClockEnable(cmuClock_TIMER0, false);
+    CMU_ClockEnable(cmuClock_TIMER1, false);
 }

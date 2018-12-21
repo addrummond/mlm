@@ -41,7 +41,7 @@ int main()
         SEGGER_RTT_printf(0, "Led %u\n", i);
         led_on(i);
     
-        delay_ms(1000);
+        delay_ms(300);
     }
 
     return 0;
