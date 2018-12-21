@@ -84,8 +84,8 @@ void led_on(unsigned n)
     TIMER_InitCC_TypeDef timerCCInit = TIMER_INITCC_DEFAULT;
     timerCCInit.mode = timerCCModePWM;
     timerCCInit.cmoa = timerOutputActionToggle;
-    TIMER_InitCC(cat_timer, 0, &timerCCInit);
-    TIMER1->ROUTE |= (cat_route | cat_location);
+    TIMER_InitCC(cat_timer, cat_chan, &timerCCInit);
+    cat_timer->ROUTE |= (cat_route | cat_location);
     TIMER_TopSet(cat_timer, 100);
     TIMER_CompareBufSet(cat_timer, cat_chan, 1); // duty cycle
     TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
