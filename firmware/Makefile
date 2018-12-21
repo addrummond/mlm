@@ -8,22 +8,30 @@
 # ARM architecture object files have the extension .out.
 # Build platform architecture object files have the extension .o.
 
-INCLUDES := -I ./ -I ./efm32/emlib/inc -I ./efm32/CMSIS/Include -I ./efm32/EFM32TG/Include
+INCLUDES := -I ./ -I ./efm32/emlib/inc -I ./efm32/EFM32TG/Include -I ./efm32/CMSIS/Include
 ARMCC := arm-none-eabi-gcc
-ARMCFLAGS := -std=c11 -g -Wall -Os -mcpu=cortex-m0 -ffunction-sections -fdata-sections -nostdlib -mthumb -DEFM32TG108F32 ${INCLUDES} -Wall $(ARMCFLAGS)
-OBJS := main.out rtt.out efm32/EFM32TG/Source/system_efm32tg.out efm32/emlib/src/em_system.out
+override ARMCFLAGS += -std=gnu99 -g -Wall -Os -mcpu=cortex-m3 -ffunction-sections -fdata-sections -mthumb -DEFM32TG108F32 ${INCLUDES} -Wall
+OBJS := efm32/EFM32TG/Source/system_efm32tg.out \
+        main.out \
+		rtt.out
 
-efm32/EFM32TG/Source/GCC/startup_efm32tg.o: efm32/EFM32TG/Source/GCC/startup_efm32tg.c efm32/EFM32TG/Source/GCC/startup_efm32tg.S
-	$(ARMCC) $(ARMCFLAGS) -c efm32/EFM32TG/Source/GCC/startup_efm32tg.c efm32/EFM32TG/Source/GCC/startup_efm32tg.S -o efm32/EFM32TG/Source/GCC/startup_efm32tg.out
+ifdef DEBUG
+    # Override seems to be necessary here too because it's used in the original
+    # definition.
+    override ARMCFLAGS += -DDEBUG
+endif
+
+efm32/EFM32TG/Source/GCC/startup_efm32tg.out: efm32/EFM32TG/Source/GCC/startup_efm32tg.S
+	$(ARMCC) -c $(ARMCFLAGS) efm32/EFM32TG/Source/GCC/startup_efm32tg.S -o efm32/EFM32TG/Source/GCC/startup_efm32tg.out
 
 %.out: %.c
 	$(ARMCC) -c $(ARMCFLAGS) $*.c -o $*.out
-	$(ARMCC) -MM $(ARMCFLAGS) $*.c | sed -e s/\.o:/\.out:/ > $*.d
+	$(ARMCC) -MM $(ARMCFLAGS) $*.c  | sed -e 's|^.*:|$*.o:|' | sed -e s/\.o:/\.out:/ > $*.d
 
 -include $(OBJS:.out=.d)
 
-out.elf: efm32/EFM32TG/Source/gcc/startup_efm32tg.out  $(OBJS)
-	$(ARMCC) $(ARMCFLAGS) -lnosys -Xlinker --gc-sections -Xlinker -Map efm32/efm32tg.map --specs nano.specs -T ./efm32/efm32tg.ld $(OBJS) efm32/EFM32TG/Source/GCC/startup_efm32tg.out efm32/EFM32TG/Source/system_efm32tg.out -o out.elf
+out.elf: efm32/EFM32TG/Source/GCC/startup_efm32tg.out $(OBJS)
+	$(ARMCC) $(ARMCFLAGS) -Xlinker -lnosys -Xlinker --gc-sections -Xlinker -lgcc -Xlinker -Map efm32/efm32tg.map --specs nano.specs -T efm32/load.ld efm32/EFM32TG/Source/GCC/startup_efm32tg.out $(OBJS) -o out.elf
 
 .PHONY: clean
 clean:
