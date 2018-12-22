@@ -117,6 +117,7 @@ int main()
 
     //CMU_OscillatorEnable(cmuOsc_LFXO,true,true);
     //CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
+    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
 
     //CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFXO);
     CMU_ClockEnable(cmuClock_RTC, true);
