@@ -851,7 +851,7 @@ S4
 Text GLabel 5750 3900 0    50   Input ~ 0
 S1
 Text GLabel 5750 4100 0    50   Input ~ 0
-S2
+S3
 Wire Wire Line
 	8700 3700 8700 3800
 Connection ~ 8700 3700
@@ -1665,5 +1665,5 @@ Connection ~ 8700 3500
 Wire Wire Line
 	8700 3500 8800 3500
 Text GLabel 8700 3400 2    50   Input ~ 0
-S3
+S2
 $EndSCHEMATC
