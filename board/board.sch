@@ -686,12 +686,6 @@ DPIN2
 Text GLabel 8800 4300 2    50   Input ~ 0
 DPIN3
 Wire Wire Line
-	8600 3700 8700 3700
-Text GLabel 8800 3700 2    50   Input ~ 0
-DPIN4
-Text GLabel 8800 3500 2    50   Input ~ 0
-DPIN5
-Wire Wire Line
 	7600 5100 7600 5300
 Text GLabel 7600 5300 3    50   Input ~ 0
 MAINBUT
@@ -840,19 +834,12 @@ Text GLabel 5750 3900 0    50   Input ~ 0
 S1
 Text GLabel 5750 4100 0    50   Input ~ 0
 S3
-Wire Wire Line
-	8700 3700 8700 3800
-Connection ~ 8700 3700
-Wire Wire Line
-	8700 3700 8800 3700
-Text GLabel 8700 3800 2    50   Input ~ 0
+Text GLabel 8800 3700 2    50   Input ~ 0
 S4
 Wire Wire Line
 	6400 3500 6150 3500
 Wire Wire Line
 	8600 4300 8800 4300
-Wire Wire Line
-	8600 3500 8700 3500
 Wire Wire Line
 	8600 3900 9200 3900
 $Comp
@@ -1571,12 +1558,7 @@ Wire Wire Line
 Text GLabel 7600 2600 1    50   Input ~ 0
 REGMODE
 NoConn ~ 5450 6250
-Wire Wire Line
-	8700 3500 8700 3400
-Connection ~ 8700 3500
-Wire Wire Line
-	8700 3500 8800 3500
-Text GLabel 8700 3400 2    50   Input ~ 0
+Text GLabel 8800 3500 2    50   Input ~ 0
 S2
 $Comp
 L mlm:EFM32TG108 IC3
@@ -1590,4 +1572,16 @@ F 4 "EFM32TG108F32" H 7500 4000 50  0001 C CNN "MPN"
 	1    7500 4000
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	6400 4300 5750 4300
+Wire Wire Line
+	6400 4500 5750 4500
+Text GLabel 5750 4300 0    50   Input ~ 0
+DPIN5
+Text GLabel 5750 4500 0    50   Input ~ 0
+DPIN6
+Wire Wire Line
+	8600 3500 8800 3500
+Wire Wire Line
+	8600 3700 8800 3700
 $EndSCHEMATC
