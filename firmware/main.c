@@ -80,7 +80,10 @@ int main()
     CHIP_Init();
 
     CMU_ClockEnable(cmuClock_HFPER, true);
-    //CMU_ClockEnable(cmuClock_GPIO, true);
+    CMU_ClockEnable(cmuClock_GPIO, true);
+
+    CMU_OscillatorEnable(cmuOsc_LFXO,true,true);
+    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
 
     //CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
     //CMU_ClockEnable(cmuClock_CORELE, true);
@@ -103,7 +106,7 @@ int main()
 
         while (!expired_ms(timer))
         {
-                EMU_EnterEM1();
+                //EMU_EnterEM1();
         }
 
         // Now observe the count and reset
