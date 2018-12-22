@@ -41,15 +41,26 @@ void my_setup_capsense()
     ACMP_CapsenseInit(ACMP1, &capsenseInit);
 
     ACMP_CapsenseChannelSet(ACMP0, acmpChannel0);
-    ACMP_CapsenseChannelSet(ACMP1, acmpChannel0);
+    ACMP_CapsenseChannelSet(ACMP1, acmpChannel7);
 
     while (!(ACMP0->STATUS & ACMP_STATUS_ACMPACT) || !(ACMP1->STATUS & ACMP_STATUS_ACMPACT));
 
-    ACMP_IntEnable(ACMP0, ACMP_IEN_EDGE);
-    ACMP0->CTRL |= ACMP_CTRL_IRISE_ENABLED;
+    SEGGER_RTT_printf(0, "HERE2\n");
+
+    ACMP_IntEnable(ACMP1, ACMP_IEN_EDGE);
+    ACMP1->CTRL |= ACMP_CTRL_IRISE_ENABLED;
+
+    SEGGER_RTT_printf(0, "HERE3\n");
 
     NVIC_ClearPendingIRQ(ACMP0_IRQn);
+    SEGGER_RTT_printf(0, "HERE3.1\n");
     NVIC_EnableIRQ(ACMP0_IRQn);
+    SEGGER_RTT_printf(0, "HERE3.2\n");
+
+    ACMP_Enable(ACMP0);
+    ACMP_Enable(ACMP1);
+
+    SEGGER_RTT_printf(0, "HERE4\n");
 }
 
 void my_cycle_capsense()
@@ -95,7 +106,8 @@ void my_clear_capcounts()
 
 void ACMP0_IRQHandler(void) {
 	/* Clear interrupt flag */
-	ACMP0->IFC = ACMP_IFC_EDGE;
+  	ACMP0->IFC = ACMP_IFC_EDGE;
+	ACMP1->IFC = ACMP_IFC_EDGE;
 
     if (touch_on)
         ++touch_counts[touch_index];
@@ -167,6 +179,7 @@ int main()
     setup_utilities();
     //setup_capsense();
     my_setup_capsense();
+    SEGGER_RTT_printf(0, "HERE7\n");
 
     for (unsigned i = 0;; i++) {
         if (i % (4*6) == 0) {
