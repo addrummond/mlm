@@ -58,32 +58,32 @@ void my_setup_capsense()
 void my_cycle_capsense()
 {
     if (touch_acmp == 0) {
-        touch_acmp = 1;
-        ACMP0->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
-        ACMP_IntDisable(ACMP0, ACMP_IEN_EDGE);
-        ACMP_IntEnable(ACMP1, ACMP_IEN_EDGE);
-        ACMP1->CTRL |= ACMP_CTRL_IRISE_ENABLED;
         if (touch_chan == 0) {
-            ACMP_CapsenseChannelSet(ACMP1, acmpChannel6);
+            ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
             touch_chan = 1;
             touch_index = 1;
         } else {
-            ACMP_CapsenseChannelSet(ACMP1, acmpChannel7);
+            ACMP0->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
+            ACMP_IntDisable(ACMP0, ACMP_IEN_EDGE);
+            ACMP_IntEnable(ACMP1, ACMP_IEN_EDGE);
+            ACMP1->CTRL |= ACMP_CTRL_IRISE_ENABLED;
+            ACMP_CapsenseChannelSet(ACMP1, acmpChannel6);
+            touch_acmp = 1;
             touch_chan = 0;
             touch_index = 2;
         }
     } else {
-        touch_acmp = 0;
-        ACMP1->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
-        ACMP_IntDisable(ACMP1, ACMP_IEN_EDGE);
-        ACMP_IntEnable(ACMP0, ACMP_IEN_EDGE);
-        ACMP0->CTRL |= ACMP_CTRL_IRISE_ENABLED;
         if (touch_chan == 0) {
-            ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
+            ACMP_CapsenseChannelSet(ACMP1, acmpChannel7);
             touch_chan = 1;
             touch_index = 3;
         } else {
+            ACMP1->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
+            ACMP_IntDisable(ACMP1, ACMP_IEN_EDGE);
+            ACMP_IntEnable(ACMP0, ACMP_IEN_EDGE);
+            ACMP0->CTRL |= ACMP_CTRL_IRISE_ENABLED;
             ACMP_CapsenseChannelSet(ACMP0, acmpChannel0);
+            touch_acmp = 0;
             touch_chan = 0;
             touch_index = 0;
         }
@@ -169,6 +169,8 @@ int main()
 
     rtt_init();
     SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
+
+    leds_all_off();
 
     setup_utilities();
     //setup_capsense();
