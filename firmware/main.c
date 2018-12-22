@@ -26,6 +26,39 @@ void delay_ms(int ms)
   RTC->CTRL &= ~RTC_CTRL_EN;
 }
 
+void my_setup_capsense()
+{
+    ACMP_CapsenseInit_TypeDef capsenseInit = ACMP_CAPSENSE_INIT_DEFAULT;
+    CMU_ClockEnable(cmuClock_ACMP0, true);
+    CMU_ClockEnable(cmuClock_ACMP1, true);
+    ACMP_CapsenseInit(ACMP0, &capsenseInit);
+    ACMP_CapsenseInit(ACMP1, &capsenseInit);
+
+    ACMP_CapsenseChannelSet(ACMP0, acmpChannel0);
+    ACMP_CapsenseChannelSet(ACMP1, acmpChannel1);
+
+    while (!(ACMP0->STATUS & ACMP_STATUS_ACMPACT) || !(ACMP1->STATUS & ACMP_STATUS_ACMPACT));
+
+    ACMP_IntEnable(ACMP0, ACMP_IEN_EDGE);
+    ACMP0->CTRL = ACMP0->CTRL | ACMP_CTRL_IRISE_ENABLED;
+
+    ACMP_IntEnable(ACMP1, ACMP_IEN_EDGE);
+    ACMP1->CTRL = ACMP1->CTRL | ACMP_CTRL_IRISE_ENABLED;
+
+	NVIC_ClearPendingIRQ(ACMP0_IRQn);
+	NVIC_EnableIRQ(ACMP0_IRQn);
+}
+
+static uint32_t touch_count0;
+static uint32_t touch_count1;
+
+void ACMP0_IRQHandler(void) {
+	/* Clear interrupt flag */
+	ACMP0 ->IFC = ACMP_IFC_EDGE;
+
+    ++touch_count0;
+}
+
 #define ACMP_PERIOD_MS  100
 
 void setup_capsense()
@@ -82,38 +115,27 @@ int main()
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
 
-    CMU_OscillatorEnable(cmuOsc_LFXO,true,true);
-    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
+    //CMU_OscillatorEnable(cmuOsc_LFXO,true,true);
+    //CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
 
-    CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFXO);
+    //CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFXO);
     CMU_ClockEnable(cmuClock_RTC, true);
 
     rtt_init();
     SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
 
     setup_utilities();
-    setup_capsense();
+    //setup_capsense();
+    my_setup_capsense();
 
-    unsigned count;
     for (;;) {
+        SEGGER_RTT_printf(0, "Count %u %u\n", touch_count0, touch_count1);
+
         // Clear the count
-        count = 0;
-        TIMER1->CMD = TIMER_CMD_START;
+        touch_count0 = 0;
+        touch_count1 = 0;
 
-        // Start a timer based on systick
-        int32_t timer = set_timeout_ms(ACMP_PERIOD_MS);
-
-        while (!expired_ms(timer))
-        {
-                //EMU_EnterEM1();
-        }
-
-        // Now observe the count and reset
-        TIMER1->CMD = TIMER_CMD_STOP;
-        count = TIMER1->CNT;
-        TIMER1->CNT = 0;
-
-        SEGGER_RTT_printf(0, "Count %u\n", count);
+        delay(50);
     }
 
     /*for (unsigned i = 1;; ++i) {
