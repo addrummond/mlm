@@ -115,7 +115,6 @@ int main()
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
 
-    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
     CMU_ClockEnable(cmuClock_RTC, true);
 
     rtt_init();
