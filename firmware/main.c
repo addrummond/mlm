@@ -30,6 +30,7 @@ static uint32_t touch_counts[4];
 static uint32_t touch_acmp;
 static uint32_t touch_chan;
 static uint32_t touch_index;
+static bool touch_on = true;
 
 void my_setup_capsense()
 {
@@ -96,7 +97,8 @@ void ACMP0_IRQHandler(void) {
 	/* Clear interrupt flag */
 	ACMP0->IFC = ACMP_IFC_EDGE;
 
-    ++touch_counts[touch_index];
+    if (touch_on)
+        ++touch_counts[touch_index];
 }
 
 #define ACMP_PERIOD_MS  100
@@ -168,11 +170,13 @@ int main()
 
     for (unsigned i = 0;; i++) {
         if (i % (4*6) == 0) {
+            touch_on = false;
             SEGGER_RTT_printf(0, "Count %u %u %u %u\n", touch_counts[0], touch_counts[1], touch_counts[2], touch_counts[3]);
+            touch_on = true;
             my_clear_capcounts();
         }
 
-        my_cycle_capsense();
+        //my_cycle_capsense();
 
         delay(10);
     }
