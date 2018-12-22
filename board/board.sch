@@ -865,12 +865,10 @@ Wire Wire Line
 	6400 4500 6300 4500
 Wire Wire Line
 	6400 3500 6150 3500
-Text GLabel 6000 3500 0    50   Input ~ 0
-S3
 Wire Wire Line
 	8600 4300 8800 4300
 Wire Wire Line
-	8600 3500 8800 3500
+	8600 3500 8700 3500
 Wire Wire Line
 	8600 3900 9200 3900
 $Comp
@@ -1316,9 +1314,6 @@ Text Notes 6700 4500 0    50   ~ 0
 XTALN
 Wire Wire Line
 	6150 3500 6150 3100
-Connection ~ 6150 3500
-Wire Wire Line
-	6150 3500 6000 3500
 Text GLabel 6150 3100 1    50   Input ~ 0
 DPIN6
 Wire Wire Line
@@ -1664,4 +1659,11 @@ Wire Wire Line
 Text GLabel 7600 2600 1    50   Input ~ 0
 REGMODE
 NoConn ~ 5450 6250
+Wire Wire Line
+	8700 3500 8700 3400
+Connection ~ 8700 3500
+Wire Wire Line
+	8700 3500 8800 3500
+Text GLabel 8700 3400 2    50   Input ~ 0
+S3
 $EndSCHEMATC
