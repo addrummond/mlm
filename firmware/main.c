@@ -41,48 +41,42 @@ void my_setup_capsense()
     ACMP_CapsenseInit(ACMP1, &capsenseInit);
 
     ACMP_CapsenseChannelSet(ACMP0, acmpChannel0);
-    ACMP_CapsenseChannelSet(ACMP1, acmpChannel7);
+    ACMP_CapsenseChannelSet(ACMP1, acmpChannel6);
 
     while (!(ACMP0->STATUS & ACMP_STATUS_ACMPACT) || !(ACMP1->STATUS & ACMP_STATUS_ACMPACT));
 
-    SEGGER_RTT_printf(0, "HERE2\n");
-
-    ACMP_IntEnable(ACMP1, ACMP_IEN_EDGE);
-    ACMP1->CTRL |= ACMP_CTRL_IRISE_ENABLED;
-
-    SEGGER_RTT_printf(0, "HERE3\n");
+    ACMP_IntEnable(ACMP0, ACMP_IEN_EDGE);
+    ACMP0->CTRL |= ACMP_CTRL_IRISE_ENABLED;
 
     NVIC_ClearPendingIRQ(ACMP0_IRQn);
-    SEGGER_RTT_printf(0, "HERE3.1\n");
     NVIC_EnableIRQ(ACMP0_IRQn);
-    SEGGER_RTT_printf(0, "HERE3.2\n");
 
     ACMP_Enable(ACMP0);
     ACMP_Enable(ACMP1);
-
-    SEGGER_RTT_printf(0, "HERE4\n");
 }
 
 void my_cycle_capsense()
 {
-    //NVIC_ClearPendingIRQ(ACMP0_IRQn);
-
     if (touch_acmp == 0) {
         touch_acmp = 1;
         ACMP0->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
+        ACMP_IntDisable(ACMP0, ACMP_IEN_EDGE);
+        ACMP_IntEnable(ACMP1, ACMP_IEN_EDGE);
         ACMP1->CTRL |= ACMP_CTRL_IRISE_ENABLED;
         if (touch_chan == 0) {
-            ACMP_CapsenseChannelSet(ACMP1, acmpChannel1);
+            ACMP_CapsenseChannelSet(ACMP1, acmpChannel6);
             touch_chan = 1;
             touch_index = 1;
         } else {
-            ACMP_CapsenseChannelSet(ACMP1, acmpChannel0);
+            ACMP_CapsenseChannelSet(ACMP1, acmpChannel7);
             touch_chan = 0;
             touch_index = 2;
         }
     } else {
         touch_acmp = 0;
         ACMP1->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
+        ACMP_IntDisable(ACMP1, ACMP_IEN_EDGE);
+        ACMP_IntEnable(ACMP0, ACMP_IEN_EDGE);
         ACMP0->CTRL |= ACMP_CTRL_IRISE_ENABLED;
         if (touch_chan == 0) {
             ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
@@ -179,7 +173,6 @@ int main()
     setup_utilities();
     //setup_capsense();
     my_setup_capsense();
-    SEGGER_RTT_printf(0, "HERE7\n");
 
     for (unsigned i = 0;; i++) {
         if (i % (4*6) == 0) {
@@ -189,7 +182,7 @@ int main()
             my_clear_capcounts();
         }
 
-        //my_cycle_capsense();
+        my_cycle_capsense();
 
         delay(10);
     }
