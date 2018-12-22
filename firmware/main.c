@@ -26,6 +26,11 @@ void delay_ms(int ms)
   RTC->CTRL &= ~RTC_CTRL_EN;
 }
 
+static uint32_t touch_counts[4];
+static uint32_t touch_acmp;
+static uint32_t touch_chan;
+static uint32_t touch_index;
+
 void my_setup_capsense()
 {
     ACMP_CapsenseInit_TypeDef capsenseInit = ACMP_CAPSENSE_INIT_DEFAULT;
@@ -40,23 +45,58 @@ void my_setup_capsense()
     while (!(ACMP0->STATUS & ACMP_STATUS_ACMPACT) || !(ACMP1->STATUS & ACMP_STATUS_ACMPACT));
 
     ACMP_IntEnable(ACMP0, ACMP_IEN_EDGE);
-    ACMP0->CTRL = ACMP0->CTRL | ACMP_CTRL_IRISE_ENABLED;
-
-    //ACMP_IntEnable(ACMP1, ACMP_IEN_EDGE);
-    //ACMP1->CTRL = ACMP1->CTRL | ACMP_CTRL_IRISE_ENABLED;
+    ACMP0->CTRL |= ACMP_CTRL_IRISE_ENABLED;
 
     NVIC_ClearPendingIRQ(ACMP0_IRQn);
     NVIC_EnableIRQ(ACMP0_IRQn);
 }
 
-static uint32_t touch_count0;
-static uint32_t touch_count1;
+void my_cycle_capsense()
+{
+    //NVIC_ClearPendingIRQ(ACMP0_IRQn);
+
+    if (touch_acmp == 0) {
+        touch_acmp = 1;
+        ACMP0->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
+        ACMP1->CTRL |= ACMP_CTRL_IRISE_ENABLED;
+        if (touch_chan == 0) {
+            ACMP_CapsenseChannelSet(ACMP1, acmpChannel1);
+            touch_chan = 1;
+            touch_index = 1;
+        } else {
+            ACMP_CapsenseChannelSet(ACMP1, acmpChannel0);
+            touch_chan = 0;
+            touch_index = 2;
+        }
+    } else {
+        touch_acmp = 0;
+        ACMP1->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
+        ACMP0->CTRL |= ACMP_CTRL_IRISE_ENABLED;
+        if (touch_chan == 0) {
+            ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
+            touch_chan = 1;
+            touch_index = 3;
+        } else {
+            ACMP_CapsenseChannelSet(ACMP0, acmpChannel0);
+            touch_chan = 0;
+            touch_index = 0;
+        }
+    }
+}
+
+void my_clear_capcounts()
+{
+    touch_counts[0] = 0;
+    touch_counts[1] = 0;
+    touch_counts[2] = 0;
+    touch_counts[3] = 0;
+}
 
 void ACMP0_IRQHandler(void) {
 	/* Clear interrupt flag */
 	ACMP0->IFC = ACMP_IFC_EDGE;
 
-    ++touch_count0;
+    ++touch_counts[touch_index];
 }
 
 #define ACMP_PERIOD_MS  100
@@ -115,6 +155,8 @@ int main()
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
 
+    CMU_OscillatorEnable(cmuOsc_LFXO, true, true);
+    CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFXO);
     CMU_ClockEnable(cmuClock_RTC, true);
 
     rtt_init();
@@ -124,14 +166,15 @@ int main()
     //setup_capsense();
     my_setup_capsense();
 
-    for (;;) {
-        SEGGER_RTT_printf(0, "Count %u %u\n", touch_count0, touch_count1);
+    for (unsigned i = 0;; i++) {
+        if (i % (4*6) == 0) {
+            SEGGER_RTT_printf(0, "Count %u %u %u %u\n", touch_counts[0], touch_counts[1], touch_counts[2], touch_counts[3]);
+            my_clear_capcounts();
+        }
 
-        // Clear the count
-        touch_count0 = 0;
-        touch_count1 = 0;
+        my_cycle_capsense();
 
-        delay(50);
+        delay(10);
     }
 
     /*for (unsigned i = 1;; ++i) {
