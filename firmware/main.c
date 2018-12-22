@@ -37,9 +37,7 @@ void my_setup_capsense()
     ACMP_CapsenseChannelSet(ACMP0, acmpChannel0);
     ACMP_CapsenseChannelSet(ACMP1, acmpChannel0);
 
-    SEGGER_RTT_printf(0, "Here1\n");
     while (!(ACMP0->STATUS & ACMP_STATUS_ACMPACT) || !(ACMP1->STATUS & ACMP_STATUS_ACMPACT));
-    SEGGER_RTT_printf(0, "Herex\n");
 
     ACMP_IntEnable(ACMP0, ACMP_IEN_EDGE);
     ACMP0->CTRL = ACMP0->CTRL | ACMP_CTRL_IRISE_ENABLED;
@@ -47,11 +45,8 @@ void my_setup_capsense()
     //ACMP_IntEnable(ACMP1, ACMP_IEN_EDGE);
     //ACMP1->CTRL = ACMP1->CTRL | ACMP_CTRL_IRISE_ENABLED;
 
-   SEGGER_RTT_printf(0, "1\n");
-	//NVIC_ClearPendingIRQ(ACMP0_IRQn);
-	NVIC_EnableIRQ(ACMP0_IRQn);
-
-   SEGGER_RTT_printf(0, "2\n");
+    NVIC_ClearPendingIRQ(ACMP0_IRQn);
+    NVIC_EnableIRQ(ACMP0_IRQn);
 }
 
 static uint32_t touch_count0;
@@ -121,7 +116,6 @@ int main()
     CMU_ClockEnable(cmuClock_GPIO, true);
 
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
-    CMU_ClockEnable(cmuClock_CORELE, true);
     CMU_ClockEnable(cmuClock_RTC, true);
 
     rtt_init();
@@ -129,9 +123,7 @@ int main()
 
     setup_utilities();
     //setup_capsense();
-    SEGGER_RTT_printf(0, "Here\n");
     my_setup_capsense();
-    SEGGER_RTT_printf(0, "There\n");
 
     for (;;) {
         SEGGER_RTT_printf(0, "Count %u %u\n", touch_count0, touch_count1);
