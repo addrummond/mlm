@@ -835,7 +835,7 @@ S1
 Text GLabel 5750 4100 0    50   Input ~ 0
 S3
 Text GLabel 8800 3700 2    50   Input ~ 0
-S4
+S2
 Wire Wire Line
 	6400 3500 6150 3500
 Wire Wire Line
@@ -1559,7 +1559,7 @@ Text GLabel 7600 2600 1    50   Input ~ 0
 REGMODE
 NoConn ~ 5450 6250
 Text GLabel 8800 3500 2    50   Input ~ 0
-S2
+S4
 $Comp
 L mlm:EFM32TG108 IC3
 U 1 1 5C23B73F
