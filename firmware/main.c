@@ -165,9 +165,9 @@ int main()
     CMU_ClockEnable(cmuClock_GPIO, true);
 
     CMU_ClockEnable(cmuClock_CORELE, true);
-    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
-    CMU_OscillatorEnable(cmuOsc_LFXO, true, true);
-    CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFXO);
+    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
+    CMU_OscillatorEnable(cmuOsc_LFRCO, true, true);
+    CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFRCO);
     CMU_ClockEnable(cmuClock_RTC, true);
 
     rtt_init();
@@ -177,15 +177,14 @@ int main()
 
     sensor_init();
     delay_ms(100);
-    sensor_turn_on();
+    //sensor_turn_on();
     delay_ms(100);
     //uint8_t status = sensor_read_reg(REG_ALS_STATUS);
     //SEGGER_RTT_printf(0, "Status %u\n", status);
-    uint8_t part_id = sensor_read_reg(REG_MANUFAC_ID);
-    SEGGER_RTT_printf(0, "Part id %u\n", part_id);
-    sensor_write_reg(REG_ALS_CONTR, 0b1110000);
-    delay_ms(100);
-    //SEGGER_RTT_printf(0, "Status af %u\n", status);
+    uint8_t manuf_id = sensor_read_reg(REG_MANUFAC_ID);
+    SEGGER_RTT_printf(0, "Manuf id %u\n", manuf_id);
+    manuf_id = sensor_read_reg(REG_MANUFAC_ID);
+    SEGGER_RTT_printf(0, "Manuf id [2] %u\n", manuf_id);
     for (;;) { }
 
     /*sensor_turn_on();
