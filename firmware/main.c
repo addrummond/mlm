@@ -10,6 +10,7 @@
 #include <em_timer.h>
 #include <rtt.h>
 #include <leds.h>
+#include <sensor.h>
 #include <utilities.h>
 
 #define RTC_FREQ 32768
@@ -163,6 +164,8 @@ int main()
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
 
+    CMU_ClockEnable(cmuClock_CORELE, true);
+    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
     CMU_OscillatorEnable(cmuOsc_LFXO, true, true);
     CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFXO);
     CMU_ClockEnable(cmuClock_RTC, true);
@@ -172,6 +175,14 @@ int main()
 
     leds_all_off();
 
+    sensor_init();
+    SEGGER_RTT_printf(0, "BEFORE DELAY\n");
+    delay_ms(100);
+    SEGGER_RTT_printf(0, "AFTER DELAY\n");
+    sensor_turn_on();
+
+
+/*
     setup_utilities();
     //setup_capsense();
     my_setup_capsense();
@@ -188,6 +199,7 @@ int main()
 
         delay(10);
     }
+*/
 
     /*for (unsigned i = 1;; ++i) {
         leds_all_off();
