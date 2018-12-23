@@ -109,7 +109,6 @@ void sensor_write_reg(uint8_t reg, uint8_t val)
 
 uint8_t sensor_read_reg(uint8_t reg)
 {
-    SEGGER_RTT_printf(0, "Trying to read accel reg.\n");    
     uint8_t wbuf[1];
     wbuf[0] = reg;
     uint8_t rbuf[1];
@@ -127,11 +126,37 @@ uint8_t sensor_read_reg(uint8_t reg)
     return rbuf[0];
 }
 
-uint16_t sensor_get_reading()
+uint16_t sensor_read_reg16(uint8_t reg)
 {
-    uint8_t low = sensor_read_reg(REG_ALS_DATA_CH0_0);
-    uint8_t high = sensor_read_reg(REG_ALS_DATA_CH0_0);
-    return (uint16_t)low | ((uint16_t)high << 8);
+    uint8_t wbuf[1];
+    wbuf[0] = reg;
+    uint8_t rbuf[2];
+    I2C_TransferSeq_TypeDef i2c_transfer = {
+        .addr = SENSOR_I2C_ADDR,
+        .flags = I2C_FLAG_WRITE_READ,
+        .buf[0].data = wbuf,
+        .buf[0].len = sizeof(wbuf)/sizeof(wbuf[0]),
+        .buf[1].data = rbuf,
+        .buf[1].len = sizeof(rbuf)/sizeof(rbuf[0])
+    };
+    int status = I2C_TransferInit(I2C0, &i2c_transfer);
+    while (status == i2cTransferInProgress)
+        status = I2C_Transfer(I2C0);
+    return (uint16_t)rbuf[0] | ((uint16_t)rbuf[1] << 8);
+}
+
+sensor_reading sensor_get_reading()
+{
+//    uint8_t stat;
+//    while (! ((stat = sensor_read_reg(REG_ALS_STATUS)) & 0b100)) {
+//        SEGGER_RTT_printf(0, "Status %u\n", stat);
+//    }
+
+    sensor_reading r;
+    r.chan1 = sensor_read_reg16(REG_ALS_DATA_CH1_0);
+    r.chan0 = sensor_read_reg16(REG_ALS_DATA_CH0_0);
+
+    return r;
 }
 
 void sensor_turn_on()

@@ -176,14 +176,14 @@ int main()
     leds_all_off();
 
     sensor_init();
-    SEGGER_RTT_printf(0, "BEFORE DELAY\n");
     delay_ms(100);
-    SEGGER_RTT_printf(0, "AFTER DELAY\n");
     sensor_turn_on();
+    delay_ms(100);
 
     for (;;) {
-        uint16_t r = sensor_get_reading();
-        SEGGER_RTT_printf(0, "READING %u (low=%u, high=%u)\n", r, r&0xFF, r>>8);
+        sensor_reading sr = sensor_get_reading();
+        SEGGER_RTT_printf(0, "READING %u %u\n", sr.chan0, sr.chan1);
+        for (;;) { }
         delay_ms(500);
     }
 
