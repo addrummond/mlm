@@ -1577,9 +1577,9 @@ Wire Wire Line
 Wire Wire Line
 	6400 4500 5750 4500
 Text GLabel 5750 4300 0    50   Input ~ 0
-DPIN5
+DPIN4
 Text GLabel 5750 4500 0    50   Input ~ 0
-DPIN6
+DPIN5
 Wire Wire Line
 	8600 3500 8800 3500
 Wire Wire Line
