@@ -24,6 +24,10 @@ void sensor_init()
     GPIO_PinModeSet(SENSOR_I2C_PORT, SENSOR_I2C_SCL_PIN, gpioModeWiredAndFilter, 1); // configure SCL pin as open drain output
     GPIO_PinModeSet(SENSOR_I2C_PORT, SENSOR_I2C_SDA_PIN, gpioModeWiredAndFilter, 1); // configure SDA pin as open drain output  
 
+    unsigned scl = GPIO_PinInGet(SENSOR_I2C_PORT, SENSOR_I2C_SCL_PIN);
+    unsigned sda = GPIO_PinInGet(SENSOR_I2C_PORT, SENSOR_I2C_SDA_PIN);
+    SEGGER_RTT_printf(0, "Pins scl sda %u %u\n", scl, sda);
+
     I2C0->ROUTE = I2C_ROUTE_SDAPEN | I2C_ROUTE_SCLPEN | (6 << _I2C_ROUTE_LOCATION_SHIFT);
     I2C0->CTRL = I2C_CTRL_AUTOACK | I2C_CTRL_AUTOSN;
 
