@@ -181,6 +181,12 @@ int main()
     SEGGER_RTT_printf(0, "AFTER DELAY\n");
     sensor_turn_on();
 
+    for (;;) {
+        uint16_t r = sensor_get_reading();
+        SEGGER_RTT_printf(0, "READING %u (low=%u, high=%u)\n", r, r&0xFF, r>>8);
+        delay_ms(500);
+    }
+
 
 /*
     setup_utilities();
