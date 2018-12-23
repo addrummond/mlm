@@ -179,13 +179,24 @@ int main()
     delay_ms(100);
     sensor_turn_on();
     delay_ms(100);
+    //uint8_t status = sensor_read_reg(REG_ALS_STATUS);
+    //SEGGER_RTT_printf(0, "Status %u\n", status);
+    uint8_t part_id = sensor_read_reg(REG_MANUFAC_ID);
+    SEGGER_RTT_printf(0, "Part id %u\n", part_id);
+    sensor_write_reg(REG_ALS_CONTR, 0b1110000);
+    delay_ms(100);
+    //SEGGER_RTT_printf(0, "Status af %u\n", status);
+    for (;;) { }
+
+    /*sensor_turn_on();
+    delay_ms(100);
 
     for (;;) {
         sensor_reading sr = sensor_get_reading();
         SEGGER_RTT_printf(0, "READING %u %u\n", sr.chan0, sr.chan1);
         for (;;) { }
         delay_ms(500);
-    }
+    }*/
 
 
 /*

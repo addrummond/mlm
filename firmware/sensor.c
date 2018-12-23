@@ -13,22 +13,6 @@
 #define SENSOR_INT_PORT       gpioPortF
 #define SENSOR_INT_PIN        21
 
-#define REG_ALS_CONTR         0x80
-#define REG_ALS_MEAS_RATE     0x85
-#define REG_PART_ID           0x86
-#define REG_MANUFAC_ID        0x87
-#define REG_ALS_DATA_CH1_0    0x88
-#define REG_ALS_DATA_CH1_1    0x89
-#define REG_ALS_DATA_CH0_0    0x8A
-#define REG_ALS_DATA_CH0_1    0x8B
-#define REG_ALS_STATUS        0x8C
-#define REG_INTERRUPT         0x8F
-#define REG_ALS_THRES_UP_0    0x97
-#define REG_ALS_THRES_UP_1    0x98
-#define REG_ALS_THRES_LOW_0   0x99
-#define REG_ALS_THRES_LOW_1   0x9A
-#define REG_INTERRUPT_PERSIST 0x9E
-
 void sensor_init()
 {
     SEGGER_RTT_printf(0, "Starting sensor initialization..\n");
@@ -62,7 +46,7 @@ void sensor_init()
         .master = true,
         .refFreq = 0,
         .freq = I2C_FREQ_STANDARD_MAX,
-        .clhr = i2cClockHLRAsymetric
+        .clhr = i2cClockHLRStandard//i2cClockHLRAsymetric
     };
 
     I2C_Init(I2C0, &i2c_init);
@@ -93,16 +77,16 @@ void sensor_write_reg(uint8_t reg, uint8_t val)
     uint8_t wbuf[] = { reg, val };
     I2C_TransferSeq_TypeDef i2c_transfer = {
         .addr = SENSOR_I2C_ADDR,
-        .flags = I2C_FLAG_WRITE_WRITE,
+        .flags = I2C_FLAG_WRITE,
         .buf[0].data = wbuf,
-        .buf[0].len = sizeof(wbuf)/sizeof(wbuf[0])
+        .buf[0].len = sizeof(wbuf)/sizeof(wbuf[0]),
     };
     SEGGER_RTT_printf(0, "Starting transfer..\n");
     int status = I2C_TransferInit(I2C0, &i2c_transfer);
     while (status == i2cTransferInProgress) {
-        print_stat(status);
         status = I2C_Transfer(I2C0);
     }
+    print_stat(status);
     SEGGER_RTT_printf(0, "Ending transfer..\n");
     print_stat(status);
 }
@@ -161,5 +145,5 @@ sensor_reading sensor_get_reading()
 
 void sensor_turn_on()
 {
-    sensor_write_reg(REG_ALS_CONTR, 0b00000001);
+    sensor_write_reg(REG_ALS_CONTR, 0b00000011);
 }
