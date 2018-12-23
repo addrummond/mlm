@@ -46,7 +46,7 @@ void sensor_init()
         .master = true,
         .refFreq = 0,
         .freq = I2C_FREQ_STANDARD_MAX,
-        .clhr = i2cClockHLRStandard//i2cClockHLRAsymetric
+        .clhr = i2cClockHLRAsymetric
     };
 
     I2C_Init(I2C0, &i2c_init);
@@ -70,6 +70,8 @@ static void print_stat(int status)
         SEGGER_RTT_printf(0, "S: USAGE FAULT\n");
     else if (status == -5)
         SEGGER_RTT_printf(0, "S: SW FAULT\n");
+    else
+        SEGGER_RTT_printf(0, "S: UNKNOWN %i\n", status);
 }
 
 void sensor_write_reg(uint8_t reg, uint8_t val)
@@ -83,6 +85,7 @@ void sensor_write_reg(uint8_t reg, uint8_t val)
     };
     SEGGER_RTT_printf(0, "Starting transfer..\n");
     int status = I2C_TransferInit(I2C0, &i2c_transfer);
+    print_stat(status);
     while (status == i2cTransferInProgress) {
         status = I2C_Transfer(I2C0);
     }
@@ -105,8 +108,11 @@ uint8_t sensor_read_reg(uint8_t reg)
         .buf[1].len = sizeof(rbuf)/sizeof(rbuf[0])
     };
     int status = I2C_TransferInit(I2C0, &i2c_transfer);
+    SEGGER_RTT_printf(0, "Status 1... [%u] [%u]\n",i2cTransferInProgress, status);
     while (status == i2cTransferInProgress)
         status = I2C_Transfer(I2C0);
+    SEGGER_RTT_printf(0, "Status 1... [%u] [%u]\n",i2cTransferInProgress, status);
+    print_stat(status);
     return rbuf[0];
 }
 
