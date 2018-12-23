@@ -45,13 +45,13 @@ void sensor_init()
         GPIO_PinModeSet(SENSOR_I2C_PORT, SENSOR_I2C_SCL_PIN, gpioModeWiredAndFilter, 1);
     }
 
-    I2C_Init_TypeDef i2c_init = {
+    I2C_Init_TypeDef i2c_init = I2C_INIT_DEFAULT; /*{
         .enable = true,
         .master = true,
         .refFreq = 0,
         .freq = I2C_FREQ_STANDARD_MAX,
         .clhr = i2cClockHLRAsymetric
-    };
+    };*/
 
     I2C_Init(I2C0, &i2c_init);
     NVIC_ClearPendingIRQ(I2C0_IRQn);
