@@ -675,15 +675,11 @@ Wire Wire Line
 	3400 2500 4250 2500
 Text GLabel 6500 950  2    50   Input ~ 0
 MAINBUT
-Wire Wire Line
-	7200 5100 7200 5300
-Text GLabel 7200 5300 3    50   Input ~ 0
+Text GLabel 7200 5600 3    50   Input ~ 0
 DPIN1
-Wire Wire Line
-	8600 4500 8800 4500
-Text GLabel 8800 4500 2    50   Input ~ 0
+Text GLabel 9050 4500 2    50   Input ~ 0
 DPIN2
-Text GLabel 8800 4300 2    50   Input ~ 0
+Text GLabel 9050 4300 2    50   Input ~ 0
 DPIN3
 Wire Wire Line
 	7600 5100 7600 5300
@@ -836,8 +832,6 @@ Text GLabel 5750 4100 0    50   Input ~ 0
 S3
 Text GLabel 8800 3700 2    50   Input ~ 0
 S2
-Wire Wire Line
-	8600 4300 8800 4300
 Wire Wire Line
 	8600 3900 9200 3900
 $Comp
@@ -1209,7 +1203,7 @@ Text GLabel 8700 1750 2    50   Input ~ 0
 PVREG
 Text GLabel 8700 2100 2    50   Input ~ 0
 PVREG
-Text GLabel 6150 3100 1    50   Input ~ 0
+Text GLabel 6150 2950 1    50   Input ~ 0
 DPIN6
 Wire Wire Line
 	7800 2650 7800 2900
@@ -1555,10 +1549,6 @@ F 4 "EFM32TG108F32" H 7500 4000 50  0001 C CNN "MPN"
 	1    7500 4000
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	6400 4300 5750 4300
-Wire Wire Line
-	6400 4500 5750 4500
 Text GLabel 5750 4300 0    50   Input ~ 0
 DPIN4
 Text GLabel 5750 4500 0    50   Input ~ 0
@@ -1567,10 +1557,6 @@ Wire Wire Line
 	8600 3500 8800 3500
 Wire Wire Line
 	8600 3700 8800 3700
-Wire Wire Line
-	6150 3500 6150 3100
-Wire Wire Line
-	6400 3500 6150 3500
 Wire Wire Line
 	7600 2700 8200 2700
 Connection ~ 7600 2700
@@ -1594,4 +1580,102 @@ Wire Wire Line
 	5450 6250 5600 6250
 Text GLabel 5600 6250 2    50   Input ~ 0
 SENSORINT
+$Comp
+L device:R R?
+U 1 1 5C2B57A8
+P 6050 4300
+F 0 "R?" V 5843 4300 50  0000 C CNN
+F 1 "27" V 5934 4300 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603" V 5980 4300 50  0001 C CNN
+F 3 "~" H 6050 4300 50  0001 C CNN
+F 4 "RMCF0603FT27R0" H -2350 2550 50  0001 C CNN "MPN"
+	1    6050 4300
+	0    1    1    0   
+$EndComp
+$Comp
+L device:R R?
+U 1 1 5C2B6215
+P 6050 4500
+F 0 "R?" V 5843 4500 50  0000 C CNN
+F 1 "27" V 5934 4500 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603" V 5980 4500 50  0001 C CNN
+F 3 "~" H 6050 4500 50  0001 C CNN
+F 4 "RMCF0603FT27R0" H -2350 2750 50  0001 C CNN "MPN"
+	1    6050 4500
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5750 4300 5900 4300
+Wire Wire Line
+	6200 4300 6400 4300
+Wire Wire Line
+	5750 4500 5900 4500
+Wire Wire Line
+	6200 4500 6400 4500
+$Comp
+L device:R R?
+U 1 1 5C3277CC
+P 8850 4500
+F 0 "R?" V 8643 4500 50  0000 C CNN
+F 1 "27" V 8734 4500 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603" V 8780 4500 50  0001 C CNN
+F 3 "~" H 8850 4500 50  0001 C CNN
+F 4 "RMCF0603FT27R0" H 450 2750 50  0001 C CNN "MPN"
+	1    8850 4500
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	8600 4500 8700 4500
+Wire Wire Line
+	9000 4500 9050 4500
+$Comp
+L device:R R?
+U 1 1 5C344478
+P 8850 4300
+F 0 "R?" V 8643 4300 50  0000 C CNN
+F 1 "27" V 8734 4300 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603" V 8780 4300 50  0001 C CNN
+F 3 "~" H 8850 4300 50  0001 C CNN
+F 4 "RMCF0603FT27R0" H 450 2550 50  0001 C CNN "MPN"
+	1    8850 4300
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	8600 4300 8700 4300
+Wire Wire Line
+	9000 4300 9050 4300
+$Comp
+L device:R R?
+U 1 1 5C362139
+P 6150 3200
+F 0 "R?" V 5943 3200 50  0000 C CNN
+F 1 "27" V 6034 3200 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603" V 6080 3200 50  0001 C CNN
+F 3 "~" H 6150 3200 50  0001 C CNN
+F 4 "RMCF0603FT27R0" H -2250 1450 50  0001 C CNN "MPN"
+	1    6150 3200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6150 2950 6150 3050
+Wire Wire Line
+	6150 3350 6150 3500
+Wire Wire Line
+	6150 3500 6400 3500
+$Comp
+L device:R R?
+U 1 1 5C3C7899
+P 7200 5350
+F 0 "R?" V 6993 5350 50  0000 C CNN
+F 1 "27" V 7084 5350 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603" V 7130 5350 50  0001 C CNN
+F 3 "~" H 7200 5350 50  0001 C CNN
+F 4 "RMCF0603FT27R0" H -1200 3600 50  0001 C CNN "MPN"
+	1    7200 5350
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	7200 5100 7200 5200
+Wire Wire Line
+	7200 5500 7200 5600
 $EndSCHEMATC
