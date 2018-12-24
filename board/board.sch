@@ -1206,9 +1206,7 @@ PVREG
 Text GLabel 6150 2950 1    50   Input ~ 0
 DPIN6
 Wire Wire Line
-	7800 2650 7800 2900
-Wire Wire Line
-	8000 2650 8000 2900
+	7800 2650 7800 2700
 Connection ~ 7400 2100
 Wire Wire Line
 	7400 2100 7400 2900
@@ -1531,8 +1529,6 @@ Wire Wire Line
 	2550 6050 2750 6050
 Text GLabel 2550 7050 2    50   Input ~ 0
 REGMODE
-Wire Wire Line
-	7600 2900 7600 2700
 Text GLabel 7600 2650 1    50   Input ~ 0
 REGMODE
 Text GLabel 8800 3500 2    50   Input ~ 0
@@ -1557,13 +1553,6 @@ Wire Wire Line
 	8600 3500 8800 3500
 Wire Wire Line
 	8600 3700 8800 3700
-Wire Wire Line
-	7600 2700 8200 2700
-Connection ~ 7600 2700
-Wire Wire Line
-	7600 2700 7600 2650
-Text GLabel 8200 2700 2    50   Input ~ 0
-SENSORINT
 $Comp
 L mlm:LTR303ALS01 IC2
 U 1 1 5C406329
@@ -1678,4 +1667,29 @@ Wire Wire Line
 	7200 5100 7200 5200
 Wire Wire Line
 	7200 5500 7200 5600
+Wire Wire Line
+	7600 2650 7600 2900
+Text GLabel 8650 2700 2    50   Input ~ 0
+SENSORINT
+Wire Wire Line
+	8000 2650 8000 2900
+Connection ~ 7800 2700
+Wire Wire Line
+	7800 2700 7800 2900
+$Comp
+L device:R R?
+U 1 1 5C45B1BF
+P 8300 2700
+F 0 "R?" V 8093 2700 50  0000 C CNN
+F 1 "0" V 8184 2700 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603" V 8230 2700 50  0001 C CNN
+F 3 "~" H 8300 2700 50  0001 C CNN
+F 4 "RMCF0603ZG0R00" H -100 600 50  0001 C CNN "MPN"
+	1    8300 2700
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	7800 2700 8150 2700
+Wire Wire Line
+	8450 2700 8650 2700
 $EndSCHEMATC
