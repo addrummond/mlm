@@ -837,8 +837,6 @@ S3
 Text GLabel 8800 3700 2    50   Input ~ 0
 S2
 Wire Wire Line
-	6400 3500 6150 3500
-Wire Wire Line
 	8600 4300 8800 4300
 Wire Wire Line
 	8600 3900 9200 3900
@@ -1211,8 +1209,6 @@ Text GLabel 8700 1750 2    50   Input ~ 0
 PVREG
 Text GLabel 8700 2100 2    50   Input ~ 0
 PVREG
-Wire Wire Line
-	6150 3500 6150 3100
 Text GLabel 6150 3100 1    50   Input ~ 0
 DPIN6
 Wire Wire Line
@@ -1304,18 +1300,6 @@ F 2 "" H 4500 6150 50  0001 C CNN
 F 3 "" H 4500 6150 50  0001 C CNN
 	1    4500 6150
 	0    1    1    0   
-$EndComp
-$Comp
-L mlm:LTR303ALS01 IC2
-U 1 1 5C406329
-P 5050 6150
-F 0 "IC2" H 5100 6515 50  0000 C CNN
-F 1 "LTR-303ALS-01" H 5100 6424 50  0000 C CNN
-F 2 "mlm:LTR303ALS01" H 5050 6150 50  0001 C CNN
-F 3 "" H 5050 6150 50  0001 C CNN
-F 4 "LTR-303ALS-01" H 0   0   50  0001 C CNN "MPN"
-	1    5050 6150
-	1    0    0    -1  
 $EndComp
 $Comp
 L mlm:tps610986 IC1
@@ -1554,10 +1538,9 @@ Wire Wire Line
 Text GLabel 2550 7050 2    50   Input ~ 0
 REGMODE
 Wire Wire Line
-	7600 2900 7600 2650
+	7600 2900 7600 2700
 Text GLabel 7600 2650 1    50   Input ~ 0
 REGMODE
-NoConn ~ 5450 6250
 Text GLabel 8800 3500 2    50   Input ~ 0
 S4
 $Comp
@@ -1584,4 +1567,31 @@ Wire Wire Line
 	8600 3500 8800 3500
 Wire Wire Line
 	8600 3700 8800 3700
+Wire Wire Line
+	6150 3500 6150 3100
+Wire Wire Line
+	6400 3500 6150 3500
+Wire Wire Line
+	7600 2700 8200 2700
+Connection ~ 7600 2700
+Wire Wire Line
+	7600 2700 7600 2650
+Text GLabel 8200 2700 2    50   Input ~ 0
+SENSORINT
+$Comp
+L mlm:LTR303ALS01 IC2
+U 1 1 5C406329
+P 5050 6150
+F 0 "IC2" H 5100 6515 50  0000 C CNN
+F 1 "LTR-303ALS-01" H 5100 6424 50  0000 C CNN
+F 2 "mlm:LTR303ALS01" H 5050 6150 50  0001 C CNN
+F 3 "" H 5050 6150 50  0001 C CNN
+F 4 "LTR-303ALS-01" H 0   0   50  0001 C CNN "MPN"
+	1    5050 6150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5450 6250 5600 6250
+Text GLabel 5600 6250 2    50   Input ~ 0
+SENSORINT
 $EndSCHEMATC
