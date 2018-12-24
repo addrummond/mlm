@@ -1554,8 +1554,8 @@ Wire Wire Line
 Text GLabel 2550 7050 2    50   Input ~ 0
 REGMODE
 Wire Wire Line
-	7600 2900 7600 2600
-Text GLabel 7600 2600 1    50   Input ~ 0
+	7600 2900 7600 2650
+Text GLabel 7600 2650 1    50   Input ~ 0
 REGMODE
 NoConn ~ 5450 6250
 Text GLabel 8800 3500 2    50   Input ~ 0
