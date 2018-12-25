@@ -53,3 +53,8 @@ http://www.farnell.com/datasheets/71091.pdf
 Very cheap 0603 LED:
 
 https://www.digikey.co.uk/product-detail/en/wurth-electronics-inc/150060RS75000/732-4978-1-ND/4489899
+
+
+
+Top layer component heights:
+
