@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 75)
+    (drawings 76)
     (tracks 1135)
     (zones 0)
     (modules 66)
@@ -2236,6 +2236,7 @@
     (pad 1 np_thru_hole circle (at 0 0) (size 2.2 2.2) (drill 2.2) (layers *.Cu *.Mask))
   )
 
+  (gr_circle (center 100 132.78) (end 110 132.78) (layer F.SilkS) (width 0.5) (tstamp 5C226534))
   (gr_text SWDIO (at 112.28 65.88) (layer F.SilkS)
     (effects (font (size 1.5 1.5) (thickness 0.3)))
   )
