@@ -684,7 +684,7 @@ DPIN3
 Wire Wire Line
 	7600 5100 7600 5300
 Text GLabel 7600 5300 3    50   Input ~ 0
-MAINBUT
+REGMODE
 Wire Wire Line
 	7200 2900 7200 2650
 Wire Wire Line
@@ -1530,7 +1530,7 @@ Wire Wire Line
 Text GLabel 2550 7050 2    50   Input ~ 0
 REGMODE
 Text GLabel 7600 2650 1    50   Input ~ 0
-REGMODE
+MAINBUT
 Text GLabel 8800 3500 2    50   Input ~ 0
 S4
 $Comp
