@@ -1692,4 +1692,49 @@ Wire Wire Line
 	7800 2700 8150 2700
 Wire Wire Line
 	8450 2700 8650 2700
+$Comp
+L Connector:TestPoint TP1
+U 1 1 5C4A9582
+P 9700 2700
+F 0 "TP1" V 9895 2772 50  0000 C CNN
+F 1 "TestPoint" V 9804 2772 50  0000 C CNN
+F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 9900 2700 50  0001 C CNN
+F 3 "~" H 9900 2700 50  0001 C CNN
+	1    9700 2700
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Connector:TestPoint TP2
+U 1 1 5C4AA1A8
+P 9700 3000
+F 0 "TP2" V 9895 3072 50  0000 C CNN
+F 1 "TestPoint" V 9804 3072 50  0000 C CNN
+F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 9900 3000 50  0001 C CNN
+F 3 "~" H 9900 3000 50  0001 C CNN
+	1    9700 3000
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Connector:TestPoint TP3
+U 1 1 5C4AA480
+P 9700 3350
+F 0 "TP3" V 9895 3422 50  0000 C CNN
+F 1 "TestPoint" V 9804 3422 50  0000 C CNN
+F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 9900 3350 50  0001 C CNN
+F 3 "~" H 9900 3350 50  0001 C CNN
+	1    9700 3350
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	9700 2700 10000 2700
+Wire Wire Line
+	9700 3000 10000 3000
+Wire Wire Line
+	9700 3350 10000 3350
+Text GLabel 10000 2700 2    50   Input ~ 0
+VBAT
+Text GLabel 10000 3000 2    50   Input ~ 0
+SCL
+Text GLabel 10000 3350 2    50   Input ~ 0
+SDA
 $EndSCHEMATC
