@@ -58,3 +58,4 @@ https://www.digikey.co.uk/product-detail/en/wurth-electronics-inc/150060RS75000/
 
 Top layer component heights:
 
+EFM32 0.9 (max)
