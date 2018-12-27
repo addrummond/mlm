@@ -59,3 +59,17 @@ https://www.digikey.co.uk/product-detail/en/wurth-electronics-inc/150060RS75000/
 Top layer component heights:
 
 EFM32 0.9 (max)
+
+
+
+Set ISO
+Set aperture
+Set shutter speed    
+
+Fix one; other two vary via slider.
+
+Showing an exposure:
+
+LEDs for relevant aperture and shutter speed are on.
+LED for ISO flashes.
+Fix 
