@@ -1695,46 +1695,61 @@ Wire Wire Line
 $Comp
 L Connector:TestPoint TP1
 U 1 1 5C4A9582
-P 9700 2700
-F 0 "TP1" V 9895 2772 50  0000 C CNN
-F 1 "TestPoint" V 9804 2772 50  0000 C CNN
-F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 9900 2700 50  0001 C CNN
-F 3 "~" H 9900 2700 50  0001 C CNN
-	1    9700 2700
+P 5000 1250
+F 0 "TP1" V 5195 1322 50  0000 C CNN
+F 1 "TestPoint" V 5104 1322 50  0000 C CNN
+F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 5200 1250 50  0001 C CNN
+F 3 "~" H 5200 1250 50  0001 C CNN
+	1    5000 1250
 	0    -1   -1   0   
 $EndComp
 $Comp
 L Connector:TestPoint TP2
 U 1 1 5C4AA1A8
-P 9700 3000
-F 0 "TP2" V 9895 3072 50  0000 C CNN
-F 1 "TestPoint" V 9804 3072 50  0000 C CNN
-F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 9900 3000 50  0001 C CNN
-F 3 "~" H 9900 3000 50  0001 C CNN
-	1    9700 3000
+P 5000 1550
+F 0 "TP2" V 5195 1622 50  0000 C CNN
+F 1 "TestPoint" V 5104 1622 50  0000 C CNN
+F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 5200 1550 50  0001 C CNN
+F 3 "~" H 5200 1550 50  0001 C CNN
+	1    5000 1550
 	0    -1   -1   0   
 $EndComp
 $Comp
 L Connector:TestPoint TP3
 U 1 1 5C4AA480
-P 9700 3350
-F 0 "TP3" V 9895 3422 50  0000 C CNN
-F 1 "TestPoint" V 9804 3422 50  0000 C CNN
-F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 9900 3350 50  0001 C CNN
-F 3 "~" H 9900 3350 50  0001 C CNN
-	1    9700 3350
+P 5000 1900
+F 0 "TP3" V 5195 1972 50  0000 C CNN
+F 1 "TestPoint" V 5104 1972 50  0000 C CNN
+F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 5200 1900 50  0001 C CNN
+F 3 "~" H 5200 1900 50  0001 C CNN
+	1    5000 1900
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
-	9700 2700 10000 2700
+	5000 1250 5300 1250
 Wire Wire Line
-	9700 3000 10000 3000
+	5000 1550 5300 1550
 Wire Wire Line
-	9700 3350 10000 3350
-Text GLabel 10000 2700 2    50   Input ~ 0
+	5000 1900 5300 1900
+Text GLabel 5300 1250 2    50   Input ~ 0
 VBAT
-Text GLabel 10000 3000 2    50   Input ~ 0
+Text GLabel 5300 1550 2    50   Input ~ 0
 SCL
-Text GLabel 10000 3350 2    50   Input ~ 0
+Text GLabel 5300 1900 2    50   Input ~ 0
 SDA
+$Comp
+L Connector:TestPoint TP?
+U 1 1 5C4E93D6
+P 5000 2250
+F 0 "TP?" V 5195 2322 50  0000 C CNN
+F 1 "TestPoint" V 5104 2322 50  0000 C CNN
+F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 5200 2250 50  0001 C CNN
+F 3 "~" H 5200 2250 50  0001 C CNN
+	1    5000 2250
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	5000 2250 5300 2250
+Text GLabel 5300 2250 2    50   Input ~ 0
+PVREG
 $EndSCHEMATC
