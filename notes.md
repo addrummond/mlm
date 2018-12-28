@@ -72,4 +72,5 @@ Showing an exposure:
 
 LEDs for relevant aperture and shutter speed are on.
 LED for ISO flashes.
-Fix 
+
+Compensation shown by 
