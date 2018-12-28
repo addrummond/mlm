@@ -1738,10 +1738,10 @@ SCL
 Text GLabel 5300 1900 2    50   Input ~ 0
 SDA
 $Comp
-L Connector:TestPoint TP?
+L Connector:TestPoint TP4
 U 1 1 5C4E93D6
 P 5000 2250
-F 0 "TP?" V 5195 2322 50  0000 C CNN
+F 0 "TP4" V 5195 2322 50  0000 C CNN
 F 1 "TestPoint" V 5104 2322 50  0000 C CNN
 F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 5200 2250 50  0001 C CNN
 F 3 "~" H 5200 2250 50  0001 C CNN
