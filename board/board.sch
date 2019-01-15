@@ -1312,8 +1312,6 @@ F 3 "" H 2700 5650 50  0001 C CNN
 	1    2700 5650
 	0    -1   -1   0   
 $EndComp
-Text GLabel 1300 6050 0    50   Input ~ 0
-VBAT
 $Comp
 L pspice:CAP C3
 U 1 1 5C51EE93
@@ -1389,9 +1387,7 @@ F 3 "" H 3250 6500 50  0001 C CNN
 	1    3250 6500
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	1650 5650 950  5650
-Text GLabel 800  5650 3    50   Input ~ 0
+Text GLabel 800  5650 0    50   Input ~ 0
 VREG
 $Comp
 L pspice:CAP C1
@@ -1406,8 +1402,6 @@ F 4 "GRM188R60J106ME84D" V 950 5300 50  0001 C CNN "MPN"
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	950  5550 950  5650
-Wire Wire Line
 	950  5050 950  4950
 $Comp
 L power:GND #PWR01
@@ -1420,7 +1414,6 @@ F 3 "" H 950 4950 50  0001 C CNN
 	1    950  4950
 	-1   0    0    1   
 $EndComp
-Connection ~ 950  5650
 Wire Wire Line
 	950  5650 800  5650
 Wire Wire Line
@@ -1490,10 +1483,7 @@ F 3 "" H 1550 4950 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	1300 6050 1400 6050
-Wire Wire Line
 	1400 6200 1400 6050
-Connection ~ 1400 6050
 Wire Wire Line
 	1400 6050 1550 6050
 Wire Wire Line
@@ -1678,7 +1668,7 @@ F 0 "R12" V 8093 2700 50  0000 C CNN
 F 1 "0" V 8184 2700 50  0000 C CNN
 F 2 "Resistors_SMD:R_0603" V 8230 2700 50  0001 C CNN
 F 3 "~" H 8300 2700 50  0001 C CNN
-F 4 "CR0603-J/-000ELF" H -100 600 50  0001 C CNN "MPN"
+F 4 "RMCF0603ZG0R00" H -100 600 50  0001 C CNN "MPN"
 	1    8300 2700
 	0    1    1    0   
 $EndComp
@@ -1775,4 +1765,14 @@ Wire Wire Line
 	8250 750  8650 750 
 Wire Wire Line
 	8050 1200 8050 1050
+Wire Wire Line
+	950  5550 950  5650
+Connection ~ 950  5650
+Wire Wire Line
+	1650 5650 950  5650
+Wire Wire Line
+	950  5850 800  5850
+Connection ~ 950  5850
+Text GLabel 800  5850 0    50   Input ~ 0
+VBAT
 $EndSCHEMATC
