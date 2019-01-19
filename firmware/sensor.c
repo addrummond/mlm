@@ -19,10 +19,6 @@ void sensor_init()
 
     CMU_ClockEnable(cmuClock_I2C0, true);
 
-    // This is now the SWDIO pin, gotta be careful how we configure it while
-    // programmer is connected.
-//    GPIO_PinModeSet(SENSOR_INT_PORT, SENSOR_INT_PIN, gpioModeWiredAndPullUp, 1);
-
     GPIO_PinModeSet(SENSOR_I2C_PORT, SENSOR_I2C_SCL_PIN, gpioModeWiredAndFilter, 1); // configure SCL pin as open drain output
     GPIO_PinModeSet(SENSOR_I2C_PORT, SENSOR_I2C_SDA_PIN, gpioModeWiredAndFilter, 1); // configure SDA pin as open drain output  
 
@@ -87,38 +83,14 @@ void sensor_write_reg(uint8_t reg, uint8_t val)
         .buf[0].data = wbuf,
         .buf[0].len = 2
     };
-    //SEGGER_RTT_printf(0, "Starting transfer..\n");
     int status = I2C_TransferInit(I2C0, &i2c_transfer);
-    //print_stat(status);
-    //while (status == i2cTransferInProgress) {
     while (status != i2cTransferDone) {
         status = I2C_Transfer(I2C0);
     }
-    //print_stat(status);
-    //SEGGER_RTT_printf(0, "Ending transfer.,.\n");
-    //print_stat(status);
 }
 
 uint8_t sensor_read_reg(uint8_t reg)
 {
-    /*SEGGER_RTT_printf(0, "Reading register...\n");
-    uint8_t wbuf[1];
-    wbuf[0] = reg;
-    uint8_t rbuf[1];
-    I2C_TransferSeq_TypeDef i2c_transfer = {
-        .addr = SENSOR_I2C_ADDR,
-        .flags = I2C_FLAG_WRITE_READ,
-        .buf[0].data = wbuf,
-        .buf[0].len = sizeof(wbuf)/sizeof(wbuf[0]),
-        .buf[1].data = rbuf,
-        .buf[1].len = sizeof(rbuf)/sizeof(rbuf[0])
-    };
-    int status = I2C_TransferInit(I2C0, &i2c_transfer);
-    while (status == i2cTransferInProgress)
-        status = I2C_Transfer(I2C0);
-    print_stat(status);
-    SEGGER_RTT_printf(0, "Done reading reg.\n");
-    return rbuf[0];*/
     return (uint8_t)(sensor_read_reg16(reg) & 0xFF);
 }
 
@@ -144,7 +116,7 @@ uint16_t sensor_read_reg16(uint8_t reg)
 sensor_reading sensor_get_reading()
 {
 //    uint8_t stat;
-//    while (! ((stat = sensor_read_reg(REG_ALS_STATUS)) & 0b100))
+//    while (! ((stat = sensor_read_reg(REG_ALS_STATUS)) & 0b10))
 //        ;
 
     sensor_reading r;
