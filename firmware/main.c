@@ -200,7 +200,7 @@ int main()
 
     // ********** CAPSENSE TEST **********
 
-    my_setup_capsense();
+    /*my_setup_capsense();
 
     for (unsigned i = 0;; i++) {
         if (i % (4*6) == 0) {
@@ -213,7 +213,7 @@ int main()
         my_cycle_capsense();
 
         delay_ms(10);
-    }
+    }*/
 
     // ********** LED TEST **********
 
