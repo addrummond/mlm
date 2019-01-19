@@ -11,7 +11,6 @@
 #include <rtt.h>
 #include <leds.h>
 #include <sensor.h>
-#include <utilities.h>
 
 #define RTC_FREQ 32768
 
@@ -199,7 +198,6 @@ int main()
 
 
 /*
-    setup_utilities();
     //setup_capsense();
     my_setup_capsense();
 
@@ -213,7 +211,7 @@ int main()
 
         my_cycle_capsense();
 
-        delay(10);
+        delay_ms(10);
     }
 */
 
