@@ -184,8 +184,8 @@ int main()
     // Turn on the LDO to power up the sensor.
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
-    for (;;);
-    delay_ms(100);
+    delay_ms(100); // make sure LDO has time to start up and sensor has time to
+                   // power up
 
     sensor_init();
     delay_ms(100);

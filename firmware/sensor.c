@@ -73,7 +73,7 @@ static void print_stat(int status)
     else if (status == -5)
         SEGGER_RTT_printf(0, "S: SW FAULT\n");
     else
-        SEGGER_RTT_printf(0, "S: UNKNOWN %i\n", status);
+        SEGGER_RTT_printf(0, "S: UNKNOWN %u\n", status);
 }
 
 void sensor_write_reg(uint8_t reg, uint8_t val)
