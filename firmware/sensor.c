@@ -43,7 +43,7 @@ void sensor_init()
         GPIO_PinModeSet(SENSOR_I2C_PORT, SENSOR_I2C_SCL_PIN, gpioModeWiredAndFilter, 1);
     }
 
-    I2C_Init_TypeDef i2c_init = /*I2C_INIT_DEFAULT;*/ {
+    I2C_Init_TypeDef i2c_init = {
         .enable = true,
         .master = true,
         .refFreq = 0,
@@ -62,6 +62,8 @@ static void print_stat(int status)
 {
     if (status == 0)
         SEGGER_RTT_printf(0, "S: I2C done.\n");
+    else if (status == 1)
+        SEGGER_RTT_printf(0, "S: I2C in progress\n");
     else if (status == -1)
         SEGGER_RTT_printf(0, "S: NACK\n");
     else if (status == -2)
@@ -92,12 +94,13 @@ void sensor_write_reg(uint8_t reg, uint8_t val)
         status = I2C_Transfer(I2C0);
     }
     print_stat(status);
-    SEGGER_RTT_printf(0, "Ending transfer..\n");
+    SEGGER_RTT_printf(0, "Ending transfer.,.\n");
     print_stat(status);
 }
 
 uint8_t sensor_read_reg(uint8_t reg)
 {
+    SEGGER_RTT_printf(0, "Reading register...\n");
     uint8_t wbuf[1];
     wbuf[0] = reg;
     uint8_t rbuf[1];
@@ -113,6 +116,7 @@ uint8_t sensor_read_reg(uint8_t reg)
     while (status == i2cTransferInProgress)
         status = I2C_Transfer(I2C0);
     print_stat(status);
+    SEGGER_RTT_printf(0, "Done reading reg.\n");
     return rbuf[0];
 }
 
@@ -137,10 +141,9 @@ uint16_t sensor_read_reg16(uint8_t reg)
 
 sensor_reading sensor_get_reading()
 {
-    uint8_t stat;
-    while (! ((stat = sensor_read_reg(REG_ALS_STATUS)) & 0b100)) {
-        //SEGGER_RTT_printf(0, "Status %u\n", stat);
-    }
+    uint16_t stat;
+    while (! ((stat = sensor_read_reg16(REG_ALS_STATUS)) & 0b100))
+        ;
 
     sensor_reading r;
     r.chan1 = sensor_read_reg16(REG_ALS_DATA_CH1_0);

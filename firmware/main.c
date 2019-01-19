@@ -180,7 +180,6 @@ int main()
 
     // ********** SENSOR TEST **********
 
-
     // Turn on the LDO to power up the sensor.
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
@@ -190,15 +189,15 @@ int main()
     sensor_init();
     delay_ms(100);
     sensor_turn_on();
-    delay_ms(100);
-    uint8_t status = sensor_read_reg(REG_ALS_STATUS);
-    SEGGER_RTT_printf(0, "Status %u\n", status);
-    uint8_t manuf_id = sensor_read_reg(REG_MANUFAC_ID);
+    delay_ms(10);
+    uint16_t status = sensor_read_reg16(REG_ALS_STATUS);
+    SEGGER_RTT_printf(0, "Status after %u\n", status);
+    uint16_t manuf_id = sensor_read_reg16(REG_MANUFAC_ID);
     SEGGER_RTT_printf(0, "Manuf id %u\n", manuf_id);
-    manuf_id = sensor_read_reg(REG_MANUFAC_ID);
-    SEGGER_RTT_printf(0, "Manuf id [2] %u\n", manuf_id);
-
-    for (;;);
+    uint16_t part_id = sensor_read_reg16(REG_PART_ID);
+    SEGGER_RTT_printf(0, "Part id %u\n", part_id);
+//    manuf_id = sensor_read_reg16(REG_MANUFAC_ID);
+//    SEGGER_RTT_printf(0, "Manuf id [2] %u\n", manuf_id);
 
     for (;;) {
         sensor_reading sr = sensor_get_reading();
