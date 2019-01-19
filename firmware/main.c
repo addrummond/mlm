@@ -32,6 +32,7 @@ static uint32_t touch_chan;
 static uint32_t touch_index;
 static bool touch_on = true;
 
+// Capsense pins are PC0 (S1), PC1 (S3), PC14 (S2), PC15 (S4)
 void my_setup_capsense()
 {
     ACMP_CapsenseInit_TypeDef capsenseInit = ACMP_CAPSENSE_INIT_DEFAULT;
@@ -174,7 +175,7 @@ int main()
 
     leds_all_off();
 
-    sensor_init();
+    /*sensor_init();
     delay_ms(100);
     //sensor_turn_on();
     delay_ms(100);
@@ -184,7 +185,7 @@ int main()
     SEGGER_RTT_printf(0, "Manuf id %u\n", manuf_id);
     manuf_id = sensor_read_reg(REG_MANUFAC_ID);
     SEGGER_RTT_printf(0, "Manuf id [2] %u\n", manuf_id);
-    for (;;) { }
+    for (;;) { }*/
 
     /*sensor_turn_on();
     delay_ms(100);
@@ -197,7 +198,8 @@ int main()
     }*/
 
 
-/*
+    // ********** CAPSENSE TEST **********
+
     //setup_capsense();
     my_setup_capsense();
 
@@ -213,15 +215,16 @@ int main()
 
         delay_ms(10);
     }
-*/
 
-    /*for (unsigned i = 1;; ++i) {
+    // ********** LED TEST **********
+
+    for (unsigned i = 1;; ++i) {
         leds_all_off();
         SEGGER_RTT_printf(0, "Led %u\n", i);
         led_on(i);
     
         delay_ms(300);
-    }*/
+    }
 
     return 0;
 }
