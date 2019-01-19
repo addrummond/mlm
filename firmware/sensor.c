@@ -115,10 +115,6 @@ uint16_t sensor_read_reg16(uint8_t reg)
 
 sensor_reading sensor_get_reading()
 {
-//    uint8_t stat;
-//    while (! ((stat = sensor_read_reg(REG_ALS_STATUS)) & 0b10))
-//        ;
-
     sensor_reading r;
     r.chan1 = sensor_read_reg16(REG_ALS_DATA_CH1_0);
     r.chan0 = sensor_read_reg16(REG_ALS_DATA_CH0_0);
