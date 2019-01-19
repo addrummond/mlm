@@ -85,22 +85,23 @@ void sensor_write_reg(uint8_t reg, uint8_t val)
         .addr = SENSOR_I2C_ADDR,
         .flags = I2C_FLAG_WRITE,
         .buf[0].data = wbuf,
-        .buf[0].len = sizeof(wbuf)/sizeof(wbuf[0]),
+        .buf[0].len = 2
     };
-    SEGGER_RTT_printf(0, "Starting transfer..\n");
+    //SEGGER_RTT_printf(0, "Starting transfer..\n");
     int status = I2C_TransferInit(I2C0, &i2c_transfer);
-    print_stat(status);
-    while (status == i2cTransferInProgress) {
+    //print_stat(status);
+    //while (status == i2cTransferInProgress) {
+    while (status != i2cTransferDone) {
         status = I2C_Transfer(I2C0);
     }
-    print_stat(status);
-    SEGGER_RTT_printf(0, "Ending transfer.,.\n");
-    print_stat(status);
+    //print_stat(status);
+    //SEGGER_RTT_printf(0, "Ending transfer.,.\n");
+    //print_stat(status);
 }
 
 uint8_t sensor_read_reg(uint8_t reg)
 {
-    SEGGER_RTT_printf(0, "Reading register...\n");
+    /*SEGGER_RTT_printf(0, "Reading register...\n");
     uint8_t wbuf[1];
     wbuf[0] = reg;
     uint8_t rbuf[1];
@@ -117,7 +118,8 @@ uint8_t sensor_read_reg(uint8_t reg)
         status = I2C_Transfer(I2C0);
     print_stat(status);
     SEGGER_RTT_printf(0, "Done reading reg.\n");
-    return rbuf[0];
+    return rbuf[0];*/
+    return (uint8_t)(sensor_read_reg16(reg) & 0xFF);
 }
 
 uint16_t sensor_read_reg16(uint8_t reg)
@@ -141,9 +143,9 @@ uint16_t sensor_read_reg16(uint8_t reg)
 
 sensor_reading sensor_get_reading()
 {
-    uint16_t stat;
-    while (! ((stat = sensor_read_reg16(REG_ALS_STATUS)) & 0b100))
-        ;
+//    uint8_t stat;
+//    while (! ((stat = sensor_read_reg(REG_ALS_STATUS)) & 0b100))
+//        ;
 
     sensor_reading r;
     r.chan1 = sensor_read_reg16(REG_ALS_DATA_CH1_0);
@@ -154,5 +156,5 @@ sensor_reading sensor_get_reading()
 
 void sensor_turn_on()
 {
-    sensor_write_reg(REG_ALS_CONTR, 0b00000011);
+    sensor_write_reg(REG_ALS_CONTR, 0b00000001);
 }

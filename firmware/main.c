@@ -190,14 +190,16 @@ int main()
     delay_ms(100);
     sensor_turn_on();
     delay_ms(10);
-    uint16_t status = sensor_read_reg16(REG_ALS_STATUS);
-    SEGGER_RTT_printf(0, "Status after %u\n", status);
-    uint16_t manuf_id = sensor_read_reg16(REG_MANUFAC_ID);
+    uint8_t manuf_id = sensor_read_reg(REG_MANUFAC_ID);
     SEGGER_RTT_printf(0, "Manuf id %u\n", manuf_id);
-    uint16_t part_id = sensor_read_reg16(REG_PART_ID);
+    uint8_t part_id = sensor_read_reg(REG_PART_ID);
     SEGGER_RTT_printf(0, "Part id %u\n", part_id);
+    uint8_t status = sensor_read_reg(REG_ALS_STATUS);
+    SEGGER_RTT_printf(0, "Status after %u\n", status);
 //    manuf_id = sensor_read_reg16(REG_MANUFAC_ID);
 //    SEGGER_RTT_printf(0, "Manuf id [2] %u\n", manuf_id);
+
+    sensor_write_reg(REG_ALS_MEAS_RATE, 0b1001); // 50 ms integration, 100ms interval
 
     for (;;) {
         sensor_reading sr = sensor_get_reading();
