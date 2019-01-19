@@ -1489,7 +1489,7 @@ Wire Wire Line
 Wire Wire Line
 	1600 6600 1650 6600
 Wire Wire Line
-	1650 6600 1650 6750
+	1650 6600 1650 6700
 Connection ~ 1650 6600
 Wire Wire Line
 	1650 6600 1700 6600
@@ -1771,8 +1771,10 @@ Connection ~ 950  5650
 Wire Wire Line
 	1650 5650 950  5650
 Wire Wire Line
-	950  5850 800  5850
-Connection ~ 950  5850
-Text GLabel 800  5850 0    50   Input ~ 0
+	1650 6700 850  6700
+Connection ~ 1650 6700
+Wire Wire Line
+	1650 6700 1650 6750
+Text GLabel 850  6700 0    50   Input ~ 0
 VBAT
 $EndSCHEMATC
