@@ -122,7 +122,8 @@ sensor_reading sensor_get_reading()
     return r;
 }
 
-void sensor_turn_on()
+void sensor_turn_on(uint8_t gain)
 {
-    sensor_write_reg(REG_ALS_CONTR, 0b00000001);
+    gain &= 0b01110000;
+    sensor_write_reg(REG_ALS_CONTR, 1 | gain);
 }

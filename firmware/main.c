@@ -188,7 +188,7 @@ int main()
 
     sensor_init();
     delay_ms(100);
-    sensor_turn_on();
+    sensor_turn_on(GAIN_96X);
     delay_ms(10);
     uint8_t manuf_id = sensor_read_reg(REG_MANUFAC_ID);
     SEGGER_RTT_printf(0, "Manuf id %u\n", manuf_id);
@@ -199,12 +199,14 @@ int main()
 //    manuf_id = sensor_read_reg16(REG_MANUFAC_ID);
 //    SEGGER_RTT_printf(0, "Manuf id [2] %u\n", manuf_id);
 
-    sensor_write_reg(REG_ALS_MEAS_RATE, 0b1001); // 50 ms integration, 100ms interval
+    //sensor_write_reg(REG_ALS_MEAS_RATE, 0b1001); // 50 ms integration, 100ms interval
+    sensor_write_reg(REG_ALS_MEAS_RATE, 0b010010); // 200 ms integration, 200ms interval
+    sensor_write_reg(REG_ALS_MEAS_RATE, 0b0111011); // 350 ms integration, 500ms interval
 
     for (;;) {
         sensor_reading sr = sensor_get_reading();
         SEGGER_RTT_printf(0, "READING %u %u\n", sr.chan0, sr.chan1);
-        delay_ms(500);
+        delay_ms(600);
     }
 
 

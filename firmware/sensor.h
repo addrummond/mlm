@@ -19,6 +19,13 @@
 #define REG_ALS_THRES_LOW_1   0x9A
 #define REG_INTERRUPT_PERSIST 0x9E
 
+#define GAIN_1X  0
+#define GAIN_2X  (1 << 4)
+#define GAIN_4X  (0b10 << 4)
+#define GAIN_8X  (0b11 << 4)
+#define GAIN_48X (0b110 << 4)
+#define GAIN_96X (0b111 << 4)
+
 typedef struct sensor_reading {
     uint16_t chan0;
     uint16_t chan1;
@@ -26,7 +33,7 @@ typedef struct sensor_reading {
 
 void sensor_init();
 void sensor_write_reg(uint8_t reg, uint8_t val);
-void sensor_turn_on();
+void sensor_turn_on(uint8_t gain);
 uint8_t sensor_read_reg(uint8_t reg);
 uint16_t sensor_read_reg16(uint8_t reg);
 void sensor_write_reg(uint8_t reg, uint8_t val);
