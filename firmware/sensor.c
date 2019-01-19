@@ -13,17 +13,11 @@
 #define SENSOR_INT_PORT       gpioPortF
 #define SENSOR_INT_PIN        1
 
-#define REGMODE_PORT          gpioPortB
-#define REGMODE_PIN           13
-
 void sensor_init()
 {
     SEGGER_RTT_printf(0, "Starting sensor initialization..\n");
 
     CMU_ClockEnable(cmuClock_I2C0, true);
-
-    // Turn on the LDO to power up the sensor.
-    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
 
     // This is now the SWDIO pin, gotta be careful how we configure it while
     // programmer is connected.

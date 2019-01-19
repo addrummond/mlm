@@ -12,6 +12,9 @@
 #include <leds.h>
 #include <sensor.h>
 
+#define REGMODE_PORT          gpioPortB
+#define REGMODE_PIN           13
+
 #define RTC_FREQ 32768
 
 void delay_ms(int ms)
@@ -176,6 +179,13 @@ int main()
     leds_all_off();
 
     // ********** SENSOR TEST **********
+
+
+    // Turn on the LDO to power up the sensor.
+    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
+    SEGGER_RTT_printf(0, "LDO turned on\n");
+    for (;;);
+    delay_ms(100);
 
     sensor_init();
     delay_ms(100);
