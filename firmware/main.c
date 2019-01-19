@@ -200,7 +200,6 @@ int main()
 
     // ********** CAPSENSE TEST **********
 
-    //setup_capsense();
     my_setup_capsense();
 
     for (unsigned i = 0;; i++) {
