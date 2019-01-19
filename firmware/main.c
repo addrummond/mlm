@@ -175,27 +175,26 @@ int main()
 
     leds_all_off();
 
-    /*sensor_init();
+    // ********** SENSOR TEST **********
+
+    sensor_init();
     delay_ms(100);
-    //sensor_turn_on();
+    sensor_turn_on();
     delay_ms(100);
-    //uint8_t status = sensor_read_reg(REG_ALS_STATUS);
-    //SEGGER_RTT_printf(0, "Status %u\n", status);
+    uint8_t status = sensor_read_reg(REG_ALS_STATUS);
+    SEGGER_RTT_printf(0, "Status %u\n", status);
     uint8_t manuf_id = sensor_read_reg(REG_MANUFAC_ID);
     SEGGER_RTT_printf(0, "Manuf id %u\n", manuf_id);
     manuf_id = sensor_read_reg(REG_MANUFAC_ID);
     SEGGER_RTT_printf(0, "Manuf id [2] %u\n", manuf_id);
-    for (;;) { }*/
 
-    /*sensor_turn_on();
-    delay_ms(100);
+    for (;;);
 
     for (;;) {
         sensor_reading sr = sensor_get_reading();
         SEGGER_RTT_printf(0, "READING %u %u\n", sr.chan0, sr.chan1);
-        for (;;) { }
         delay_ms(500);
-    }*/
+    }
 
 
     // ********** CAPSENSE TEST **********
@@ -217,13 +216,13 @@ int main()
 
     // ********** LED TEST **********
 
-    for (unsigned i = 1;; ++i) {
+    /*for (unsigned i = 1;; ++i) {
         leds_all_off();
         SEGGER_RTT_printf(0, "Led %u\n", i);
         led_on(i);
     
         delay_ms(300);
-    }
+    }*/
 
     return 0;
 }

@@ -11,7 +11,10 @@
 #define SENSOR_I2C_ADDR       (0x29 << 1)
 
 #define SENSOR_INT_PORT       gpioPortF
-#define SENSOR_INT_PIN        21
+#define SENSOR_INT_PIN        1
+
+#define REGMODE_PORT          gpioPortB
+#define REGMODE_PIN           13
 
 void sensor_init()
 {
@@ -19,14 +22,15 @@ void sensor_init()
 
     CMU_ClockEnable(cmuClock_I2C0, true);
 
-    GPIO_PinModeSet(SENSOR_INT_PORT, SENSOR_INT_PIN, gpioModeWiredAndPullUp, 1);
+    // Turn on the LDO to power up the sensor.
+    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
+
+    // This is now the SWDIO pin, gotta be careful how we configure it while
+    // programmer is connected.
+//    GPIO_PinModeSet(SENSOR_INT_PORT, SENSOR_INT_PIN, gpioModeWiredAndPullUp, 1);
 
     GPIO_PinModeSet(SENSOR_I2C_PORT, SENSOR_I2C_SCL_PIN, gpioModeWiredAndFilter, 1); // configure SCL pin as open drain output
     GPIO_PinModeSet(SENSOR_I2C_PORT, SENSOR_I2C_SDA_PIN, gpioModeWiredAndFilter, 1); // configure SDA pin as open drain output  
-
-    unsigned scl = GPIO_PinInGet(SENSOR_I2C_PORT, SENSOR_I2C_SCL_PIN);
-    unsigned sda = GPIO_PinInGet(SENSOR_I2C_PORT, SENSOR_I2C_SDA_PIN);
-    SEGGER_RTT_printf(0, "Pins scl sda %u %u\n", scl, sda);
 
     I2C0->ROUTE = I2C_ROUTE_SDAPEN | I2C_ROUTE_SCLPEN | (6 << _I2C_ROUTE_LOCATION_SHIFT);
     I2C0->CTRL = I2C_CTRL_AUTOACK | I2C_CTRL_AUTOSN;
@@ -45,13 +49,13 @@ void sensor_init()
         GPIO_PinModeSet(SENSOR_I2C_PORT, SENSOR_I2C_SCL_PIN, gpioModeWiredAndFilter, 1);
     }
 
-    I2C_Init_TypeDef i2c_init = I2C_INIT_DEFAULT; /*{
+    I2C_Init_TypeDef i2c_init = /*I2C_INIT_DEFAULT;*/ {
         .enable = true,
         .master = true,
         .refFreq = 0,
         .freq = I2C_FREQ_STANDARD_MAX,
         .clhr = i2cClockHLRAsymetric
-    };*/
+    };
 
     I2C_Init(I2C0, &i2c_init);
     NVIC_ClearPendingIRQ(I2C0_IRQn);
@@ -112,10 +116,8 @@ uint8_t sensor_read_reg(uint8_t reg)
         .buf[1].len = sizeof(rbuf)/sizeof(rbuf[0])
     };
     int status = I2C_TransferInit(I2C0, &i2c_transfer);
-    SEGGER_RTT_printf(0, "Status 1... [%u] [%u]\n",i2cTransferInProgress, status);
     while (status == i2cTransferInProgress)
         status = I2C_Transfer(I2C0);
-    SEGGER_RTT_printf(0, "Status 1... [%u] [%u]\n",i2cTransferInProgress, status);
     print_stat(status);
     return rbuf[0];
 }
@@ -141,10 +143,10 @@ uint16_t sensor_read_reg16(uint8_t reg)
 
 sensor_reading sensor_get_reading()
 {
-//    uint8_t stat;
-//    while (! ((stat = sensor_read_reg(REG_ALS_STATUS)) & 0b100)) {
-//        SEGGER_RTT_printf(0, "Status %u\n", stat);
-//    }
+    uint8_t stat;
+    while (! ((stat = sensor_read_reg(REG_ALS_STATUS)) & 0b100)) {
+        //SEGGER_RTT_printf(0, "Status %u\n", stat);
+    }
 
     sensor_reading r;
     r.chan1 = sensor_read_reg16(REG_ALS_DATA_CH1_0);
