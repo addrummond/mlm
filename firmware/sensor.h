@@ -20,11 +20,11 @@
 #define REG_INTERRUPT_PERSIST 0x9E
 
 #define GAIN_1X  0
-#define GAIN_2X  (1 << 4)
-#define GAIN_4X  (0b10 << 4)
-#define GAIN_8X  (0b11 << 4)
-#define GAIN_48X (0b110 << 4)
-#define GAIN_96X (0b111 << 4)
+#define GAIN_2X  (1 << 2)
+#define GAIN_4X  (0b10 << 2)
+#define GAIN_8X  (0b11 << 2)
+#define GAIN_48X (0b110 << 2)
+#define GAIN_96X (0b111 << 2)
 
 typedef struct sensor_reading {
     uint16_t chan0;

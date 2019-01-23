@@ -200,7 +200,7 @@ int main()
 //    SEGGER_RTT_printf(0, "Manuf id [2] %u\n", manuf_id);
 
     //sensor_write_reg(REG_ALS_MEAS_RATE, 0b1001); // 50 ms integration, 100ms interval
-    sensor_write_reg(REG_ALS_MEAS_RATE, 0b010010); // 200 ms integration, 200ms interval
+    //sensor_write_reg(REG_ALS_MEAS_RATE, 0b010010); // 200 ms integration, 200ms interval
     sensor_write_reg(REG_ALS_MEAS_RATE, 0b0111011); // 350 ms integration, 500ms interval
 
     for (;;) {

@@ -124,6 +124,6 @@ sensor_reading sensor_get_reading()
 
 void sensor_turn_on(uint8_t gain)
 {
-    gain &= 0b01110000;
+    gain &= 0b011100;
     sensor_write_reg(REG_ALS_CONTR, 1 | gain);
 }
