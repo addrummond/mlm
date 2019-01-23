@@ -13,6 +13,7 @@ override ARMCFLAGS += -std=gnu99 -g -Wall -Os -mcpu=cortex-m3 \
                       -D$(DEVICE) \
                       -I./ -I$(EFM32)/emlib/inc -I$(EFM32)/CMSIS/Include -I$(EFM32)/EFM32TG/Include \
                       -I$(EFM32)/CMSIS/Include \
+                      -I$(EFM32)/emlib/inc
                       -save-temps=obj
 
 override CFLAGS += -I./

@@ -3,6 +3,7 @@
 #include <em_acmp.h>
 #include <em_chip.h>
 #include <em_cmu.h>
+#include <em_emu.h>
 #include <em_device.h>
 #include <em_emu.h>
 #include <em_gpio.h>
@@ -162,7 +163,30 @@ void setup_capsense()
 
 int main()
 {
+    // ********** LOW POWER INIT **********
+    // https://www.silabs.com/community/mcu/32-bit/forum.topic.html/happy_gecko_em4_conf-Y9Bw
+
     CHIP_Init();
+
+    CMU_ClockEnable(cmuClock_GPIO, true);
+
+    SEGGER_RTT_printf(0, "Preparing to sleep\n");
+
+    // Set pin PF2 mode to input with pull-up resistor
+    GPIO_PinModeSet(gpioPortF, 2, gpioModeInput, 1);
+    GPIO->CTRL = 1;
+    GPIO->EM4WUEN = GPIO_EM4WUEN_EM4WUEN_F2 ;
+    GPIO->EM4WUPOL = 0; // Low signal is button pushed state
+
+    GPIO->CMD = 1;          // EM4WUCLR = 1, to clear all previous events
+
+    EMU_EnterEM4();
+
+    SEGGER_RTT_printf(0, "Woke up!\n");
+
+    // ********** REGULAR INIT **********
+
+    /*CHIP_Init();
 
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
@@ -176,12 +200,13 @@ int main()
     rtt_init();
     SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
 
-    leds_all_off();
+    leds_all_off();*/
+
 
     // ********** SENSOR TEST **********
 
     // Turn on the LDO to power up the sensor.
-    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
+    /*GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
     delay_ms(100); // make sure LDO has time to start up and sensor has time to
                    // power up
@@ -190,14 +215,12 @@ int main()
     delay_ms(100);
     sensor_turn_on(GAIN_96X);
     delay_ms(10);
-    uint8_t manuf_id = sensor_read_reg(REG_MANUFAC_ID);
-    SEGGER_RTT_printf(0, "Manuf id %u\n", manuf_id);
-    uint8_t part_id = sensor_read_reg(REG_PART_ID);
-    SEGGER_RTT_printf(0, "Part id %u\n", part_id);
-    uint8_t status = sensor_read_reg(REG_ALS_STATUS);
-    SEGGER_RTT_printf(0, "Status after %u\n", status);
-//    manuf_id = sensor_read_reg16(REG_MANUFAC_ID);
-//    SEGGER_RTT_printf(0, "Manuf id [2] %u\n", manuf_id);
+    //uint8_t manuf_id = sensor_read_reg(REG_MANUFAC_ID);
+    //SEGGER_RTT_printf(0, "Manuf id %u\n", manuf_id);
+    //uint8_t part_id = sensor_read_reg(REG_PART_ID);
+    //SEGGER_RTT_printf(0, "Part id %u\n", part_id);
+    //uint8_t status = sensor_read_reg(REG_ALS_STATUS);
+    //SEGGER_RTT_printf(0, "Status after %u\n", status);
 
     //sensor_write_reg(REG_ALS_MEAS_RATE, 0b1001); // 50 ms integration, 100ms interval
     //sensor_write_reg(REG_ALS_MEAS_RATE, 0b010010); // 200 ms integration, 200ms interval
@@ -207,7 +230,7 @@ int main()
         sensor_reading sr = sensor_get_reading();
         SEGGER_RTT_printf(0, "READING %u %u\n", sr.chan0, sr.chan1);
         delay_ms(600);
-    }
+    }*/
 
 
     // ********** CAPSENSE TEST **********

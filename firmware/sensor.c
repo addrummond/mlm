@@ -13,6 +13,8 @@
 #define SENSOR_INT_PORT       gpioPortF
 #define SENSOR_INT_PIN        1
 
+// https://github.com/alibaba/AliOS-Things/blob/8cae6d447d331989ede14d28c0ec189f2aa2b3c7/device/sensor/drv/drv_als_liteon_ltr303.c
+
 void sensor_init()
 {
     SEGGER_RTT_printf(0, "Starting sensor initialization..\n");
