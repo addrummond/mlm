@@ -168,7 +168,19 @@ int main()
 
     CHIP_Init();
 
+    CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
+    CMU_ClockEnable(cmuClock_CORELE, true);
+    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
+    CMU_OscillatorEnable(cmuOsc_LFRCO, true, true);
+    CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFRCO);
+    CMU_ClockEnable(cmuClock_RTC, true);
+
+    SEGGER_RTT_printf(0, "Hello World\n");
+
+    led_fully_on(1);
+    delay_ms(1000);
+    leds_all_off();
 
     SEGGER_RTT_printf(0, "Preparing to sleep\n");
 
