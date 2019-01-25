@@ -64,7 +64,7 @@ static const CMU_Clock_TypeDef led_cat_clock[] = {
 void led_on(unsigned n)
 {
     --n; // go to zero indexing
-    n %= 27;
+    n %= LED_N;
     uint8_t nn = (uint8_t)n;
 
     GPIO_Port_TypeDef cat_port = led_cat_ports[nn];
@@ -90,6 +90,21 @@ void led_on(unsigned n)
     TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
     timerInit.prescale = timerPrescale256;
     TIMER_Init(cat_timer, &timerInit);
+}
+
+void led_fully_on(unsigned n)
+{
+    --n;
+    n %= LED_N;
+    uint8_t nn = (uint8_t)n;
+
+    GPIO_Port_TypeDef cat_port = led_cat_ports[nn];
+    int cat_pin = led_cat_pins[nn];
+    int an_port = led_an_ports[nn];
+    int an_pin = led_an_pins[nn];
+
+    GPIO_PinModeSet(cat_port, cat_pin, gpioModePushPull, 0);
+    GPIO_PinModeSet(an_port, an_pin, gpioModePushPull, 1);
 }
 
 void leds_all_off()

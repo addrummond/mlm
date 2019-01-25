@@ -112,6 +112,7 @@
 #define DPIN_FOR_EACH(m) m(1) m(2) m(3) m(4) m(5) m(6)
 
 void led_on(unsigned n);
+void led_fully_on(unsigned n);
 void leds_all_off();
 
 #endif
