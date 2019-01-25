@@ -57,23 +57,16 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
 
     int32_t tmpCalc, factor;
     int32_t chRatio = (1000 * r.chan1) / (r.chan0 + r.chan1);
-    if (chRatio < 450)
-    {
+    if (chRatio < 450) {
         tmpCalc = (r.chan0 * 17743) + (r.chan1 * 11059);
         factor = 100;
-    }
-    else if ((chRatio >= 450) && (chRatio < 680))
-    {
+    } else if ((chRatio >= 450) && (chRatio < 680)) {
         tmpCalc = (r.chan0 * 42785) + (r.chan1 * 10696);
         factor = 80;
-    }
-    else if ((chRatio >= 680) && (chRatio < 990))
-    {
+    } else if ((chRatio >= 680) && (chRatio < 990)) {
         tmpCalc = (r.chan0 * 5926) + (r.chan1 * 1300);
         factor = 44;
-    }
-    else
-    {
+    } else {
         tmpCalc = 0;
         factor = 0;
     }
@@ -84,8 +77,7 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
         //   lux = ((tmpCalc / (als_gain_val * als_integ_time_val)) * factor) / 100;
 
         lux = (((tmpCalc / (gain * integ_time)) * factor) << EV_BPS) / 100;
-    }
-    else {
+    } else {
         lux = 0;
     }
 
