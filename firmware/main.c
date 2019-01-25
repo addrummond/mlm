@@ -182,7 +182,8 @@ int main()
 
     EMU_EnterEM4();
 
-    SEGGER_RTT_printf(0, "Woke up!\n");
+    CMU_ClockEnable(cmuClock_GPIO, true);
+    led_fully_on(1);
 
     // ********** REGULAR INIT **********
 
