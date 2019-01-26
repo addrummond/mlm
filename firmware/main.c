@@ -12,6 +12,7 @@
 #include <rtt.h>
 #include <leds.h>
 #include <sensor.h>
+#include <units.h>
 
 #define REGMODE_PORT          gpioPortB
 #define REGMODE_PIN           13
@@ -166,7 +167,7 @@ int main()
     // ********** LOW POWER INIT **********
     // https://www.silabs.com/community/mcu/32-bit/forum.topic.html/happy_gecko_em4_conf-Y9Bw
 
-    CHIP_Init();
+    /*CHIP_Init();
 
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
@@ -195,11 +196,11 @@ int main()
     EMU_EnterEM4();
 
     CMU_ClockEnable(cmuClock_GPIO, true);
-    led_fully_on(1);
+    led_fully_on(1);*/
 
     // ********** REGULAR INIT **********
 
-    /*CHIP_Init();
+    CHIP_Init();
 
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
@@ -213,13 +214,13 @@ int main()
     rtt_init();
     SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
 
-    leds_all_off();*/
+    leds_all_off();
 
 
     // ********** SENSOR TEST **********
 
     // Turn on the LDO to power up the sensor.
-    /*GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
+    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
     delay_ms(100); // make sure LDO has time to start up and sensor has time to
                    // power up
@@ -241,9 +242,11 @@ int main()
 
     for (;;) {
         sensor_reading sr = sensor_get_reading();
-        SEGGER_RTT_printf(0, "READING %u %u\n", sr.chan0, sr.chan1);
+        int32_t lux = sensor_reading_to_lux(sr, 96, 350);
+        int32_t ev = lux_to_ev(lux);
+        SEGGER_RTT_printf(0, "READING %u %u lux=%u/%u (%u) ev=%u/%u (%u)\n", sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux/EV_BPS, ev, 1<<EV_BPS, ev);
         delay_ms(600);
-    }*/
+    }
 
 
     // ********** CAPSENSE TEST **********

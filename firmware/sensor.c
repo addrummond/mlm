@@ -118,8 +118,8 @@ uint16_t sensor_read_reg16(uint8_t reg)
 sensor_reading sensor_get_reading()
 {
     sensor_reading r;
-    r.chan1 = sensor_read_reg16(REG_ALS_DATA_CH1_0);
     r.chan0 = sensor_read_reg16(REG_ALS_DATA_CH0_0);
+    r.chan1 = sensor_read_reg16(REG_ALS_DATA_CH1_0);
 
     return r;
 }
