@@ -131,6 +131,8 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
     c0 = (c0 * 402) / integ_time;
     c1 = (c1 * 402) / integ_time;
 
+    SEGGER_RTT_printf(0, "AF C0=%u, C1=%u RAT=%u\n", c0, c1, ratio);
+
     // Normalize for gain
     c0 = (c0 * gain) / 96;
     c1 = (c1 * gain) / 96;
@@ -138,7 +140,6 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
     int32_t lux;
     if (ratio < (1 << EV_BPS) / 2) {
         SEGGER_RTT_printf(0, "OPTION1\n");
-        lux = ((c0 * 19) / 625);
         lux = ((c0 * 19) / 625) -
               (((((c0 * 31) / 500)) * pow14(ratio)) >> EV_BPS);
     } else if (ratio < ((1 << EV_BPS) * 61) / 100) {
