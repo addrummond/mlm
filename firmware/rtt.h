@@ -7,10 +7,10 @@
 extern uint8_t rtt_up_buf[];
 void rtt_init();
 #else
-#define rtt_init(x)
-#define SEGGER_RTT_printf(x)
-#define SEGGER_RTT_Write(x)
-#define SEGGER_RTT_WriteString(x)
+#define rtt_init(...)
+#define SEGGER_RTT_printf(...)
+#define SEGGER_RTT_Write(...)
+#define SEGGER_RTT_WriteString(...)
 #endif
 
 #endif

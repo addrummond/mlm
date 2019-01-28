@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <units.h>
+#include <rtt.h>
 
 static int32_t log_base2(uint32_t x)
 {
@@ -191,3 +192,50 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
 
     return lux;*/
 }
+
+#ifdef TEST
+
+#include <math.h>
+
+static double fp_sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time)
+{
+    double c0, c1, itime;
+    c0 = (double)r.chan0;
+    c1 = (double)r.chan1;
+    itime = (double)integ_time;
+
+    double ratio = c1 / c0;
+
+    // Normalize for integration time
+    c0 *= 402.0 / itime;
+    c1 *= 402.0 / itime;
+
+    // Normalize for gain
+    if (!gain) {
+        c0 *= 16;
+        c1 *= 16;
+    }
+
+    double lux;
+
+    if (ratio < 0.5) {
+        lux = 0.0304 * c0 - 0.062 * c0 * pow(ratio,1.4);
+    } else if (ratio < 0.61) {
+        lux = 0.0224 * c0 - 0.031 * c1;
+    } else if (ratio < 0.80) {
+        lux = 0.0128 * c0 - 0.0153 * c1;
+    } else if (ratio < 1.30) {
+        lux = 0.00146 * c0 - 0.00112 * c1;
+    } else {
+        lux = 0;
+    }
+
+    return lux;
+}
+
+int main()
+{
+    return 0;
+}
+
+#endif
