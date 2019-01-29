@@ -117,16 +117,19 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
     //     https://github.com/automote/LTR303/blob/628988a6e5ac1bccb1d0c0eea156f0e9dddf4d17/LTR303.cpp
     // modified to use fixed-point arithmetic.
 
-    int32_t c0 = r.chan0;
-    int32_t c1 = r.chan1;
+    int64_t c0 = r.chan0;
+    int64_t c1 = r.chan1;
+
+    if (c0 == 0)
+        return 0;
 
     SEGGER_RTT_printf(0, "RC0=%u, RC1=%u\n", c0, c1);
 
     c0 <<= EV_BPS;
     c1 <<= EV_BPS;
-    int32_t ratio = (int32_t)((((int64_t)c1) << EV_BPS) / (int64_t)c0);
+    int32_t ratio = (int32_t)(((int64_t)c1 << EV_BPS) / (int64_t)c0);
 
-    SEGGER_RTT_printf(0, "C0=%u, C1=%u RAT=%u\n", c0, c1, ratio);
+//    SEGGER_RTT_printf(0, "C0=%u, C1=%u RAT=%u\n", c0, c1, ratio);
 
     // Normalize for integration time
     c0 = (c0 * 402) / integ_time;
@@ -135,14 +138,14 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
     SEGGER_RTT_printf(0, "AF C0=%u, C1=%u RAT=%u\n", c0, c1, ratio);
 
     // Normalize for gain
-    c0 = (c0 * gain) / 96;
-    c1 = (c1 * gain) / 96;
+    c0 = (c0 * gain) / 6;
+    c1 = (c1 * gain) / 6;
 
-    int32_t lux;
+    int64_t lux;
     if (ratio < (1 << EV_BPS) / 2) {
         SEGGER_RTT_printf(0, "OPTION1\n");
         lux = ((c0 * 19) / 625) -
-              (((((c0 * 31) / 500)) * pow14(ratio)) >> EV_BPS);
+              (((c0 * 31 * pow14(ratio)) / 500) >> EV_BPS);
     } else if (ratio < ((1 << EV_BPS) * 61) / 100) {
         SEGGER_RTT_printf(0, "OPTION2\n");
         lux = ((c0 * 14) / 625) -
@@ -163,39 +166,12 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
     SEGGER_RTT_printf(0, "LUX: %u\n", lux >> EV_BPS);
 
     return (int32_t)lux;
-
-/*    int32_t tmpCalc, factor;
-    int32_t chRatio = (1000 * r.chan1) / (r.chan0 + r.chan1);
-    if (chRatio < 450) {
-        tmpCalc = (r.chan0 * 17743) + (r.chan1 * 11059);
-        factor = 100;
-    } else if ((chRatio >= 450) && (chRatio < 680)) {
-        tmpCalc = (r.chan0 * 42785) + (r.chan1 * 10696);
-        factor = 80;
-    } else if ((chRatio >= 680) && (chRatio < 990)) {
-        tmpCalc = (r.chan0 * 5926) + (r.chan1 * 1300);
-        factor = 44;
-    } else {
-        tmpCalc = 0;
-        factor = 0;
-    }
-
-    int32_t lux;
-    if (gain != 0 && integ_time != 0) {
-        // Original formula:
-        //lux = ((tmpCalc / (gain * integ_time)) * factor) / 100;
-
-        lux = (((tmpCalc / (gain * integ_time)) * factor) << EV_BPS) / 100;
-    } else {
-        lux = 0;
-    }
-
-    return lux;*/
 }
 
 #ifdef TEST
 
 #include <math.h>
+#include <stdio.h>
 
 static double fp_sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time)
 {
@@ -211,10 +187,8 @@ static double fp_sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t i
     c1 *= 402.0 / itime;
 
     // Normalize for gain
-    if (!gain) {
-        c0 *= 16;
-        c1 *= 16;
-    }
+    c0 = (c0 * gain) / 6;
+    c1 = (c1 * gain) / 6;
 
     double lux;
 
@@ -235,6 +209,35 @@ static double fp_sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t i
 
 int main()
 {
+    int32_t gain = 96;
+    int32_t integ_time = 350;
+
+    double ratios[] = { 0.1, 0.49, 0.55, 0.7, 1.0 };
+
+    printf("gain,iteg_time,c0,c1,ratio,lux,luxf\n");
+
+    for (int i = 0; i < sizeof(ratios)/sizeof(ratios[0]); ++i) {
+        double ratio = ratios[i];
+        uint16_t c0 = 0;
+        for (;;) {
+            double c1f = ratio * (double)c0;
+            if (c1f >= (1 << 16))
+                c1f = (1 << 16) - 1;
+            uint16_t c1 = (double)c1f;
+            sensor_reading r;
+            r.chan0 = c0;
+            r.chan1 = c1;
+            double lux = fp_sensor_reading_to_lux(r, gain, integ_time);
+            int32_t luxf = sensor_reading_to_lux(r, gain, integ_time);
+            double luxfd = ((double)luxf) / (1 << EV_BPS);
+            printf("%i,%i,%u,%u,%.2f,%.2f,%.2f\n", gain, integ_time, c0, c1, ratio, lux, luxfd);
+
+            if (c0 >= (1 << 16) -16)
+                break;
+            c0 += 16;
+        }
+    }
+
     return 0;
 }
 
