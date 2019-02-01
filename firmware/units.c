@@ -51,9 +51,9 @@ int32_t lux_to_ev(int32_t lux)
 
 // Lookup table for raising numbers with EV_BPS precision to the 1.4th power.
 // y = x^1.4 is quite close to being linear within the range of values we're
-// interested in, so a lookup table with interpolation should be pretty
-// accurate. The following Python 3 function can be used to generate the table
-// values.
+// interested in, so using a small lookup table together with linear
+// interpolation is pretty accurate. The following Python 3 function can be used
+// to generate the table values.
 /*
 from math import *
 def calc():
@@ -76,7 +76,7 @@ def calc():
     print()
 */
 #define POW14_BPS 7
-static const int16_t pow14_table[] = {
+static const int32_t pow14_table[] = {
     0, 2, 6, 11, 16, 22, 28,
     35, 42, 50, 58, 66, 74, 83, 92,
     102, 111, 121, 131, 142, 152, 163, 174,
@@ -99,14 +99,19 @@ static const int16_t pow14_table[] = {
 static int32_t pow14(int32_t val)
 {
     int32_t i = val >> (EV_BPS - POW14_BPS);
-    int32_t diff = (val << (EV_BPS - POW14_BPS)) - i;
-    if (i >= sizeof(pow14_table)/sizeof(int16_t) - 1) // -1 because can't interpolate if we're at the end of the table
-        return pow14_table[sizeof(pow14_table)/sizeof(int16_t) - 1];
+    int32_t idiff = val - (i << (EV_BPS - POW14_BPS));
+
+    // If i is the index of the last element in the lookup table, or if i is out
+    // of bounds, then we can't do interpolation. In either case, we return the
+    // value of the last element in the table.
+    if (i >= sizeof(pow14_table)/sizeof(int16_t) - 1)
+        return pow14_table[sizeof(pow14_table)/sizeof(int32_t) - 1];
 
     int32_t base = pow14_table[i];
     int32_t next = pow14_table[i+1];
-    int32_t comp = (next-base) * diff / (1 << (EV_BPS - POW14_BPS));
-    return base + comp;
+    int32_t extra = next - base;
+    extra = (extra * idiff) >> (EV_BPS - POW14_BPS);
+    return base + extra;
 }
 
 int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time)
@@ -129,13 +134,9 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
     c1 <<= EV_BPS;
     int32_t ratio = (int32_t)(((int64_t)c1 << EV_BPS) / (int64_t)c0);
 
-//    SEGGER_RTT_printf(0, "C0=%u, C1=%u RAT=%u\n", c0, c1, ratio);
-
     // Normalize for integration time
     c0 = (c0 * 402) / integ_time;
     c1 = (c1 * 402) / integ_time;
-
-    SEGGER_RTT_printf(0, "AF C0=%u, C1=%u RAT=%u\n", c0, c1, ratio);
 
     // Normalize for gain
     c0 = (c0 * gain) / 6;
@@ -143,27 +144,20 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
 
     int64_t lux;
     if (ratio < (1 << EV_BPS) / 2) {
-        SEGGER_RTT_printf(0, "OPTION1\n");
         lux = ((c0 * 19) / 625) -
               (((c0 * 31 * pow14(ratio)) / 500) >> EV_BPS);
     } else if (ratio < ((1 << EV_BPS) * 61) / 100) {
-        SEGGER_RTT_printf(0, "OPTION2\n");
         lux = ((c0 * 14) / 625) -
               ((c1 * 31) / 1000);
     } else if (ratio < ((1 << EV_BPS) * 4) / 5) {
-        SEGGER_RTT_printf(0, "OPTION3\n");
         lux = ((c0 * 8) / 625) -
               ((c1 * 153) / 10000);
     } else if (ratio < ((1 << EV_BPS) * 13) / 10) {
-        SEGGER_RTT_printf(0, "OPTION4 %u %u\n", c0, c1);
         lux = ((c0 * 73) / 50000) -
               ((c1 * 7) / 6250);
     } else {
-        SEGGER_RTT_printf(0, "OPTION5 NEG NEG NEG\n");
         lux = -1;
     }
-
-    SEGGER_RTT_printf(0, "LUX: %u\n", lux >> EV_BPS);
 
     return (int32_t)lux;
 }
@@ -172,6 +166,7 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
 
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 static double fp_sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time)
 {
@@ -207,7 +202,18 @@ static double fp_sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t i
     return lux;
 }
 
-int main()
+static void test_pow14()
+{
+    for (double v = 0.01; v <= 1; v += 0.015) {
+        double vf = (int32_t)(v * (1 << EV_BPS));
+        int32_t r = pow14(vf);
+        double r1 = ((double)r) / (1 << EV_BPS);
+        double r2 = pow(v, 1.4);
+        printf("pow14(%f) = approx=%f, exact=%f, diff=%f\n", v, r1, r2, fabs(r1-r));
+    }
+}
+
+static void test_sensor_reading_to_lux()
 {
     int32_t gain = 96;
     int32_t integ_time = 350;
@@ -237,6 +243,12 @@ int main()
             c0 += 16;
         }
     }
+}
+
+int main()
+{
+    test_pow14();
+    test_sensor_reading_to_lux();
 
     return 0;
 }
