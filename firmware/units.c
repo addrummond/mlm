@@ -128,8 +128,6 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
     if (c0 == 0)
         return 0;
 
-    SEGGER_RTT_printf(0, "RC0=%u, RC1=%u\n", c0, c1);
-
     c0 <<= EV_BPS;
     c1 <<= EV_BPS;
     int32_t ratio = (int32_t)(((int64_t)c1 << EV_BPS) / (int64_t)c0);
