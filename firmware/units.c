@@ -8,6 +8,9 @@ static int32_t log_base2(uint32_t x)
     // This implementation is based on Clay. S. Turner's fast binary logarithm
     // algorithm.
 
+    if (x < (1 << EV_BPS)-1)
+        return 0;
+
     int32_t b = 1U << (EV_BPS - 1);
     int32_t y = 0;
 
