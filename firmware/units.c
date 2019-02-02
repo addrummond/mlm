@@ -40,7 +40,9 @@ static int32_t log_base2(uint32_t x)
     return y;
 }
 
-// Python3 code to calculate this table:
+// For small lux values we convert to EV using a lookup table.
+//
+// Python3 code to calculate the table:
 /*
 from math import *
 def calc():
@@ -61,7 +63,7 @@ def calc():
     print()
 */
 static const int16_t lux_to_ev_lookup[] = {
-    -10240,
+    -10240, // 0 lux -> -5 EV
     -17043, -14995, -13797, -12947, -12288, -11749, -11294, -10899,
     -10551, -10240, -9958, -9701, -9465, -9246, -9042, -8851,
     -8672, -8503, -8344, -8192, -8048, -7910, -7779, -7653,
