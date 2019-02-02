@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stddef.h>
 #include <units.h>
 #include <rtt.h>
@@ -140,7 +141,7 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
     c0 = (c0 * gain) / 6;
     c1 = (c1 * gain) / 6;
 
-    int64_t lux;
+    int32_t lux;
     if (ratio < (1 << EV_BPS) / 2) {
         lux = ((c0 * 19) / 625) -
               (((c0 * 31 * pow14(ratio)) / 500) >> EV_BPS);
@@ -157,7 +158,7 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
         lux = -1;
     }
 
-    return (int32_t)lux;
+    return lux;
 }
 
 #ifdef TEST
@@ -200,18 +201,27 @@ static double fp_sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t i
     return lux;
 }
 
-static void test_pow14()
+static bool test_pow14()
 {
+    bool passed = true;
+
     for (double v = 0.01; v <= 1; v += 0.015) {
         double vf = (int32_t)(v * (1 << EV_BPS));
         int32_t r = pow14(vf);
         double r1 = ((double)r) / (1 << EV_BPS);
         double r2 = pow(v, 1.4);
-        printf("pow14(%f) = approx=%f, exact=%f, diff=%f\n", v, r1, r2, fabs(r1-r));
+        double diff = fabs(r1-r2);
+
+        if (diff > 0.0011)
+            passed = false;
+
+        printf("pow14(%f) = approx=%f, exact=%f, diff=%f\n", v, r1, r2, diff);
     }
+
+    return passed;
 }
 
-static void test_sensor_reading_to_lux()
+static bool test_sensor_reading_to_lux()
 {
     int32_t gain = 96;
     int32_t integ_time = 350;
@@ -241,12 +251,24 @@ static void test_sensor_reading_to_lux()
             c0 += 16;
         }
     }
+
+    return true;
+}
+
+static const char *passed(bool p)
+{
+    if (p)
+        return "PASSED";
+    return "FAILED";
 }
 
 int main()
 {
-    test_pow14();
-    test_sensor_reading_to_lux();
+    bool pow14_passed = test_pow14();
+    bool sensor_reading_to_lux_passed = test_sensor_reading_to_lux();
+
+    printf("\npow14 test %s\n", passed(pow14_passed));
+    printf("sensor_reading_to_lux test %s\n", passed(sensor_reading_to_lux_passed));
 
     return 0;
 }
