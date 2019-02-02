@@ -223,6 +223,8 @@ static bool test_pow14()
 
 static bool test_sensor_reading_to_lux()
 {
+    bool passed = true;
+
     int32_t gain = 96;
     int32_t integ_time = 350;
 
@@ -245,6 +247,8 @@ static bool test_sensor_reading_to_lux()
             int32_t luxf = sensor_reading_to_lux(r, gain, integ_time);
             double luxfd = ((double)luxf) / (1 << EV_BPS);
             printf("%i,%i,%u,%u,%.2f,%.2f,%.2f\n", gain, integ_time, c0, c1, ratio, lux, luxfd);
+            if (fabs(lux-luxfd) > 0.001)
+                passed = false;
 
             if (c0 >= (1 << 16) -16)
                 break;
@@ -267,8 +271,9 @@ int main()
     bool pow14_passed = test_pow14();
     bool sensor_reading_to_lux_passed = test_sensor_reading_to_lux();
 
-    printf("\npow14 test %s\n", passed(pow14_passed));
-    printf("sensor_reading_to_lux test %s\n", passed(sensor_reading_to_lux_passed));
+    printf("\n");
+    printf("pow14 test...................%s\n", passed(pow14_passed));
+    printf("sensor_reading_to_lux test...%s\n", passed(sensor_reading_to_lux_passed));
 
     return 0;
 }
