@@ -128,7 +128,7 @@ def calc():
     print()
 */
 #define POW14_BPS 7
-static const int32_t pow14_table[] = {
+static const int16_t pow14_table[] = {
     0, 2, 6, 11, 16, 22, 28,
     35, 42, 50, 58, 66, 74, 83, 92,
     102, 111, 121, 131, 142, 152, 163, 174,
