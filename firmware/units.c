@@ -198,8 +198,24 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
     c1 = (c1 * 402) / integ_time;
 
     // Normalize for gain
-    c0 = (c0 * gain) / 6;
-    c1 = (c1 * gain) / 6;
+    // We know from the code linked above that the channel values should be
+    // multiplied by 16 prior to the calculations if gain is set to 1X, and
+    // left alone if the gain is set to 96X. Assuming linearity, this gives us
+    // the following equation for the multiplier k in terms of the gain g:
+    //
+    //     k = -3g + 307
+    //         ---------
+    //            19
+    //
+    // using * (1 << EV_BPS) instead of just << EV_BPS because bitshift of
+    // negative signed integers is undefined behavior.
+    int32_t multiplier = ((-3*gain + 307) * (1 << EV_BPS)) / 19;
+    if (multiplier <= 0) {
+        // should never get here
+        multiplier = EV_BPS;
+    }
+    c0 = (c0 * multiplier) >> EV_BPS;
+    c1 = (c1 * multiplier) >> EV_BPS;
 
     int32_t lux;
     if (ratio < (1 << EV_BPS) / 2) {
@@ -241,11 +257,11 @@ static double fp_sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t i
     c1 *= 402.0 / itime;
 
     // Normalize for gain
-    c0 = (c0 * gain) / 6;
-    c1 = (c1 * gain) / 6;
+    double multiplier = (-3*(double)gain + 307.0) / 19.0;
+    c0 *= multiplier;
+    c1 *= multiplier;
 
     double lux;
-
     if (ratio < 0.5) {
         lux = 0.0304 * c0 - 0.062 * c0 * pow(ratio,1.4);
     } else if (ratio < 0.61) {
