@@ -217,16 +217,11 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
         lux = ((c0 * 73) / 50000) -
               ((c1 * 7) / 6250);
     } else {
-        return -1;
+        lux = -1;
     }
 
     // compensate for gain and integration time.
-    lux = (lux * (400 << EV_BPS)) / (integ_time * gain);
-    // this is now at 2*EV_BPS precision
-    int64_t round = lux & ((1 << EV_BPS)-1);
-    lux >>= EV_BPS;
-    if (round >= (1 << EV_BPS)/2)
-        ++lux;
+    lux = (lux * 400) / (integ_time * gain);
 
     return (int32_t)lux;
 }
@@ -262,7 +257,7 @@ static double fp_sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t i
         lux = 0;
     }
 
-    lux = ((lux * 400) / ((double)integ_time) * (double)gain);
+    lux = (lux * 400) / ((double)integ_time * (double)gain);
 
     return lux;
 }
@@ -335,6 +330,7 @@ static bool test_sensor_reading_to_lux()
 
     fprintf(fp, "gain,iteg_time,c0,c1,ratio,lux,luxf\n");
 
+    int line = 1;
     for (int i = 0; i < sizeof(gains)/sizeof(gains[0]); ++i) {
         int32_t gain = gains[i];
 
@@ -354,12 +350,16 @@ static bool test_sensor_reading_to_lux()
                 int32_t luxf = sensor_reading_to_lux(r, gain, integ_time);
                 double luxfd = ((double)luxf) / (1 << EV_BPS);
                 fprintf(fp, "%i,%i,%u,%u,%.2f,%.2f,%.2f\n", gain, integ_time, c0, c1, ratio, lux, luxfd);
-                if (fabs(lux-luxfd) > 0.001)
+                double absdiff = fabs(lux-luxfd);
+                if (absdiff / lux >= 0.01) {
+                    fprintf(stderr, "BAD at line %i: %.3f %.3f (absdiff=%.3f, reldiff=%.3f)\n", line, lux, luxfd, absdiff, absdiff / lux);
                     passed = false;
+                }
 
                 if (c0 >= (1 << 16) -16)
                     break;
                 c0 += 16;
+                ++line;
             }
         }
     }
