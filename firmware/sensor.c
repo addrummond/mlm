@@ -147,13 +147,13 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
         if (r.chan0 < 12000) {
             sensor_turn_on(GAIN_4X);
             r = sensor_get_reading();
-            if (r.chan1 < 2000) {
+            if (r.chan0 < 2000) {
                 sensor_turn_on(GAIN_48X);
                 r = sensor_get_reading();
-                if (r.chan1 < 10000) {
+                if (r.chan0 < 10000) {
                     sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_400);
                     r = sensor_get_reading();
-                    if (r.chan1 < 20000) {
+                    if (r.chan0 < 20000) {
                         sensor_turn_on(GAIN_96X);
                         r = sensor_get_reading();
                     } else {
