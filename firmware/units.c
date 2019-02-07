@@ -193,31 +193,17 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
     c1 <<= EV_BPS;
     int32_t ratio = (int32_t)(((int64_t)c1 << EV_BPS) / (int64_t)c0);
 
-    // Normalize for integration time
-    c0 = (c0 * 402) / integ_time;
-    c1 = (c1 * 402) / integ_time;
-
     // Normalize for gain
     // We know from the code linked above that the channel values should be
-    // multiplied by 16 prior to the calculations if gain is set to 1X, and
-    // left alone if the gain is set to 96X. Assuming linearity, this gives us
-    // the following equation for the multiplier k in terms of the gain g:
-    //
-    //     k = -3g + 307
-    //         ---------
-    //            19
-    //
-    // using * (1 << EV_BPS) instead of just << EV_BPS because bitshift of
-    // negative signed integers is undefined behavior.
-    int32_t multiplier = ((-3*gain + 307) * (1 << EV_BPS)) / 19;
-    if (multiplier <= 0) {
-        // should never get here
-        multiplier = EV_BPS;
-    }
-    c0 = (c0 * multiplier) >> EV_BPS;
-    c1 = (c1 * multiplier) >> EV_BPS;
+    // multiplied by 16 prior to the calculations if gain is set to 1X and the
+    // integration time is 400.0 ms.
+    // We infer from the datasheet for a different part (!), the LTR303ALS,
+    // that as the gain is increased above 1, the result should be divded by
+    // the gain and by (400/integration time).
+    c0 *= 16;
+    c1 *= 16;
 
-    int32_t lux;
+    int64_t lux;
     if (ratio < (1 << EV_BPS) / 2) {
         lux = ((c0 * 19) / 625) -
               (((c0 * 31 * pow14(ratio)) / 500) >> EV_BPS);
@@ -231,10 +217,18 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
         lux = ((c0 * 73) / 50000) -
               ((c1 * 7) / 6250);
     } else {
-        lux = -1;
+        return -1;
     }
 
-    return lux;
+    // compensate for gain and integration time.
+    lux = (lux * (400 << EV_BPS)) / (integ_time * gain);
+    // this is now at 2*EV_BPS precision
+    int64_t round = lux & ((1 << EV_BPS)-1);
+    lux >>= EV_BPS;
+    if (round >= (1 << EV_BPS)/2)
+        ++lux;
+
+    return (int32_t)lux;
 }
 
 #ifdef TEST
@@ -252,14 +246,8 @@ static double fp_sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t i
 
     double ratio = c1 / c0;
 
-    // Normalize for integration time
-    c0 *= 402.0 / itime;
-    c1 *= 402.0 / itime;
-
-    // Normalize for gain
-    double multiplier = (-3*(double)gain + 307.0) / 19.0;
-    c0 *= multiplier;
-    c1 *= multiplier;
+    c0 *= 16;
+    c1 *= 16;
 
     double lux;
     if (ratio < 0.5) {
@@ -273,6 +261,8 @@ static double fp_sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t i
     } else {
         lux = 0;
     }
+
+    lux = ((lux * 400) / ((double)integ_time) * (double)gain);
 
     return lux;
 }
@@ -376,7 +366,7 @@ static bool test_sensor_reading_to_lux()
 
     fclose(fp);
 
-    return true;
+    return passed;
 }
 
 static const char *passed(bool p)

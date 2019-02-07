@@ -26,6 +26,10 @@
 #define GAIN_48X (0b110 << 2)
 #define GAIN_96X (0b111 << 2)
 
+//#define GAIN_2X_NEARMAX_LUX 15000
+//#define GAIN_4X_NEARMAX_LUX 2200
+//#define GAIN_8X_NEARA
+
 typedef struct sensor_reading {
     uint16_t chan0;
     uint16_t chan1;
