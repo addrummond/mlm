@@ -321,45 +321,48 @@ static bool test_sensor_reading_to_lux()
 {
     bool passed = true;
 
-    int32_t integ_time = 350;
-
-    double ratios[] = { 0.1, 0.49, 0.55, 0.7, 1.0 };
+    int32_t integ_times[] = { 50, 100, 150, 200, 250, 300, 350, 400 };
+    double ratios[] = { 0.1, 0.25, 0.5, 1.0 };
     int32_t gains[] = { 1, 2, 4, 8, 48, 96 };
 
     FILE *fp = fopen("testoutputs/luxcalc.csv", "w");
 
-    fprintf(fp, "gain,iteg_time,c0,c1,ratio,lux,luxf\n");
+    fprintf(fp, "gain,integ_time,c0,c1,ratio,lux,luxf\n");
 
     int line = 1;
-    for (int i = 0; i < sizeof(gains)/sizeof(gains[0]); ++i) {
-        int32_t gain = gains[i];
+    for (int k = 0; k < sizeof(integ_times)/sizeof(integ_times[0]); ++k) {
+        int32_t integ_time = integ_times[k];
 
-        for (int j = 0; j < sizeof(ratios)/sizeof(ratios[0]); ++j) {
-            double ratio = ratios[j];
+        for (int i = 0; i < sizeof(gains)/sizeof(gains[0]); ++i) {
+            int32_t gain = gains[i];
 
-            uint16_t c0 = 0;
-            for (;;) {
-                double c1f = ratio * (double)c0;
-                if (c1f >= (1 << 16))
-                    c1f = (1 << 16) - 1;
-                uint16_t c1 = (double)c1f;
-                sensor_reading r;
-                r.chan0 = c0;
-                r.chan1 = c1;
-                double lux = fp_sensor_reading_to_lux(r, gain, integ_time);
-                int32_t luxf = sensor_reading_to_lux(r, gain, integ_time);
-                double luxfd = ((double)luxf) / (1 << EV_BPS);
-                fprintf(fp, "%i,%i,%u,%u,%.2f,%.2f,%.2f\n", gain, integ_time, c0, c1, ratio, lux, luxfd);
-                double absdiff = fabs(lux-luxfd);
-                if (absdiff / lux >= 0.01) {
-                    fprintf(stderr, "BAD at line %i: %.3f %.3f (absdiff=%.3f, reldiff=%.3f)\n", line, lux, luxfd, absdiff, absdiff / lux);
-                    passed = false;
+            for (int j = 0; j < sizeof(ratios)/sizeof(ratios[0]); ++j) {
+                double ratio = ratios[j];
+
+                uint16_t c0 = 0;
+                for (;;) {
+                    double c1f = ratio * (double)c0;
+                    if (c1f >= (1 << 16))
+                        c1f = (1 << 16) - 1;
+                    uint16_t c1 = (double)c1f;
+                    sensor_reading r;
+                    r.chan0 = c0;
+                    r.chan1 = c1;
+                    double lux = fp_sensor_reading_to_lux(r, gain, integ_time);
+                    int32_t luxf = sensor_reading_to_lux(r, gain, integ_time);
+                    double luxfd = ((double)luxf) / (1 << EV_BPS);
+                    fprintf(fp, "%i,%i,%u,%u,%.2f,%.2f,%.2f\n", gain, integ_time, c0, c1, ratio, lux, luxfd);
+                    double absdiff = fabs(lux-luxfd);
+                    if (absdiff / lux >= 0.01) {
+                        fprintf(stderr, "BAD at line %i: %.3f %.3f (absdiff=%.3f, reldiff=%.3f)\n", line, lux, luxfd, absdiff, absdiff / lux);
+                        passed = false;
+                    }
+
+                    if (c0 >= (1 << 16) -16)
+                        break;
+                    c0 += 16;
+                    ++line;
                 }
-
-                if (c0 >= (1 << 16) -16)
-                    break;
-                c0 += 16;
-                ++line;
             }
         }
     }

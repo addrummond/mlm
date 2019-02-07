@@ -124,6 +124,62 @@ sensor_reading sensor_get_reading()
     return r;
 }
 
+sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
+{
+    // We try:
+    //
+    //     100ms integration 1X gain.
+    //     100ms integration 4X gain.
+    //     100ms integration at 48X gain.
+    //     400ms at 48X gain.
+    //     400ms at 96X gain.
+    //
+    // Currently, this sequence is determined by inspection of the graphs
+    // produced by testoutput/plot_luxcalc.R.
+
+    uint8_t measrate = sensor_read_reg(REG_ALS_MEAS_RATE);
+
+    sensor_turn_on(GAIN_1X);
+    sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_100);
+    sensor_reading r = sensor_get_reading();
+
+    for (int i = 0; i < 4; ++i) { // four retries if we get an extreme reading
+        if (r.chan0 < 12000) {
+            sensor_turn_on(GAIN_4X);
+            r = sensor_get_reading();
+            if (r.chan1 < 2000) {
+                sensor_turn_on(GAIN_48X);
+                r = sensor_get_reading();
+                if (r.chan1 < 10000) {
+                    sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_400);
+                    r = sensor_get_reading();
+                    if (r.chan1 < 20000) {
+                        sensor_turn_on(GAIN_96X);
+                        r = sensor_get_reading();
+                    } else {
+                        *gain = 48;
+                        *itime = 400;
+                    }
+                } else {
+                    *gain = 48;
+                    *itime = 100;
+                }
+            } else {
+                *gain = 4;
+                *itime = 100;
+            }
+        } else {
+            *gain = 1;
+            *itime = 100;
+        }
+
+        if (r.chan0 > 100 && r.chan0 < 65436)
+            break;
+    }
+
+    return r;
+}
+
 void sensor_turn_on(uint8_t gain)
 {
     gain &= 0b011100;
