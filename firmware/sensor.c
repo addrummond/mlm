@@ -3,6 +3,7 @@
 #include <em_i2c.h>
 #include <rtt.h>
 #include <sensor.h>
+#include <util.h>
 
 #define SENSOR_I2C_PORT       gpioPortE
 #define SENSOR_I2C_SDA_PIN    12
@@ -124,6 +125,12 @@ sensor_reading sensor_get_reading()
     return r;
 }
 
+bool sensor_has_valid_data()
+{
+    uint8_t status = sensor_read_reg(REG_ALS_STATUS);
+    return !(status & 0b10000000);
+}
+
 sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
 {
     // We try:
@@ -139,22 +146,38 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
 
     uint8_t measrate = sensor_read_reg(REG_ALS_MEAS_RATE);
 
-    sensor_turn_on(GAIN_1X);
-    sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_100);
-    sensor_reading r = sensor_get_reading();
-
+    sensor_reading r;
     for (int i = 0; i < 4; ++i) { // four retries if we get an extreme reading
+        sensor_turn_on(GAIN_1X);
+        sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_100);
+        delay_ms(120);
+        //while (! sensor_has_valid_data())
+        //    ;
+        r = sensor_get_reading();
+
         if (r.chan0 < 12000) {
             sensor_turn_on(GAIN_4X);
+            delay_ms(120);
+            //while (! sensor_has_valid_data())
+            //    ;
             r = sensor_get_reading();
             if (r.chan0 < 2000) {
                 sensor_turn_on(GAIN_48X);
+                delay_ms(120);
+                //while (! sensor_has_valid_data())
+                //    ;
                 r = sensor_get_reading();
                 if (r.chan0 < 10000) {
                     sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_400);
+                    delay_ms(480);
+                    //while (! sensor_has_valid_data())
+                    //    ;
                     r = sensor_get_reading();
                     if (r.chan0 < 20000) {
                         sensor_turn_on(GAIN_96X);
+                        delay_ms(480);
+                        //while (! sensor_has_valid_data())
+                        //    ;
                         r = sensor_get_reading();
                     } else {
                         *gain = 48;

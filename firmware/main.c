@@ -13,23 +13,10 @@
 #include <leds.h>
 #include <sensor.h>
 #include <units.h>
+#include <util.h>
 
 #define REGMODE_PORT          gpioPortB
 #define REGMODE_PIN           13
-
-#define RTC_FREQ 32768
-
-void delay_ms(int ms)
-{
-  uint32_t endValue = ms * RTC_FREQ / 1000;
-  RTC->CNT = 0;
-
-  RTC->CTRL |= RTC_CTRL_EN;
-
-  while ( RTC->CNT < endValue );
-
-  RTC->CTRL &= ~RTC_CTRL_EN;
-}
 
 static uint32_t touch_counts[4];
 static uint32_t touch_acmp;
@@ -241,11 +228,13 @@ int main()
     sensor_write_reg(REG_ALS_MEAS_RATE, 0b0111011); // 350 ms integration, 500ms interval
 
     for (;;) {
-        sensor_reading sr = sensor_get_reading();
-        int32_t lux = sensor_reading_to_lux(sr, 96, 350);
+        int32_t gain, itime;
+        sensor_reading sr = sensor_get_reading_auto(&gain, &itime);
+        int32_t lux = sensor_reading_to_lux(sr, gain, itime);
         int32_t ev = lux_to_ev(lux);
+        SEGGER_RTT_printf(0, "GAIN %u ITIME %u c0=%u c1=%u\n", gain, itime, sr.chan0, sr.chan1);
         SEGGER_RTT_printf(0, "READING %u %u lux=%u/%u (%u) ev=%u/%u (%u)\n", sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, ev, 1<<EV_BPS, ev>>EV_BPS);
-        delay_ms(600);
+        delay_ms(1000);
     }
 
 
