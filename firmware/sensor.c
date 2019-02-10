@@ -152,6 +152,7 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
     sensor_reading r;
     for (int i = 0; i < 4; ++i) { // four retries if we get an extreme reading
         sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_100);
+        sensor_turn_on(GAIN_1X);
         delay_ms(110); // don't poll the sensor until it's likely to be ready (saves i2c current)
         sensor_wait_till_ready();
         r = sensor_get_reading();
