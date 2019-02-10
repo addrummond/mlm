@@ -211,31 +211,20 @@ int main()
     SEGGER_RTT_printf(0, "LDO turned on\n");
     delay_ms(100); // make sure LDO has time to start up and sensor has time to
                    // power up
-
     sensor_init();
     delay_ms(100);
-    sensor_turn_on(GAIN_96X);
-    delay_ms(10);
-    //uint8_t manuf_id = sensor_read_reg(REG_MANUFAC_ID);
-    //SEGGER_RTT_printf(0, "Manuf id %u\n", manuf_id);
-    //uint8_t part_id = sensor_read_reg(REG_PART_ID);
-    //SEGGER_RTT_printf(0, "Part id %u\n", part_id);
-    //uint8_t status = sensor_read_reg(REG_ALS_STATUS);
-    //SEGGER_RTT_printf(0, "Status after %u\n", status);
-
-    //sensor_write_reg(REG_ALS_MEAS_RATE, 0b1001); // 50 ms integration, 100ms interval
-    //sensor_write_reg(REG_ALS_MEAS_RATE, 0b010010); // 200 ms integration, 200ms interval
+    // Set some sensible default gain and integration time values.
     sensor_write_reg(REG_ALS_MEAS_RATE, 0b0111011); // 350 ms integration, 500ms interval
+    sensor_turn_on(GAIN_1X);
+    delay_ms(10);
 
     for (;;) {
-        int32_t gain = 96, itime = 350;
+        int32_t gain, itime;
+        sensor_wait_till_ready();
         sensor_reading sr = sensor_get_reading_auto(&gain, &itime);
-        //sensor_reading sr = sensor_get_reading();
         int32_t lux = sensor_reading_to_lux(sr, gain, itime);
         int32_t ev = lux_to_ev(lux);
-        SEGGER_RTT_printf(0, "\nGAIN %u ITIME %u c0=%u c1=%u\n", gain, itime, sr.chan0, sr.chan1);
-        SEGGER_RTT_printf(0, "READING %u %u lux=%u/%u (%u) ev=%u/%u (%u)\n", sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, ev, 1<<EV_BPS, ev>>EV_BPS);
-        delay_ms(1000);
+        SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%u/%u (%u)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, ev, 1<<EV_BPS, ev>>EV_BPS);
     }
 
 

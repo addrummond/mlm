@@ -51,5 +51,6 @@ uint16_t sensor_read_reg16(uint8_t reg);
 void sensor_write_reg(uint8_t reg, uint8_t val);
 sensor_reading sensor_get_reading();
 sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime);
+void sensor_wait_till_ready(void);
 
 #endif
