@@ -231,7 +231,7 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
 // shutter speed at one stop above the light at index n. Given an EV@100 value,
 // this function calculates the index (possibly negative) of the required
 // shutter speed for an aperture of f8 and ISO of 100.
-static void ev_to_shutter_iso100_f8(int32_t ev, int *ss_index_out, int *third_out)
+void ev_to_shutter_iso100_f8(int32_t ev, int *ss_index_out, int *third_out)
 {
     // 1 second at f8 at ISO 100 is EV 6. Thus, for every stop our ev value
     // is above EV 6, we need to add one to our shutter speed index.
@@ -248,8 +248,10 @@ static void ev_to_shutter_iso100_f8(int32_t ev, int *ss_index_out, int *third_ou
         third = -1;
     }
 
-    *ss_index_out = ss_index;
-    *third_out = third;
+    if (ss_index_out != NULL)
+        *ss_index_out = ss_index;
+    if (third_out != NULL)
+        *third_out = third;
 }
 
 #ifdef TEST

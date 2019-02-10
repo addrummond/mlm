@@ -32,38 +32,37 @@ static const uint8_t led_an_pins[] = {
 #undef M
 
 #define M(n) mcat3(DPIN, LED ## n ## _CAT_DPIN, _TIMER) ,
-static TIMER_TypeDef *led_cat_timer[] = {  
+static TIMER_TypeDef *led_cat_timer[] = {
     LED_FOR_EACH(M)
 };
 #undef M
 
 #define M(n) mcat3(DPIN, LED ## n ## _CAT_DPIN, _CHAN) ,
-static const uint8_t led_cat_chan[] = {  
+static const uint8_t led_cat_chan[] = {
     LED_FOR_EACH(M)
 };
 #undef M
 
 #define M(n) mcat3(DPIN, LED ## n ## _CAT_DPIN, _ROUTE) ,
-static const uint32_t led_cat_route[] = {  
+static const uint32_t led_cat_route[] = {
     LED_FOR_EACH(M)
 };
 #undef M
 
 #define M(n) mcat3(DPIN, LED ## n ## _CAT_DPIN, _LOCATION) ,
-static const uint32_t led_cat_location[] = {  
+static const uint32_t led_cat_location[] = {
     LED_FOR_EACH(M)
 };
 #undef M
 
 #define M(n) mcat3(DPIN, LED ## n ## _CAT_DPIN, _CLOCK) ,
-static const CMU_Clock_TypeDef led_cat_clock[] = {  
+static const CMU_Clock_TypeDef led_cat_clock[] = {
     LED_FOR_EACH(M)
 };
 #undef M
 
 void led_on(unsigned n)
 {
-    --n; // go to zero indexing
     n %= LED_N;
     uint8_t nn = (uint8_t)n;
 

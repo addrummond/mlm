@@ -229,5 +229,5 @@ void sensor_wait_till_ready(void)
     do {
         status = sensor_read_reg(REG_ALS_STATUS);
         delay_ms(50); // save some current (less i2c communication)
-    } while ((status & 0b10000000) || !(status & 0b100));
+    } while (!(status & 0b100));
 }
