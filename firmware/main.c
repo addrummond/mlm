@@ -228,11 +228,12 @@ int main()
     sensor_write_reg(REG_ALS_MEAS_RATE, 0b0111011); // 350 ms integration, 500ms interval
 
     for (;;) {
-        int32_t gain, itime;
+        int32_t gain = 96, itime = 350;
         sensor_reading sr = sensor_get_reading_auto(&gain, &itime);
+        //sensor_reading sr = sensor_get_reading();
         int32_t lux = sensor_reading_to_lux(sr, gain, itime);
         int32_t ev = lux_to_ev(lux);
-        SEGGER_RTT_printf(0, "GAIN %u ITIME %u c0=%u c1=%u\n", gain, itime, sr.chan0, sr.chan1);
+        SEGGER_RTT_printf(0, "\nGAIN %u ITIME %u c0=%u c1=%u\n", gain, itime, sr.chan0, sr.chan1);
         SEGGER_RTT_printf(0, "READING %u %u lux=%u/%u (%u) ev=%u/%u (%u)\n", sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, ev, 1<<EV_BPS, ev>>EV_BPS);
         delay_ms(1000);
     }

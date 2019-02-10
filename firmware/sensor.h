@@ -45,6 +45,7 @@ typedef struct sensor_reading {
 void sensor_init();
 void sensor_write_reg(uint8_t reg, uint8_t val);
 void sensor_turn_on(uint8_t gain);
+void sensor_turn_off(void);
 uint8_t sensor_read_reg(uint8_t reg);
 uint16_t sensor_read_reg16(uint8_t reg);
 void sensor_write_reg(uint8_t reg, uint8_t val);

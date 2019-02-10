@@ -317,6 +317,21 @@ static bool test_pow14()
     return passed;
 }
 
+static bool test_sensor_reading_to_lux_problem_cases()
+{
+    // problem:
+    // GAIN 4 ITIME 100 c0=2176 c1=2807
+    // READING 2176 2807 lux=543/1024 (0) ev=4294965003/1024 (4294967293)
+    sensor_reading r;
+    r.chan0 = 2176;
+    r.chan1 = 2807;
+    double lux = fp_sensor_reading_to_lux(r, 4, 100);
+    int32_t luxf = sensor_reading_to_lux(r, 4, 100);
+    double luxfd = ((double)luxf) / (1 << EV_BPS);
+    printf("gain=4,itime=100,c0=2176,c1=2807: fix=%.2f, fp=%.2f\n", luxfd, lux);
+    return false;
+}
+
 static bool test_sensor_reading_to_lux()
 {
     bool passed = true;
@@ -384,11 +399,13 @@ int main()
     bool pow14_passed = test_pow14();
     bool lux_to_ev_passed = test_lux_to_ev();
     bool sensor_reading_to_lux_passed = test_sensor_reading_to_lux();
+    bool lux_problem_cases_passed = test_sensor_reading_to_lux_problem_cases();
 
     printf("\n");
     printf("pow14 test...................%s\n", passed(pow14_passed));
     printf("lux_to_ev_test...............%s\n", passed(lux_to_ev_passed));
     printf("sensor_reading_to_lux test...%s\n", passed(sensor_reading_to_lux_passed));
+    printf("lux problem cases test.......%s\n", passed(lux_problem_cases_passed));
 
     return 0;
 }

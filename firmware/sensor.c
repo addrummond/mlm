@@ -147,34 +147,56 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
     uint8_t measrate = sensor_read_reg(REG_ALS_MEAS_RATE);
 
     sensor_reading r;
-    for (int i = 0; i < 4; ++i) { // four retries if we get an extreme reading
+    for (int i = 0; i < 1 /* TODO TODO NO RETRIES FOR TESTING*/; ++i) { // four retries if we get an extreme reading
+        sensor_turn_off();
         sensor_turn_on(GAIN_1X);
+        delay_ms(10);
         sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_100);
+        //sensor_get_reading(); // flush nonsense data
         delay_ms(120);
         //while (! sensor_has_valid_data())
         //    ;
         r = sensor_get_reading();
 
+        SEGGER_RTT_printf(0, "Initial reading %u %u\n", r.chan0, r.chan1);
+
         if (r.chan0 < 12000) {
+            SEGGER_RTT_printf(0, "DOWN 1\n");
+            sensor_turn_off();
             sensor_turn_on(GAIN_4X);
+            delay_ms(10);
+            //sensor_get_reading(); // flush nonsense data
             delay_ms(120);
             //while (! sensor_has_valid_data())
             //    ;
             r = sensor_get_reading();
             if (r.chan0 < 2000) {
+                SEGGER_RTT_printf(0, "DOWN 2\n");
+                sensor_turn_off();
                 sensor_turn_on(GAIN_48X);
+                delay_ms(10);
+                //sensor_get_reading(); // flush nonsense data
                 delay_ms(120);
                 //while (! sensor_has_valid_data())
                 //    ;
                 r = sensor_get_reading();
                 if (r.chan0 < 10000) {
+                    SEGGER_RTT_printf(0, "DOWN 3\n");
+                    sensor_turn_off();
+                    sensor_turn_on(GAIN_48X);
+                    delay_ms(10);
                     sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_400);
+                    //sensor_get_reading(); // flush nonsense data
                     delay_ms(480);
                     //while (! sensor_has_valid_data())
                     //    ;
                     r = sensor_get_reading();
                     if (r.chan0 < 20000) {
+                        SEGGER_RTT_printf(0, "DOWN 4\n");
+                        sensor_turn_off();
                         sensor_turn_on(GAIN_96X);
+                        delay_ms(10);
+                        //sensor_get_reading(); // flush nonsense data
                         delay_ms(480);
                         //while (! sensor_has_valid_data())
                         //    ;
@@ -192,6 +214,7 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
                 *itime = 100;
             }
         } else {
+            SEGGER_RTT_printf(0, "SETTING GAIN ITIME\n");
             *gain = 1;
             *itime = 100;
         }
@@ -207,4 +230,9 @@ void sensor_turn_on(uint8_t gain)
 {
     gain &= 0b011100;
     sensor_write_reg(REG_ALS_CONTR, 1 | gain);
+}
+
+void sensor_turn_off()
+{
+    sensor_write_reg(REG_ALS_CONTR, 0);
 }
