@@ -224,7 +224,7 @@ int main()
         sensor_reading sr = sensor_get_reading_auto(&gain, &itime);
         int32_t lux = sensor_reading_to_lux(sr, gain, itime);
         int32_t ev = lux_to_ev(lux);
-        SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%u/%u (%u)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, ev, 1<<EV_BPS, ev>>EV_BPS);
+        SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS);
     }
 
 
