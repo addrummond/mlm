@@ -25,7 +25,7 @@ static uint32_t touch_index;
 static bool touch_on = true;
 
 // Capsense pins are PC0 (S1), PC1 (S3), PC14 (S2), PC15 (S4)
-void my_setup_capsense()
+void setup_capsense()
 {
     ACMP_CapsenseInit_TypeDef capsenseInit = ACMP_CAPSENSE_INIT_DEFAULT;
     CMU_ClockEnable(cmuClock_ACMP0, true);
@@ -48,7 +48,7 @@ void my_setup_capsense()
     ACMP_Enable(ACMP1);
 }
 
-void my_cycle_capsense()
+void cycle_capsense()
 {
     if (touch_acmp == 0) {
         if (touch_chan == 0) {
@@ -101,53 +101,6 @@ void ACMP0_IRQHandler(void) {
 }
 
 #define ACMP_PERIOD_MS  100
-
-void setup_capsense()
-{
-      /* Use the default STK capacative sensing setup */
-      ACMP_CapsenseInit_TypeDef capsenseInit = ACMP_CAPSENSE_INIT_DEFAULT;
-
-      CMU_ClockEnable(cmuClock_HFPER, true);
-      CMU_ClockEnable(cmuClock_ACMP0, true);
-
-      /* Set up ACMP1 in capsense mode */
-      ACMP_CapsenseInit(ACMP0, &capsenseInit);
-
-      // This is all that is needed to setup PC8, or the left-most slider
-      // i.e. no GPIO routes or GPIO clocks need to be configured
-      ACMP_CapsenseChannelSet(ACMP0, acmpChannel0);
-
-      // Enable the ACMP1 interrupt
-      ACMP_IntEnable(ACMP0, ACMP_IEN_EDGE);
-      ACMP0->CTRL = ACMP0->CTRL | ACMP_CTRL_IRISE_ENABLED;
-
-      // Wait until ACMP warms up
-      while (!(ACMP0->STATUS & ACMP_STATUS_ACMPACT)) ;
-
-      CMU_ClockEnable(cmuClock_PRS, true);
-      CMU_ClockEnable(cmuClock_TIMER1, true);
-
-      // Use TIMER1 to count ACMP events (rising edges)
-      // It will be clocked by the capture/compare feature
-      TIMER_Init_TypeDef timer_settings = TIMER_INIT_DEFAULT;
-      timer_settings.clkSel = timerClkSelCC1;
-      timer_settings.prescale = timerPrescale1024;
-      TIMER_Init(TIMER1, &timer_settings);
-      TIMER1->TOP  = 0xFFFF;
-
-      // Set up TIMER1's capture/compare feature, to act as the source clock
-      TIMER_InitCC_TypeDef timer_cc_settings = TIMER_INITCC_DEFAULT;
-      timer_cc_settings.mode = timerCCModeCapture;
-      timer_cc_settings.prsInput = true;
-      timer_cc_settings.prsSel = timerPRSSELCh0;
-      timer_cc_settings.eventCtrl = timerEventRising;
-      timer_cc_settings.edge = timerEdgeBoth;
-      TIMER_InitCC(TIMER1, 1, &timer_cc_settings);
-
-      // Set up PRS so that TIMER1 CC1 can observe the event produced by ACMP0
-      PRS_SourceSignalSet(0, PRS_CH_CTRL_SOURCESEL_ACMP0, PRS_CH_CTRL_SIGSEL_ACMP0OUT, prsEdgePos);
-
-}
 
 int main()
 {
@@ -207,7 +160,7 @@ int main()
     // ********** SENSOR TEST **********
 
     // Turn on the LDO to power up the sensor.
-    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
+    /*GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
     delay_ms(100); // make sure LDO has time to start up and sensor has time to
                    // power up
@@ -229,12 +182,12 @@ int main()
         ev_to_shutter_iso100_f8(ev, &ss_index, 0);
         leds_all_off();
         led_on(6 + ss_index);
-    }
+    }*/
 
 
     // ********** CAPSENSE TEST **********
 
-    /*my_setup_capsense();
+    setup_capsense();
 
     for (unsigned i = 0;; i++) {
         if (i % (4*6) == 0) {
@@ -244,10 +197,10 @@ int main()
             my_clear_capcounts();
         }
 
-        my_cycle_capsense();
+        cycle_capsense();
 
         delay_ms(10);
-    }*/
+    }
 
     // ********** LED TEST **********
 
