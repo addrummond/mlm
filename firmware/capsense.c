@@ -21,7 +21,8 @@ void setup_capsense()
     ACMP_CapsenseChannelSet(ACMP0, acmpChannel0);
     ACMP_CapsenseChannelSet(ACMP1, acmpChannel6);
 
-    while (!(ACMP0->STATUS & ACMP_STATUS_ACMPACT) || !(ACMP1->STATUS & ACMP_STATUS_ACMPACT));
+    while (!(ACMP0->STATUS & ACMP_STATUS_ACMPACT) || !(ACMP1->STATUS & ACMP_STATUS_ACMPACT))
+        ;
 
     ACMP_IntEnable(ACMP0, ACMP_IEN_EDGE);
     ACMP0->CTRL |= ACMP_CTRL_IRISE_ENABLED;
