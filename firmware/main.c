@@ -60,14 +60,21 @@ void RTC_IRQHandler()
 {
     RTC_IntClear(RTC_IFC_COMP0);
 
-    //EMU_EnterEM4();
+    leds_all_off();
+
+    SEGGER_RTT_printf(0, "Entering EM4 (unless in debug mode)\n");
+
+#ifndef DEBUG
+    write_state_to_flash();
+    EMU_EnterEM4();
+#endif
 }
 
 void turn_on_wake_timer()
 {
     RTC_Init_TypeDef init = {
         true, // Start counting when initialization is done
-        true, // Enable updating during debug halt.
+        false, // Enable updating during debug halt.
         true  //Restart counting from 0 when reaching COMP0.
     };
     RTC_Init(&init);
@@ -114,10 +121,17 @@ void handle_MODE_AWAKE_AT_REST()
     // Await further button presses in EM2.
     setup_button_press_interrupt();
 
-    // TODO TODO PROBLEM STARTS HERE
     // If we've been in EM2 for a while and nothing has happened,
     // we want to go into EM4.
     turn_on_wake_timer();
+
+    // Display the current reading, if any.
+    if (reading_is_saved()) {
+        int ss_index;
+        ev_to_shutter_iso100_f8(g_state.last_reading_ev, &ss_index, 0);
+        leds_all_off();
+        led_on(6 + ss_index);
+    }
 
     EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
     g_state.mode = MODE_JUST_WOKEN;
@@ -125,6 +139,37 @@ void handle_MODE_AWAKE_AT_REST()
 
 void handle_MODE_DOING_READING()
 {
+    // Turn on the LDO to power up the sensor.
+    SEGGER_RTT_printf(0, "Turning on LDO.\n");
+    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
+    SEGGER_RTT_printf(0, "LDO turned on\n");
+    delay_ms(100); // make sure LDO has time to start up and sensor has time to
+                   // power up
+    sensor_init();
+    delay_ms(100);
+    // Set some sensible default gain and integration time values.
+    //sensor_write_reg(REG_ALS_MEAS_RATE, 0b0111011); // 350 ms integration, 500ms interval
+    //sensor_turn_on(GAIN_1X);
+    //delay_ms(10);
+
+    int32_t gain, itime;
+    sensor_wait_till_ready();
+    sensor_reading sr = sensor_get_reading_auto(&gain, &itime);
+    /*g_state.last_reading = sr;
+    g_state.last_reading_itime = itime;
+    g_state.last_reading_gain = gain;
+    int32_t lux = sensor_reading_to_lux(sr, gain, itime);
+    int32_t ev = lux_to_ev(lux);
+    g_state.last_reading_ev = ev;
+    SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS);
+    int ss_index;
+    ev_to_shutter_iso100_f8(ev, &ss_index, 0);
+    leds_all_off();
+    led_on(6 + ss_index);*/
+
+    // Turn the LDO off to power down the sensor.
+    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 0);
+
     // TODO temporary
     g_state.mode = MODE_AWAKE_AT_REST;
 }
@@ -164,18 +209,25 @@ int testmain()
     CMU_ClockEnable(cmuClock_CORELE, true);
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
     CMU_OscillatorEnable(cmuOsc_LFRCO, true, true);
+
     CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFRCO);
     CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
-
     CMU_ClockEnable(cmuClock_RTC, true);
+    RTC_Init_TypeDef init = {
+        false, // Start counting when initialization is done
+        false, // Enable updating during debug halt.
+        false  //Restart counting from 0 when reaching COMP0.
+    };
+    RTC_Init(&init);
+
+    rtt_init();
+    SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
 
     GPIO_PinModeSet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN, gpioModeInputPullFilter, 1);
 
-    SEGGER_RTT_printf(0, "Reading state from flash\n");
+    //read_state_from_flash();
 
-    read_state_from_flash();
-
-    state_loop();
+    //state_loop();
 
     // ********** REGULAR INIT **********
 
@@ -199,7 +251,7 @@ int testmain()
     // ********** SENSOR TEST **********
 
     // Turn on the LDO to power up the sensor.
-    /*GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
+    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
     delay_ms(100); // make sure LDO has time to start up and sensor has time to
                    // power up
@@ -221,7 +273,7 @@ int testmain()
         ev_to_shutter_iso100_f8(ev, &ss_index, 0);
         leds_all_off();
         led_on(6 + ss_index);
-    }*/
+    }
 
 
     // ********** CAPSENSE TEST **********

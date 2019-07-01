@@ -20,6 +20,7 @@ typedef struct state {
     sensor_reading last_reading;
     int32_t last_reading_itime;
     int32_t last_reading_gain;
+    int32_t last_reading_ev;
 } state;
 
 extern state g_state;
@@ -27,7 +28,8 @@ extern state g_state;
 // Address of the user data page in flash memory.
 #define USER_DATA_PAGE_ADDR ((uint32_t *)0x0FE00000)
 
-void write_state_to_flash();
-void read_state_from_flash();
+void write_state_to_flash(void);
+void read_state_from_flash(void);
+bool reading_is_saved(void);
 
 #endif

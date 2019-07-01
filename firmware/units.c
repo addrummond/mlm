@@ -110,78 +110,16 @@ int32_t lux_to_ev(int32_t lux)
     return log_base2(lux);
 }
 
-// Lookup table for raising numbers with EV_BPS precision to the 1.4th power.
-// y = x^1.4 is quite close to being linear within the range of values we're
-// interested in, so using a small lookup table together with linear
-// interpolation is pretty accurate. The following Python 3 function can be used
-// to generate the table values.
-/*
-from math import *
-def calc():
-    EV_BPS = 10   # <<<<<===== MUST BE CONSISTENT WITH EV_BPS IN units.h
-    POW14_BPS = 7 # <<<<<===== MUST BE CONSISTENT WITH #define BELOW THIS COMMENT
-    i = 0
-    step = 1/(1 << POW14_BPS)
-    c = 0
-    print("\n    ", end='')
-    while i <= 1:
-        if c != 0:
-            print(", ", end='')
-        if c % 8 == 7:
-            print("\n    ", end='')
-        r = pow(i, 1.4)
-        r *= (1 << EV_BPS)
-        print(int(round(r)), end='')
-        i += step
-        c += 1
-    print()
-*/
-#define POW14_BPS 7
-static const int16_t pow14_table[] = {
-    0, 1, 3, 5, 8, 11, 14,
-    18, 21, 25, 29, 33, 37, 42, 46,
-    51, 56, 61, 66, 71, 76, 82, 87,
-    93, 98, 104, 110, 116, 122, 128, 134,
-    141, 147, 154, 160, 167, 173, 180, 187,
-    194, 201, 208, 215, 222, 230, 237, 244,
-    252, 259, 267, 275, 282, 290, 298, 306,
-    314, 322, 330, 338, 346, 355, 363, 371,
-    380, 388, 397, 405, 414, 422, 431, 440,
-    449, 458, 467, 475, 484, 494, 503, 512,
-    521, 530, 540, 549, 558, 568, 577, 587,
-    596, 606, 616, 625, 635, 645, 655, 665,
-    675, 685, 695, 705, 715, 725, 735, 745,
-    755, 766, 776, 786, 797, 807, 818, 828,
-    839, 849, 860, 871, 881, 892, 903, 914,
-    925, 936, 946, 957, 968, 979, 991, 1002,
-    1013, 1024
-};
-
-static int32_t pow14(int32_t val)
-{
-    int32_t i = val >> (EV_BPS - POW14_BPS);
-    int32_t idiff = val - (i << (EV_BPS - POW14_BPS));
-
-    // If i is the index of the last element in the lookup table, or if i is out
-    // of bounds, then we can't do interpolation. In either case, we return the
-    // value of the last element in the table.
-    if (i >= sizeof(pow14_table)/sizeof(int16_t) - 1)
-        return pow14_table[sizeof(pow14_table)/sizeof(int32_t) - 1];
-
-    int32_t base = pow14_table[i];
-    int32_t next = pow14_table[i+1];
-    int32_t extra = next - base;
-    extra = (extra * idiff) >> (EV_BPS - POW14_BPS);
-    return base + extra;
-}
-
 int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time)
 {
-    // The LTR-303ALS-01 refers to a mysterious "Appendix A" for the lux
-    // calculation. I haven't been able to locate this appendix. The following
-    // calculation is based on the code in
-    //     https://github.com/automote/LTR303/blob/628988a6e5ac1bccb1d0c0eea156f0e9dddf4d17/LTR303.cpp
-    // modified to use fixed-point arithmetic.
+    // The LTR-303ALS-01 datasheet refers to a mysterious "Appendix A" for the
+    // lux calculation. I haven't been able to locate this appendix. The
+    // following calculation has been derived from various scraps of information
+    // online.
+
+    // Doing this with int64s just to be on the safe side. This could probably
+    // be rewritten to use int32s with some more careful thought about maximum
+    // values.
 
     int64_t c0 = r.chan0;
     int64_t c1 = r.chan1;
@@ -193,35 +131,20 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
     c1 <<= EV_BPS;
     int32_t ratio = (int32_t)(((int64_t)c1 << EV_BPS) / (int64_t)c0);
 
-    // Normalize for gain
-    // We know from the code linked above that the channel values should be
-    // multiplied by 16 prior to the calculations if gain is set to 1X and the
-    // integration time is 400.0 ms.
-    // We infer from the datasheet for a different part (!), the LTR303ALS,
-    // that as the gain is increased above 1, the result should be divded by
-    // the gain and by (400/integration time).
-    c0 *= 16;
-    c1 *= 16;
-
     int64_t lux;
-    if (ratio < (1 << EV_BPS) / 2) {
-        lux = ((c0 * 19) / 625) -
-              (((c0 * 31 * pow14(ratio)) / 500) >> EV_BPS);
-    } else if (ratio < ((1 << EV_BPS) * 61) / 100) {
-        lux = ((c0 * 14) / 625) -
-              ((c1 * 31) / 1000);
-    } else if (ratio < ((1 << EV_BPS) * 4) / 5) {
-        lux = ((c0 * 8) / 625) -
-              ((c1 * 153) / 10000);
-    } else if (ratio < ((1 << EV_BPS) * 13) / 10) {
-        lux = ((c0 * 73) / 50000) -
-              ((c1 * 7) / 6250);
+    int64_t g64 = gain;
+    if (ratio < (45 << EV_BPS) / 100) {
+        lux = ((c0 * 19240) + (c1 * 18119)) / g64 / (1 << 14);
+    } else if (ratio < (64 << EV_BPS) / 100) {
+        lux = ((c0 * 70099) + (c1 * 32027)) / g64 / (1 << 14);
+    } else if (ratio < (85 << EV_BPS) / 100) {
+        lux = ((c0 * 9709) + (c1 * 1942)) / g64 / (1 << 14);
     } else {
-        lux = -1;
+        return -1;
     }
 
-    // compensate for gain and integration time.
-    lux = (lux * 400) / (integ_time * gain);
+    // compensate for integration time.
+    lux = ((lux * integ_time) / 100);
 
     return (int32_t)lux;
 }

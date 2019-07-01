@@ -161,15 +161,15 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
 
         if (r.chan0 < 12000) {
             //SEGGER_RTT_printf(0, "DOWN 1\n");
-            sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_100);
             sensor_turn_on(GAIN_4X);
+            sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_100);
             delay_ms(110);
             sensor_wait_till_ready();
             r = sensor_get_reading();
             if (r.chan0 < 2000) {
                 //SEGGER_RTT_printf(0, "DOWN 2\n");
-                sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_100);
                 sensor_turn_on(GAIN_48X);
+                sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_100);
                 delay_ms(110);
                 sensor_wait_till_ready();
                 r = sensor_get_reading();
@@ -181,8 +181,8 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
                     r = sensor_get_reading();
                     if (r.chan0 < 20000) {
                         //SEGGER_RTT_printf(0, "DOWN 4\n");
-                        sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_400);
                         sensor_turn_on(GAIN_96X);
+                        sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_400);
                         delay_ms(420);
                         sensor_wait_till_ready();
                         r = sensor_get_reading();

@@ -1,5 +1,6 @@
 #include <em_msc.h>
 #include <state.h>
+#include <stdbool.h>
 
 state g_state;
 
@@ -25,6 +26,9 @@ void write_state_to_flash()
     off += sizeof(int32_t);
     d = g_state.last_reading_gain;
     MSC_WriteWord(USER_DATA_PAGE_ADDR + off, &d, sizeof(int32_t));
+    off += sizeof(int32_t);
+    d = g_state.last_reading_ev;
+    MSC_WriteWord(USER_DATA_PAGE_ADDR + off, &d, sizeof(int32_t));
 }
 
 void read_state_from_flash()
@@ -45,8 +49,14 @@ void read_state_from_flash()
         g_state.last_reading.chan1 = 0;
         g_state.last_reading_itime = 0;
         g_state.last_reading_gain = 0;
+        g_state.last_reading_ev = 0;
     }
 
     // Whatever state we were in when we went to sleep, we're now in JUST_WOKEN
     g_state.mode = MODE_JUST_WOKEN;
+}
+
+bool reading_is_saved()
+{
+    return g_state.last_reading_itime != 0;
 }
