@@ -3,6 +3,7 @@
 #include <em_i2c.h>
 #include <rtt.h>
 #include <sensor.h>
+#include <time.h>
 #include <util.h>
 
 #define SENSOR_I2C_PORT       gpioPortE
