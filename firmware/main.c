@@ -271,8 +271,9 @@ int testmain()
         SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS);
         int ss_index;
         ev_to_shutter_iso100_f8(ev, &ss_index, 0);
+        SEGGER_RTT_printf(0, "SSINDEX %s%u\n", sign_of(ss_index), iabs(ss_index));
         leds_all_off();
-        led_on(6 + ss_index);
+        led_on(LED_1S_N + ss_index);
     }
 
 
