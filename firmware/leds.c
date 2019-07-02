@@ -1,61 +1,60 @@
+#include <config.h>
 #include <em_cmu.h>
 #include <em_gpio.h>
 #include <em_timer.h>
+#include <macroutils.h>
 #include <stdint.h>
 #include <leds.h>
 
-#define mcat3_(a, b, c) a ## b ## c
-#define mcat3(a, b, c) mcat3_(a, b, c)
-
-#define M(n) mcat3(DPIN, LED ## n ## _CAT_DPIN, _GPIO_PORT) ,
+#define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _CAT_DPIN, _GPIO_PORT) ,
 static GPIO_Port_TypeDef led_cat_ports[] = {
     LED_FOR_EACH(M)
 };
 #undef M
 
-#define M(n) mcat3(DPIN, LED ## n ## _AN_DPIN, _GPIO_PORT) ,
+#define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _AN_DPIN, _GPIO_PORT) ,
 static GPIO_Port_TypeDef led_an_ports[] = {
     LED_FOR_EACH(M)
 };
 #undef M
 
-#define M(n) mcat3(DPIN, LED ## n ## _CAT_DPIN, _GPIO_PIN) ,
+#define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _CAT_DPIN, _GPIO_PIN) ,
 static const uint8_t led_cat_pins[] = {
     LED_FOR_EACH(M)
 };
 #undef M
 
-#define M(n) mcat3(DPIN, LED ## n ## _AN_DPIN, _GPIO_PIN) ,
+#define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _AN_DPIN, _GPIO_PIN) ,
 static const uint8_t led_an_pins[] = {
     LED_FOR_EACH(M)
 };
 #undef M
 
-#define M(n) mcat3(DPIN, LED ## n ## _CAT_DPIN, _TIMER) ,
+#define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _CAT_DPIN, _TIMER) ,
 static TIMER_TypeDef *led_cat_timer[] = {
     LED_FOR_EACH(M)
 };
 #undef M
 
-#define M(n) mcat3(DPIN, LED ## n ## _CAT_DPIN, _CHAN) ,
+#define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _CAT_DPIN, _CHAN) ,
 static const uint8_t led_cat_chan[] = {
     LED_FOR_EACH(M)
 };
 #undef M
 
-#define M(n) mcat3(DPIN, LED ## n ## _CAT_DPIN, _ROUTE) ,
+#define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _CAT_DPIN, _ROUTE) ,
 static const uint32_t led_cat_route[] = {
     LED_FOR_EACH(M)
 };
 #undef M
 
-#define M(n) mcat3(DPIN, LED ## n ## _CAT_DPIN, _LOCATION) ,
+#define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _CAT_DPIN, _LOCATION) ,
 static const uint32_t led_cat_location[] = {
     LED_FOR_EACH(M)
 };
 #undef M
 
-#define M(n) mcat3(DPIN, LED ## n ## _CAT_DPIN, _CLOCK) ,
+#define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _CAT_DPIN, _CLOCK) ,
 static const CMU_Clock_TypeDef led_cat_clock[] = {
     LED_FOR_EACH(M)
 };
