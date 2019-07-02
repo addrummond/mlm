@@ -63,6 +63,12 @@ static const CMU_Clock_TypeDef led_cat_clock[] = {
 
 void led_on(unsigned n)
 {
+    // Make sure n is positive first, as result of % with negative operand is
+    // implementation-defined. Ok to use a loop, as this should never be called
+    // with a very large negative value.
+    while (n < 0)
+        n += LED_N;
+
     n %= LED_N;
     uint8_t nn = (uint8_t)n;
 
