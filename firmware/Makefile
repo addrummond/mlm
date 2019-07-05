@@ -31,6 +31,7 @@ endif
 override ARMASMFLAGS += $(DEPFLAGS)
 
 OBJS := main.out \
+        batsense.out \
         capsense.out \
         leds.out \
         sensor.out \

@@ -1,5 +1,6 @@
 #include <config.h>
 
+#include <batsense.h>
 #include <capsense.h>
 #include <em_acmp.h>
 #include <em_chip.h>
@@ -224,6 +225,7 @@ int testmain()
     SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
 
     GPIO_PinModeSet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN, gpioModeInputPullFilter, 1);
+    GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInput, 0);
 
     //read_state_from_flash();
 
@@ -246,6 +248,14 @@ int testmain()
     SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
 
     leds_all_off();*/
+
+
+    // ********** BATSENSE TEST **********
+
+    for (;;) {
+        int v = get_battery_voltage();
+        SEGGER_RTT_printf(0, "V count %u\n", v);
+    }
 
 
     // ********** SENSOR TEST **********
