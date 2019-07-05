@@ -9,7 +9,8 @@ void delay_ms(int ms)
 
     RTC->CTRL |= RTC_CTRL_EN;
 
-    while ( RTC->CNT < endValue );
+    while (RTC->CNT < endValue)
+        ;
 
     RTC->CTRL &= ~RTC_CTRL_EN;
 }
