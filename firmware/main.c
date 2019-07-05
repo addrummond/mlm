@@ -57,39 +57,60 @@ void setup_button_press_interrupt()
     GPIO_IntConfig(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN, false, true, true);
 }
 
+// The RTC interrupt seems to be triggered immediately by the configuration code
+// in turn_on_wake timer for some reason. That's a bug either in this code or in
+// the libraries / chip. To work around this, we ignore the interrupt when it's
+// first triggered via the following global flag. Bit of a hack, but I can't
+// see anything wrong with the way the interrupt is set up in
+// turn_on_wake_timer.
+static bool RTC_IRQHandler_first_time;
+
+static void (*rtc_count_callback)(void);
+
 void RTC_IRQHandler()
 {
     RTC_IntClear(RTC_IFC_COMP0);
 
+    if (RTC_IRQHandler_first_time) {
+        RTC_IRQHandler_first_time = false;
+        return;
+    }
+
+    if (rtc_count_callback)
+        rtc_count_callback();
+}
+
+void wake_timer_rtc_count_callback()
+{
     leds_all_off();
 
     SEGGER_RTT_printf(0, "Entering EM4 (unless in debug mode)\n");
 
 #ifndef DEBUG
     write_state_to_flash();
-    EMU_EnterEM4();
+    sleep_awaiting_button_press();
 #endif
 }
 
 void turn_on_wake_timer()
 {
-    RTC_Init_TypeDef init = {
-        true, // Start counting when initialization is done
-        false, // Enable updating during debug halt.
-        true  //Restart counting from 0 when reaching COMP0.
-    };
-    RTC_Init(&init);
+    RTC_Enable(false);
 
-    // The interrupt from the RTC gets the highest
-    // priority as the second input argument is 0.
-    NVIC_SetPriority(RTC_IRQn, 0);
+    RTC_IRQHandler_first_time = true;
+    rtc_count_callback = wake_timer_rtc_count_callback;
+
+    RTC_Init_TypeDef init = {
+        __GCC_ATOMIC_TEST_AND_SET_TRUEVAL, // Start counting when initialization is done
+        false, // Enable updating during debug halt.
+        true  // Restart counting from 0 when reaching COMP0.
+    };
+
+    RTC_CompareSet(0, IDLE_TIME_BEFORE_DEEPEST_SLEEP_SECONDS * RTC_FREQ);
 
     // Enabling Interrupt from RTC
     RTC_IntEnable(RTC_IEN_COMP0);
     NVIC_EnableIRQ(RTC_IRQn);
-
-    SEGGER_RTT_printf(0, "Setting compare to %u\n", IDLE_TIME_BEFORE_DEEPEST_SLEEP_SECONDS * RTC_FREQ);
-    RTC_CompareSet(0, IDLE_TIME_BEFORE_DEEPEST_SLEEP_SECONDS * RTC_FREQ);
+    RTC_Init(&init);
 }
 
 void handle_MODE_JUST_WOKEN()
@@ -113,6 +134,7 @@ void handle_MODE_JUST_WOKEN()
         g_state.mode = MODE_DOING_READING;
     } else {
         // It was just a tap.
+        g_state.last_reading_flags |= LAST_READING_FLAGS_FRESH;
         g_state.mode = MODE_AWAKE_AT_REST;
     }
 }
@@ -127,15 +149,30 @@ void handle_MODE_AWAKE_AT_REST()
     turn_on_wake_timer();
 
     // Display the current reading, if any.
-    if (reading_is_saved()) {
-        int ss_index;
-        ev_to_shutter_iso100_f8(g_state.last_reading_ev, &ss_index, 0);
-        leds_all_off();
-        led_on(6 + ss_index);
+    if (fresh_reading_is_saved()) {
+        g_state.mode = MODE_DISPLAY_READING;
+        g_state.last_reading_flags &= ~(int32_t)LAST_READING_FLAGS_FRESH;
+    } else {
+        EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
+        g_state.mode = MODE_JUST_WOKEN;
     }
+}
 
-    EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
-    g_state.mode = MODE_JUST_WOKEN;
+void handle_MODE_DISPLAY_READING()
+{
+    int ss_index;
+    ev_to_shutter_iso100_f8(g_state.last_reading_ev, &ss_index, 0);
+    leds_all_off();
+    led_on(6 + ss_index);
+
+    // The current wasted by looping is trivial compared to the current used
+    // by the LEDs, so might as well do this the simple way.
+    // TODO: we also need to incorporate capsense + slider into this wait loop.
+    delay_ms(DISPLAY_READING_TIME_SECONDS * 1000);
+
+    leds_all_off();
+
+    g_state.mode = MODE_AWAKE_AT_REST;
 }
 
 void handle_MODE_DOING_READING()
@@ -148,15 +185,18 @@ void handle_MODE_DOING_READING()
                    // power up
     sensor_init();
     delay_ms(100);
+
     // Set some sensible default gain and integration time values.
-    //sensor_write_reg(REG_ALS_MEAS_RATE, 0b0111011); // 350 ms integration, 500ms interval
-    //sensor_turn_on(GAIN_1X);
-    //delay_ms(10);
+    sensor_write_reg(REG_ALS_MEAS_RATE, 0b0111011); // 350 ms integration, 500ms interval
+    sensor_turn_on(GAIN_1X);
+    delay_ms(10);
 
     int32_t gain, itime;
+    SEGGER_RTT_printf(0, "Waiting for sensor\n");
     sensor_wait_till_ready();
+    SEGGER_RTT_printf(0, "Sensor ready\n");
     sensor_reading sr = sensor_get_reading_auto(&gain, &itime);
-    /*g_state.last_reading = sr;
+    g_state.last_reading = sr;
     g_state.last_reading_itime = itime;
     g_state.last_reading_gain = gain;
     int32_t lux = sensor_reading_to_lux(sr, gain, itime);
@@ -166,7 +206,7 @@ void handle_MODE_DOING_READING()
     int ss_index;
     ev_to_shutter_iso100_f8(ev, &ss_index, 0);
     leds_all_off();
-    led_on(6 + ss_index);*/
+    led_on(6 + ss_index);
 
     // Turn the LDO off to power down the sensor.
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 0);
@@ -194,13 +234,17 @@ void state_loop()
 
                 handle_MODE_DOING_READING();
             } break;
+            case MODE_DISPLAY_READING: {
+                SEGGER_RTT_printf(0, "MODE_DISPLAY_READING\n");
+
+                handle_MODE_DISPLAY_READING();
+            }
         }
     }
 }
 
-int testmain()
+void common_init()
 {
-    // ********** LOW POWER INIT **********
     // https://www.silabs.com/community/mcu/32-bit/forum.topic.html/happy_gecko_em4_conf-Y9Bw
 
     CHIP_Init();
@@ -214,48 +258,22 @@ int testmain()
     CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFRCO);
     CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
     CMU_ClockEnable(cmuClock_RTC, true);
-    RTC_Init_TypeDef init = {
-        false, // Start counting when initialization is done
-        false, // Enable updating during debug halt.
-        false  //Restart counting from 0 when reaching COMP0.
-    };
-    RTC_Init(&init);
 
     rtt_init();
     SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
 
     GPIO_PinModeSet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN, gpioModeInputPullFilter, 1);
     GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInput, 0);
+}
 
-    //read_state_from_flash();
-
-    //state_loop();
-
-    // ********** REGULAR INIT **********
-
-    /*CHIP_Init();
-
-    CMU_ClockEnable(cmuClock_HFPER, true);
-    CMU_ClockEnable(cmuClock_GPIO, true);
-
-    CMU_ClockEnable(cmuClock_CORELE, true);
-    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
-    CMU_OscillatorEnable(cmuOsc_LFRCO, true, true);
-    CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFRCO);
-    CMU_ClockEnable(cmuClock_RTC, true);
-
-    rtt_init();
-    SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
-
-    leds_all_off();*/
-
-
+int testmain()
+{
     // ********** BATSENSE TEST **********
 
-    for (;;) {
+    /*for (;;) {
         int v = get_battery_voltage();
         SEGGER_RTT_printf(0, "V count %u\n", v);
-    }
+    }*/
 
 
     // ********** SENSOR TEST **********
@@ -267,8 +285,9 @@ int testmain()
                    // power up
     sensor_init();
     delay_ms(100);
-    // Set some sensible default gain and integration time values.
-    sensor_write_reg(REG_ALS_MEAS_RATE, 0b0111011); // 350 ms integration, 500ms interval
+
+    // Turn the sensor on an give it time to get ready. (We have to set a gain
+    // value when we turn the sensor on, but the choice here is immaterial.)
     sensor_turn_on(GAIN_1X);
     delay_ms(10);
 
@@ -321,9 +340,19 @@ int testmain()
     return 0;
 }
 
-int main()
+int real_main()
 {
-    return testmain();
+    read_state_from_flash();
+
+    state_loop();
 
     return 0;
+}
+
+int main()
+{
+    common_init();
+
+    return real_main();
+//    return testmain();
 }

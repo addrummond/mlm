@@ -10,9 +10,13 @@ typedef enum mode {
     MODE_JUST_WOKEN,
     // the button is being held down, waiting for reading to complete
     MODE_DOING_READING,
-    // the device is awake, not doing anything
+    // the device is awake, not doing anything.
     MODE_AWAKE_AT_REST,
+    // a reading is being shown and can be manipulated using the slider
+    MODE_DISPLAY_READING,
 } mode;
+
+#define LAST_READING_FLAGS_FRESH 1
 
 typedef struct state {
     int32_t id; // sequential id used to determine location of state in flash storage for wear leveling purposes
@@ -21,6 +25,7 @@ typedef struct state {
     int32_t last_reading_itime;
     int32_t last_reading_gain;
     int32_t last_reading_ev;
+    int32_t last_reading_flags;
 } state;
 
 extern state g_state;
@@ -30,6 +35,6 @@ extern state g_state;
 
 void write_state_to_flash(void);
 void read_state_from_flash(void);
-bool reading_is_saved(void);
+bool fresh_reading_is_saved(void);
 
 #endif
