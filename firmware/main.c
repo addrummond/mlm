@@ -57,31 +57,10 @@ void setup_button_press_interrupt()
     GPIO_IntConfig(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN, false, true, true);
 }
 
-// The RTC interrupt seems to be triggered immediately by the configuration code
-// in turn_on_wake timer for some reason. That's a bug either in this code or in
-// the libraries / chip. To work around this, we ignore the interrupt when it's
-// first triggered via the following global flag. Bit of a hack, but I can't
-// see anything wrong with the way the interrupt is set up in
-// turn_on_wake_timer.
-static bool RTC_IRQHandler_first_time;
-
-static void (*rtc_count_callback)(void);
-
-void RTC_IRQHandler()
-{
-    RTC_IntClear(RTC_IFC_COMP0);
-
-    if (RTC_IRQHandler_first_time) {
-        RTC_IRQHandler_first_time = false;
-        return;
-    }
-
-    if (rtc_count_callback)
-        rtc_count_callback();
-}
-
 void wake_timer_rtc_count_callback()
 {
+    RTC_Enable(false);
+
     leds_all_off();
 
     SEGGER_RTT_printf(0, "Entering EM4 (unless in debug mode)\n");
@@ -96,8 +75,7 @@ void turn_on_wake_timer()
 {
     RTC_Enable(false);
 
-    RTC_IRQHandler_first_time = true;
-    rtc_count_callback = wake_timer_rtc_count_callback;
+    set_rtc_interrupt_handler(wake_timer_rtc_count_callback);
 
     RTC_Init_TypeDef init = {
         __GCC_ATOMIC_TEST_AND_SET_TRUEVAL, // Start counting when initialization is done
