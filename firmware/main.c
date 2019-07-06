@@ -93,10 +93,6 @@ void turn_on_wake_timer()
 
 void handle_MODE_JUST_WOKEN()
 {
-    led_on(1);
-    delay_ms(500);
-    leds_all_off();
-
     // If it was a brief tap on the button, go to AWAKE_AT_REST.
     // Otherwise, if they've held the button down for a little bit,
     // start doing a reading.
@@ -286,7 +282,6 @@ int testmain()
         //else
         //    led_on(LED_PLUS_1_3_N);
     }
-
 
     // ********** CAPSENSE TEST **********
 
