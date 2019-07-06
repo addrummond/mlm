@@ -303,10 +303,10 @@ int testmain()
         SEGGER_RTT_printf(0, "SSINDEX %s%u\n", sign_of(ss_index), iabs(ss_index));
         leds_all_off();
         led_on(LED_1S_N + ss_index);
-        if (third == -1)
-            led_on(LED_MINUS_1_3_N);
-        else
-            led_on(LED_PLUS_1_3_N);
+        //if (third == -1)
+        //    led_on(LED_MINUS_1_3_N);
+        //else
+        //    led_on(LED_PLUS_1_3_N);
     }
 
 
