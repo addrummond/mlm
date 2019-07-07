@@ -102,7 +102,6 @@ void handle_MODE_JUST_WOKEN()
     while (((v = GPIO_PinInGet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN)) == 0) && RTC->CNT < (RTC_FREQ * LONG_BUTTON_PRESS_MS)/1000)
         ;
     RTC->CTRL &= ~RTC_CTRL_EN;
-    SEGGER_RTT_printf(0, "AFT\n");
     if (v == 0) {
         // They're holding the button down.
         g_state.mode = MODE_DOING_READING;
@@ -250,8 +249,8 @@ int testmain()
     // ********** TEST LED CYCLING **********
 
     leds_all_off();
-    //leds_on(0b11);
-    led_on(0);
+    leds_on(0b111111);
+    //led_on(0);
 
     for (;;) ;
 

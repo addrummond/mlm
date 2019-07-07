@@ -64,10 +64,10 @@ static const CMU_Clock_TypeDef led_cat_clock[] = {
 };
 #undef M
 
-static const uint32_t COUNT = 100;
+static const uint32_t COUNT = 50;
 static const uint32_t ONE_LED_DUTY_CYCLE = 1;
 
-static void led_on_with_dc(unsigned n, uint32_t duty_cycle)
+static unsigned normalize_led_number(unsigned n)
 {
     // Make sure n is positive first, as result of % with negative operand is
     // implementation-defined. Ok to use a loop, as this should never be called
@@ -76,17 +76,21 @@ static void led_on_with_dc(unsigned n, uint32_t duty_cycle)
         n += LED_N;
 
     n %= LED_N;
-    uint8_t nn = (uint8_t)n;
 
-    GPIO_Port_TypeDef cat_port = led_cat_ports[nn];
-    int cat_pin = led_cat_pins[nn];
-    int an_port = led_an_ports[nn];
-    int an_pin = led_an_pins[nn];
-    TIMER_TypeDef *cat_timer = led_cat_timer[nn];
-    int cat_chan = led_cat_chan[nn];
-    uint32_t cat_route = led_cat_route[nn];
-    uint32_t cat_location = led_cat_location[nn];
-    CMU_Clock_TypeDef cat_clock = led_cat_clock[nn];
+    return n;
+}
+
+static void led_on_with_dc(unsigned n, uint32_t duty_cycle)
+{
+    GPIO_Port_TypeDef cat_port = led_cat_ports[n];
+    int cat_pin = led_cat_pins[n];
+    int an_port = led_an_ports[n];
+    int an_pin = led_an_pins[n];
+    TIMER_TypeDef *cat_timer = led_cat_timer[n];
+    int cat_chan = led_cat_chan[n];
+    uint32_t cat_route = led_cat_route[n];
+    uint32_t cat_location = led_cat_location[n];
+    CMU_Clock_TypeDef cat_clock = led_cat_clock[n];
 
     GPIO_PinModeSet(cat_port, cat_pin, gpioModePushPull, 1);
     GPIO_PinModeSet(an_port, an_pin, gpioModePushPull, 1);
@@ -103,9 +107,25 @@ static void led_on_with_dc(unsigned n, uint32_t duty_cycle)
     TIMER_Init(cat_timer, &timerInit);
 }
 
+static void led_off(unsigned n)
+{
+    n = normalize_led_number(n);
+
+    GPIO_Port_TypeDef cat_port = led_cat_ports[n];
+    int cat_pin = led_cat_pins[n];
+    int an_port = led_an_ports[n];
+    int an_pin = led_an_pins[n];
+    CMU_Clock_TypeDef cat_clock = led_cat_clock[n];
+
+    GPIO_PinModeSet(cat_port, cat_pin, gpioModeInput, 0);
+    GPIO_PinModeSet(an_port, an_pin, gpioModeInput, 0);
+
+    CMU_ClockEnable(cat_clock, false);
+}
+
 void led_on(unsigned n)
 {
-    led_on_with_dc(n, COUNT - ONE_LED_DUTY_CYCLE);
+    led_on_with_dc(normalize_led_number(n), COUNT - ONE_LED_DUTY_CYCLE);
 }
 
 static void turnoff()
@@ -125,6 +145,9 @@ static uint32_t led_duty_cycle;
 
 static void led_rtc_count_callback()
 {
+    static unsigned last_on;
+    //SEGGER_RTT_printf(0, "Here!\n");
+
     // Find first set bit.
     for (;;) {
         for (; current_mask != 0 && (current_mask & 1) == 0; current_mask >>= 1, ++current_mask_n)
@@ -137,9 +160,12 @@ static void led_rtc_count_callback()
         current_mask_n = 0;
     }
 
-    turnoff();
+    led_off(last_on);
 
+    //SEGGER_RTT_printf(0, "Turn on %u\n", current_mask_n);
     led_on_with_dc(current_mask_n, led_duty_cycle);
+
+    last_on = current_mask_n;
 
     current_mask >>= 1;
     ++current_mask_n;
@@ -147,6 +173,8 @@ static void led_rtc_count_callback()
 
 void leds_on(uint32_t mask)
 {
+    mask &= 0b111111111111111111111111111; // there are 27 leds
+
     if (mask == 0)
         return;
 

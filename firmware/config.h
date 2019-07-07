@@ -17,9 +17,7 @@
 
 #define DISPLAY_READING_TIME_SECONDS           15
 
-// We may be displaying up to 12 leds at once. This refresh rate should ensure
-// that even in this worst case scenario each LED is cycled at 240Hz. This
-// should be imperceptible to most people.
-#define LED_REFRESH_RATE_HZ                    (240*12)
+// Maximum of 12 LEDs being displayed at once.
+#define LED_REFRESH_RATE_HZ                    (80*12)
 
 #endif
