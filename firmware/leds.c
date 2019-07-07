@@ -1,10 +1,14 @@
 #include <config.h>
 #include <em_cmu.h>
 #include <em_gpio.h>
+#include <em_rtc.h>
 #include <em_timer.h>
-#include <macroutils.h>
-#include <stdint.h>
 #include <leds.h>
+#include <macroutils.h>
+#include <rtc.h>
+#include <stdint.h>
+#include <time.h>
+#include <util.h>
 
 #define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _CAT_DPIN, _GPIO_PORT) ,
 static GPIO_Port_TypeDef led_cat_ports[] = {
@@ -60,7 +64,10 @@ static const CMU_Clock_TypeDef led_cat_clock[] = {
 };
 #undef M
 
-void led_on(unsigned n)
+static const uint32_t COUNT = 100;
+static const uint32_t ONE_LED_DUTY_CYCLE = 1;
+
+static void led_on_with_dc(unsigned n, uint32_t duty_cycle)
 {
     // Make sure n is positive first, as result of % with negative operand is
     // implementation-defined. Ok to use a loop, as this should never be called
@@ -89,11 +96,84 @@ void led_on(unsigned n)
     timerCCInit.cmoa = timerOutputActionToggle;
     TIMER_InitCC(cat_timer, cat_chan, &timerCCInit);
     cat_timer->ROUTE = (cat_route | cat_location);
-    TIMER_TopSet(cat_timer, 100);
-    TIMER_CompareBufSet(cat_timer, cat_chan, 99); // duty cycle
+    TIMER_TopSet(cat_timer, COUNT);
+    TIMER_CompareBufSet(cat_timer, cat_chan, duty_cycle); // duty cycle
     TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
     timerInit.prescale = timerPrescale256;
     TIMER_Init(cat_timer, &timerInit);
+}
+
+void led_on(unsigned n)
+{
+    led_on_with_dc(n, COUNT - ONE_LED_DUTY_CYCLE);
+}
+
+static void turnoff()
+{
+    CMU_ClockEnable(cmuClock_TIMER0, false);
+    CMU_ClockEnable(cmuClock_TIMER1, false);
+
+#define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeInput, 0);
+    DPIN_FOR_EACH(M)
+#undef M
+}
+
+static uint32_t orig_mask;
+static uint32_t current_mask;
+static uint32_t current_mask_n;
+static uint32_t led_duty_cycle;
+
+static void led_rtc_count_callback()
+{
+    // Find first set bit.
+    for (;;) {
+        for (; current_mask != 0 && (current_mask & 1) == 0; current_mask >>= 1, ++current_mask_n)
+            ;
+
+        if (current_mask != 0)
+            break;
+
+        current_mask = orig_mask;
+        current_mask_n = 0;
+    }
+
+    turnoff();
+
+    led_on_with_dc(current_mask_n, led_duty_cycle);
+
+    current_mask >>= 1;
+    ++current_mask_n;
+}
+
+void leds_on(uint32_t mask)
+{
+    if (mask == 0)
+        return;
+
+    turnoff();
+
+    CMU_ClockDivSet(cmuClock_RTC, cmuClkDiv_1);
+
+    uint32_t leds_on = popcount(mask);
+    led_duty_cycle = COUNT - (ONE_LED_DUTY_CYCLE * (uint32_t)leds_on);
+
+    orig_mask = mask;
+    current_mask = mask;
+
+    set_rtc_interrupt_handler(led_rtc_count_callback);
+
+    RTC_Init_TypeDef init = {
+        true, // Start counting when initialization is done
+        false, // Enable updating during debug halt.
+        true  // Restart counting from 0 when reaching COMP0.
+    };
+
+    RTC_CompareSet(0, RTC_RAW_FREQ / LED_REFRESH_RATE_HZ);
+
+    RTC_IntEnable(RTC_IEN_COMP0);
+    NVIC_EnableIRQ(RTC_IRQn);
+
+    RTC_Init(&init);
 }
 
 void led_fully_on(unsigned n)
@@ -113,10 +193,11 @@ void led_fully_on(unsigned n)
 
 void leds_all_off()
 {
-    CMU_ClockEnable(cmuClock_TIMER0, false);
-    CMU_ClockEnable(cmuClock_TIMER1, false);
+    if (orig_mask != 0) {
+        RTC_Enable(false);
+        orig_mask = 0;
+        CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
+    }
 
-#define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeInput, 0);
-    DPIN_FOR_EACH(M)
-#undef M
+    turnoff();
 }

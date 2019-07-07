@@ -26,6 +26,8 @@ typedef struct state {
     int32_t last_reading_gain;
     int32_t last_reading_ev;
     int32_t last_reading_flags;
+    int32_t iso; // 0 = ISO 6, 1 = ISO 8, and so on (increments of 1/3 stop).
+    int32_t compensation; // in units of 1/3 stop
 } state;
 
 extern state g_state;
@@ -35,6 +37,7 @@ extern state g_state;
 
 void write_state_to_flash(void);
 void read_state_from_flash(void);
+void set_state_to_default(void);
 bool fresh_reading_is_saved(void);
 
 #endif

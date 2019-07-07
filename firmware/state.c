@@ -36,6 +36,24 @@ void write_state_to_flash()
     off += sizeof(int32_t);
     d = g_state.last_reading_flags;
     MSC_WriteWord(USER_DATA_PAGE_ADDR + off, &d, sizeof(int32_t));
+    off += sizeof(int32_t);
+    d = g_state.iso;
+    MSC_WriteWord(USER_DATA_PAGE_ADDR + off, &d, sizeof(int32_t));
+    off += sizeof(int32_t);
+    d = g_state.compensation;
+    MSC_WriteWord(USER_DATA_PAGE_ADDR + off, &d, sizeof(int32_t));
+}
+
+void set_state_to_default()
+{
+    g_state.id = 1;
+    g_state.last_reading.chan0 = 0;
+    g_state.last_reading.chan1 = 0;
+    g_state.last_reading_itime = 0;
+    g_state.last_reading_gain = 0;
+    g_state.last_reading_ev = 0;
+    g_state.iso = 12; // ISO 100
+    g_state.compensation = 0;
 }
 
 void read_state_from_flash()
@@ -52,12 +70,7 @@ void read_state_from_flash()
 
     if (g_state.id == 0xFFFFFFFF || g_state.id == 0) {
         // The page is erased/empty or uninitialized
-        g_state.id = 1;
-        g_state.last_reading.chan0 = 0;
-        g_state.last_reading.chan1 = 0;
-        g_state.last_reading_itime = 0;
-        g_state.last_reading_gain = 0;
-        g_state.last_reading_ev = 0;
+        set_state_to_default();
     }
 
     // Whatever state we were in when we went to sleep, we're now in JUST_WOKEN

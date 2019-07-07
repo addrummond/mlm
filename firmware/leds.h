@@ -140,6 +140,7 @@
 #define LED_LOW_BAT     26
 
 void led_on(unsigned n);
+void leds_on(uint32_t mask);
 void led_fully_on(unsigned n);
 void leds_all_off();
 

@@ -149,6 +149,13 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
     return (int32_t)lux;
 }
 
+static const int32_t F8_AP_INDEX = 6;
+static const int32_t ISO_100_INDEX = 4;
+static const int32_t AP_INDEX_MIN = 0;
+static const int32_t AP_INDEX_MAX = 12;
+static const int32_t SS_INDEX_MIN = 0;
+static const int32_t SS_INDEX_MAX = 12;
+
 // Assume that we have an infinite sequence of lights indicating shutter speeds.
 // The light at index 0 indicates 1S. The light at index n+1 indicates the
 // shutter speed at one stop above the light at index n. Given an EV@100 value,
@@ -175,6 +182,51 @@ void ev_to_shutter_iso100_f8(int32_t ev, int *ss_index_out, int *third_out)
         *ss_index_out = ss_index;
     if (third_out != NULL)
         *third_out = third;
+}
+
+void ev_iso_aperture_to_shutter(int32_t ev, int32_t iso, int32_t ap, int *ap_index_out, int *ss_index_out, int *third_out)
+{
+    int fsiso = iso / 3;
+    int r = iso % 3;
+    int ss_index, third;
+
+    // For calculation purposes it's convenient to have the ISO setting on a
+    // full stop as well as the aperture and the shutter speed. Thus, if the
+    // ISO not on a full stop boundary, we adjust the ev value to compensate.
+    ev_to_shutter_iso100_f8(ev + ((1<<EV_BPS)*r)/3, &ss_index, &third);
+
+    // Adjust shutter speed to compensate for ISO difference.
+    ss_index += fsiso - ISO_100_INDEX;
+
+    // Adjust shutter speed to get desired aperture.
+    ss_index += ap - F8_AP_INDEX;
+
+    // Make adjustments if the shutter speed is out of range.
+    if (ss_index < SS_INDEX_MIN) {
+        ap -= SS_INDEX_MIN - ss_index;
+        if (ap < AP_INDEX_MIN) {
+            // We can't display this exposure at the given ISO.
+            *ap_index_out = -1;
+            *ss_index_out = -1;
+            *third_out = -1;
+        } else {
+            *ap_index_out = ap;
+            *ss_index_out = ss_index;
+            *third_out = third;
+        }
+    } else if (ss_index > SS_INDEX_MAX) {
+        ap += ss_index - SS_INDEX_MAX;
+        if (ap > AP_INDEX_MAX) {
+            // We can't display this exposure at the given ISO.
+            *ap_index_out = -1;
+            *ss_index_out = -1;
+            *third_out = -1;
+        } else {
+            *ap_index_out = ap;
+            *ss_index_out = ss_index;
+            *third_out = third;
+        }
+    }
 }
 
 #ifdef TEST

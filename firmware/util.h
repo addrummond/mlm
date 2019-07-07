@@ -3,5 +3,6 @@
 
 const char *sign_of(int32_t n);
 uint32_t iabs(int32_t n);
+int popcount(uint32_t x);
 
 #endif

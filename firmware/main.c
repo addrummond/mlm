@@ -78,7 +78,7 @@ void turn_on_wake_timer()
     set_rtc_interrupt_handler(wake_timer_rtc_count_callback);
 
     RTC_Init_TypeDef init = {
-        __GCC_ATOMIC_TEST_AND_SET_TRUEVAL, // Start counting when initialization is done
+        true, // Start counting when initialization is done
         false, // Enable updating during debug halt.
         true  // Restart counting from 0 when reaching COMP0.
     };
@@ -140,7 +140,8 @@ void handle_MODE_DISPLAY_READING()
     led_on(6 + ss_index);
 
     // The current wasted by looping is trivial compared to the current used
-    // by the LEDs, so might as well do this the simple way.
+    // by the LEDs, so might as well do this the simple way. This also frees up
+    // the RTC to use for cycling between multiple LEDs being displayed at once.
     // TODO: we also need to incorporate capsense + slider into this wait loop.
     delay_ms(DISPLAY_READING_TIME_SECONDS * 1000);
 
@@ -160,11 +161,11 @@ void handle_MODE_DOING_READING()
     sensor_init();
     delay_ms(100);
 
-    // Set some sensible default gain and integration time values.
-    sensor_write_reg(REG_ALS_MEAS_RATE, 0b0111011); // 350 ms integration, 500ms interval
+    // Turn the sensor on and give it time to start up.
     sensor_turn_on(GAIN_1X);
     delay_ms(10);
 
+    // Get the raw sensor reading.
     int32_t gain, itime;
     SEGGER_RTT_printf(0, "Waiting for sensor\n");
     sensor_wait_till_ready();
@@ -173,10 +174,14 @@ void handle_MODE_DOING_READING()
     g_state.last_reading = sr;
     g_state.last_reading_itime = itime;
     g_state.last_reading_gain = gain;
+
+    // Convert the raw reading to an EV value.
     int32_t lux = sensor_reading_to_lux(sr, gain, itime);
     int32_t ev = lux_to_ev(lux);
     g_state.last_reading_ev = ev;
     SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS);
+
+    //
     int ss_index;
     ev_to_shutter_iso100_f8(ev, &ss_index, 0);
     leds_all_off();
@@ -242,6 +247,14 @@ void common_init()
 
 int testmain()
 {
+    // ********** TEST LED CYCLING **********
+
+    leds_all_off();
+    //leds_on(0b11);
+    led_on(0);
+
+    for (;;) ;
+
     // ********** BATSENSE TEST **********
 
     /*for (;;) {
@@ -249,11 +262,10 @@ int testmain()
         SEGGER_RTT_printf(0, "V count %u\n", v);
     }*/
 
-
     // ********** SENSOR TEST **********
 
     // Turn on the LDO to power up the sensor.
-    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
+    /*GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
     delay_ms(100); // make sure LDO has time to start up and sensor has time to
                    // power up
@@ -281,7 +293,7 @@ int testmain()
         //    led_on(LED_MINUS_1_3_N);
         //else
         //    led_on(LED_PLUS_1_3_N);
-    }
+    }*/
 
     // ********** CAPSENSE TEST **********
 
@@ -315,7 +327,11 @@ int testmain()
 
 int real_main()
 {
+#ifdef DEBUG
+    set_state_to_default();
+#else
     read_state_from_flash();
+#endif
 
     state_loop();
 
@@ -326,6 +342,6 @@ int main()
 {
     common_init();
 
-    return real_main();
-//    return testmain();
+    //return real_main();
+    return testmain();
 }
