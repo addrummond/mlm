@@ -40,7 +40,7 @@ battery clip:
 
 https://www.digikey.co.uk/product-detail/en/mpd-memory-protection-devices/BK-6219-TR/BK-6219-TR-ND/8119239
 
-EFM32TG108 
+EFM32TG108
 
 CR2016 cell holder
 
@@ -56,15 +56,9 @@ https://www.digikey.co.uk/product-detail/en/wurth-electronics-inc/150060RS75000/
 
 
 
-Top layer component heights:
-
-EFM32 0.9 (max)
-
-
-
 Set ISO
 Set aperture
-Set shutter speed    
+Set shutter speed
 
 Fix one; other two vary via slider.
 
@@ -73,4 +67,30 @@ Showing an exposure:
 LEDs for relevant aperture and shutter speed are on.
 LED for ISO flashes.
 
-Compensation shown by 
+Compensation shown by
+
+## Dimension stuff
+
+Top layer component heights:
+
+    EFM32 0.95 (max assuming 0.05mm tolerance)
+
+Bottom layer component heights:
+
+    0.7 (light sensor)
+    2.28 (battery clip max within tolerance)
+    USE 2.6 mm standoff
+
+PCB thickness:
+
+    0.65 (assuming 0.05mm tolerance)
+
+Total height:
+
+    3.88mm
+
+With 1mm case side thickness:
+
+    5.88mm
+
+
