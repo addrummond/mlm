@@ -1,14 +1,19 @@
 from itertools import *
 import math
 import cairo as c
+import svg2mod
+import sys
 
-SCALE = 10
+SCALE = float(sys.argv[1])
+OUTPUT_FILE = sys.argv[2]
+
 RADIUS = 17.5 * SCALE
 INNER_LED_PROTRUSION = 1.0 * SCALE
 OUTER_LED_PROTRUSION = 1.0 * SCALE
 INNER_FONT_FAMILY = "Helvetica"
 OUTER_FONT_SIZE = 4 * SCALE
 INNER_FONT_SIZE = 3.25 * SCALE
+LINE_THICK = 0.25 * SCALE
 
 # conservative choices - it doesn't matter if there's some top/left padding.
 XOFF = RADIUS * 2
@@ -42,10 +47,13 @@ def inner_n_to_deg_clock_rot(n):
 assert len(INNER_LABELS) == len(OUTER_LABELS)
 
 if __name__ == '__main__':
-    with c.SVGSurface("out.svg", WIDTH, HEIGHT) as surface:
+    with c.SVGSurface(OUTPUT_FILE, WIDTH, HEIGHT) as surface:
         ctx = c.Context(surface)
 
-        ctx.set_line_width(0.25 * SCALE)
+        ctx.set_line_width(LINE_THICK)
+
+        ctx.arc(XOFF, YOFF, SCALE*0.5, 0, 2*math.pi)
+        ctx.fill()
 
         ctx.arc(XOFF, YOFF, RADIUS, 0, 2*math.pi)
         ctx.stroke()
