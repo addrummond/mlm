@@ -235,41 +235,6 @@ void ev_iso_aperture_to_shutter(int32_t ev, int32_t iso, int32_t ap, int *ap_ind
 #include <stdio.h>
 #include <stdlib.h>
 
-static double fp_sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time)
-{
-    double c0, c1, itime;
-    c0 = (double)r.chan0;
-    c1 = (double)r.chan1;
-    itime = (double)integ_time;
-
-    double ratio = c1 / c0;
-
-    c0 *= 16;
-    c1 *= 16;
-
-    double lux;
-    if (ratio < 0.5) {
-        lux = 0.0304 * c0 - 0.062 * c0 * pow(ratio,1.4);
-    } else if (ratio < 0.61) {
-        lux = 0.0224 * c0 - 0.031 * c1;
-    } else if (ratio < 0.80) {
-        lux = 0.0128 * c0 - 0.0153 * c1;
-    } else if (ratio < 1.30) {
-        lux = 0.00146 * c0 - 0.00112 * c1;
-    } else {
-        lux = 0;
-    }
-
-    lux = (lux * 400) / ((double)integ_time * (double)gain);
-
-    return lux;
-}
-
-static bool test_log_base2()
-{
-    return false;
-}
-
 static double fp_lux_to_ev(double lux)
 {
     return log2(lux * (2.0/5.0));
@@ -296,100 +261,6 @@ static bool test_lux_to_ev()
     return passed;
 }
 
-static bool test_pow14()
-{
-    bool passed = true;
-
-    FILE *fp = fopen("testoutputs/pow14.csv", "w");
-
-    for (double v = 0.01; v <= 1; v += 0.015) {
-        double vf = (int32_t)(v * (1 << EV_BPS));
-        int32_t r = pow14(vf);
-        double r1 = ((double)r) / (1 << EV_BPS);
-        double r2 = pow(v, 1.4);
-        double diff = fabs(r1-r2);
-
-        if (diff > 0.0021)
-            passed = false;
-
-        fprintf(fp, "pow14(%f) = approx=%f, exact=%f, diff=%f\n", v, r1, r2, diff);
-    }
-
-    fclose(fp);
-
-    return passed;
-}
-
-static bool test_sensor_reading_to_lux_problem_cases()
-{
-    // problem:
-    // GAIN 4 ITIME 100 c0=2176 c1=2807
-    // READING 2176 2807 lux=543/1024 (0) ev=4294965003/1024 (4294967293)
-    sensor_reading r;
-    r.chan0 = 2176;
-    r.chan1 = 2807;
-    double lux = fp_sensor_reading_to_lux(r, 4, 100);
-    int32_t luxf = sensor_reading_to_lux(r, 4, 100);
-    double luxfd = ((double)luxf) / (1 << EV_BPS);
-    printf("gain=4,itime=100,c0=2176,c1=2807: fix=%.2f, fp=%.2f\n", luxfd, lux);
-    return false;
-}
-
-static bool test_sensor_reading_to_lux()
-{
-    bool passed = true;
-
-    int32_t integ_times[] = { 50, 100, 150, 200, 250, 300, 350, 400 };
-    double ratios[] = { 0.1, 0.25, 0.5, 1.0 };
-    int32_t gains[] = { 1, 2, 4, 8, 48, 96 };
-
-    FILE *fp = fopen("testoutputs/luxcalc.csv", "w");
-
-    fprintf(fp, "gain,integ_time,c0,c1,ratio,lux,luxf\n");
-
-    int line = 1;
-    for (int k = 0; k < sizeof(integ_times)/sizeof(integ_times[0]); ++k) {
-        int32_t integ_time = integ_times[k];
-
-        for (int i = 0; i < sizeof(gains)/sizeof(gains[0]); ++i) {
-            int32_t gain = gains[i];
-
-            for (int j = 0; j < sizeof(ratios)/sizeof(ratios[0]); ++j) {
-                double ratio = ratios[j];
-
-                uint16_t c0 = 0;
-                for (;;) {
-                    double c1f = ratio * (double)c0;
-                    if (c1f >= (1 << 16))
-                        c1f = (1 << 16) - 1;
-                    uint16_t c1 = (double)c1f;
-                    sensor_reading r;
-                    r.chan0 = c0;
-                    r.chan1 = c1;
-                    double lux = fp_sensor_reading_to_lux(r, gain, integ_time);
-                    int32_t luxf = sensor_reading_to_lux(r, gain, integ_time);
-                    double luxfd = ((double)luxf) / (1 << EV_BPS);
-                    fprintf(fp, "%i,%i,%u,%u,%.2f,%.2f,%.2f\n", gain, integ_time, c0, c1, ratio, lux, luxfd);
-                    double absdiff = fabs(lux-luxfd);
-                    if (absdiff / lux >= 0.01) {
-                        fprintf(stderr, "BAD at line %i: %.3f %.3f (absdiff=%.3f, reldiff=%.3f)\n", line, lux, luxfd, absdiff, absdiff / lux);
-                        passed = false;
-                    }
-
-                    if (c0 >= (1 << 16) -16)
-                        break;
-                    c0 += 16;
-                    ++line;
-                }
-            }
-        }
-    }
-
-    fclose(fp);
-
-    return passed;
-}
-
 static const char *passed(bool p)
 {
     if (p)
@@ -399,16 +270,10 @@ static const char *passed(bool p)
 
 int main()
 {
-    bool pow14_passed = test_pow14();
     bool lux_to_ev_passed = test_lux_to_ev();
-    bool sensor_reading_to_lux_passed = test_sensor_reading_to_lux();
-    bool lux_problem_cases_passed = test_sensor_reading_to_lux_problem_cases();
 
     printf("\n");
-    printf("pow14 test...................%s\n", passed(pow14_passed));
     printf("lux_to_ev_test...............%s\n", passed(lux_to_ev_passed));
-    printf("sensor_reading_to_lux test...%s\n", passed(sensor_reading_to_lux_passed));
-    printf("lux problem cases test.......%s\n", passed(lux_problem_cases_passed));
 
     return 0;
 }
