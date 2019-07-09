@@ -126,7 +126,7 @@
 #define LED_15_N        10
 #define LED_30_N        11
 #define LED_60_N        12
-#define LED_120_N       13
+#define LED_125_N       13
 #define LED_250_N       14
 #define LED_500_N       15
 #define LED_1000_N      16

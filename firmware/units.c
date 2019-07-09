@@ -3,6 +3,12 @@
 #include <units.h>
 #include <rtt.h>
 
+#ifdef TEST
+#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
+#endif
+
 static int32_t log_base2(uint32_t x)
 {
     // This implementation is based on Clay. S. Turner's fast binary logarithm
@@ -167,13 +173,13 @@ void ev_to_shutter_iso100_f8(int32_t ev, int *ss_index_out, int *third_out)
     // is above EV 6, we need to add one to our shutter speed index.
 
     int32_t whole = ev >> EV_BPS;
-    int32_t frac = ev & (1 << (EV_BPS-1));
+    int32_t frac = ev & ((1 << EV_BPS)-1);
     int ss_index = whole - 6;
     int third = 0;
 
     if (frac > (1 << EV_BPS)/3) {
         third = 1;
-    } else if (frac <= (2 << EV_BPS)/3) {
+    } else if (frac > (2 << EV_BPS)/3) {
         ++ss_index;
         third = -1;
     }
@@ -195,45 +201,51 @@ void ev_iso_aperture_to_shutter(int32_t ev, int32_t iso, int32_t ap, int *ap_ind
     // ISO not on a full stop boundary, we adjust the ev value to compensate.
     ev_to_shutter_iso100_f8(ev + ((1<<EV_BPS)*r)/3, &ss_index, &third);
 
+#ifdef TEST
+    fprintf(stderr, "EV %i -> ss %i at f8 with %i/3\n", ev, ss_index, third);
+    fprintf(stderr, "SS iso comp %i\n", fsiso - ISO_100_INDEX);
+    fprintf(stderr, "SS ap comp %i\n", ap - F8_AP_INDEX);
+#endif
+
     // Adjust shutter speed to compensate for ISO difference.
     ss_index += fsiso - ISO_100_INDEX;
 
     // Adjust shutter speed to get desired aperture.
-    ss_index += ap - F8_AP_INDEX;
+    ss_index -= ap - F8_AP_INDEX;
 
     // Make adjustments if the shutter speed is out of range.
     if (ss_index < SS_INDEX_MIN) {
         ap -= SS_INDEX_MIN - ss_index;
         if (ap < AP_INDEX_MIN) {
             // We can't display this exposure at the given ISO.
-            *ap_index_out = -1;
-            *ss_index_out = -1;
-            *third_out = -1;
+            goto error_set;
         } else {
-            *ap_index_out = ap;
-            *ss_index_out = ss_index;
-            *third_out = third;
+            goto default_set;
         }
     } else if (ss_index > SS_INDEX_MAX) {
         ap += ss_index - SS_INDEX_MAX;
         if (ap > AP_INDEX_MAX) {
             // We can't display this exposure at the given ISO.
-            *ap_index_out = -1;
-            *ss_index_out = -1;
-            *third_out = -1;
+            goto error_set;
         } else {
-            *ap_index_out = ap;
-            *ss_index_out = ss_index;
-            *third_out = third;
+            goto default_set;
         }
+    } else {
+        goto default_set;
     }
+
+error_set:
+    *ap_index_out = -1;
+    *ss_index_out = -1;
+    *third_out = -1;
+
+default_set:
+    *ap_index_out = ap;
+    *ss_index_out = ss_index;
+    *third_out = third;
 }
 
 #ifdef TEST
-
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 static double fp_lux_to_ev(double lux)
 {
@@ -275,7 +287,8 @@ static bool test_ev_iso_aperture_to_shutter()
     bool passed = true;
 
     static const eviats_test tests[] = {
-        { 12 << EV_BPS, ISO_100_INDEX * 3, 5/*f5.6*/, 7/*120*/, 0  },
+        { 12 << EV_BPS, ISO_100_INDEX * 3, 5/*f5.6*/, 5/*f5.6*/, 7/*125*/, 0  },
+        { 13 << EV_BPS, (ISO_100_INDEX-1) * 3, 5/*f5.6*/, 5/*f5.6*/, 7/*125*/, 0  },
     };
 
     for (int i = 0; i < sizeof(tests)/sizeof(tests[0]); ++i) {
