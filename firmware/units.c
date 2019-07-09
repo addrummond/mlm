@@ -261,6 +261,35 @@ static bool test_lux_to_ev()
     return passed;
 }
 
+typedef struct eviats_test {
+    int32_t ev;
+    int32_t iso;
+    int32_t ap;
+    int32_t ap_out;
+    int32_t ss_out;
+    int32_t third_out;
+} eviats_test;
+
+static bool test_ev_iso_aperture_to_shutter()
+{
+    bool passed = true;
+
+    static const eviats_test tests[] = {
+        { 12 << EV_BPS, ISO_100_INDEX * 3, 5/*f5.6*/, 7/*120*/, 0  },
+    };
+
+    for (int i = 0; i < sizeof(tests)/sizeof(tests[0]); ++i) {
+        int ap, ss, third;
+        ev_iso_aperture_to_shutter(tests[i].ev, tests[i].iso, tests[i].ap, &ap, &ss, &third);
+        if (ap != tests[i].ap_out || ss != tests[i].ss_out || third != tests[i].third_out) {
+            passed = false;
+            fprintf(stderr, "Expected %i %i %i got %i %i %i\n", tests[i].ap_out, tests[i].ss_out, tests[i].third_out, ap, ss, third);
+        }
+    }
+
+    return passed;
+}
+
 static const char *passed(bool p)
 {
     if (p)
@@ -271,9 +300,11 @@ static const char *passed(bool p)
 int main()
 {
     bool lux_to_ev_passed = test_lux_to_ev();
+    bool ev_iso_aperture_to_shutter_passed = test_ev_iso_aperture_to_shutter();
 
     printf("\n");
-    printf("lux_to_ev_test...............%s\n", passed(lux_to_ev_passed));
+    printf("test_lux_to_ev.....................%s\n", passed(lux_to_ev_passed));
+    printf("test_ev_iso_aperture_to_shutter....%s\n", passed(ev_iso_aperture_to_shutter_passed));
 
     return 0;
 }

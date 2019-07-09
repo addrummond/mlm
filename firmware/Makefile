@@ -67,7 +67,7 @@ clean:
 	find ./ -name '*.out' -exec rm -f {} \;
 	find ./ -name '*.o' -exec rm -f {} \;
 	find ./ -name '*.d' -exec rm -f {} \;
-	rm -f lux_test
+	rm -f units_test
 
-lux_test: units.c units.h sensor.h
-	$(CC) -I./ -DTEST units.c -o lux_test
+units_test: units.c units.h sensor.h
+	$(CC) -I./ -DTEST units.c -o units_test
