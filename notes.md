@@ -74,6 +74,8 @@ Compensation shown by
 Top layer component heights:
 
     EFM32 0.95 (max assuming 0.05mm tolerance)
+    button height above board 0.65
+    protrusion from top plate for button: 0.2
 
 Bottom layer component heights:
 

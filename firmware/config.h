@@ -11,7 +11,7 @@
 #define BATSENSE_PORT                          gpioPortB
 #define BATSENSE_PIN                           14
 
-#define LONG_BUTTON_PRESS_MS                   400
+#define LONG_BUTTON_PRESS_MS                   75
 
 #define IDLE_TIME_BEFORE_DEEPEST_SLEEP_SECONDS 30
 

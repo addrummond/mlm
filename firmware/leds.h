@@ -2,6 +2,7 @@
 #define LEDS_HH
 
 #define LED_N           27
+#define LED_N_IN_WHEEL  24
 
 #define DPIN1_GPIO_PORT gpioPortB
 #define DPIN1_GPIO_PIN  11
@@ -111,6 +112,7 @@
 
 #define DPIN_FOR_EACH(m) m(1) m(2) m(3) m(4) m(5) m(6)
 
+#define LED_ISO6_N      18
 #define LED_F8_N        0
 #define LED_F11_N       1
 #define LED_F16_N       2

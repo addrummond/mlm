@@ -13,6 +13,7 @@
 #include <em_rtc.h>
 #include <em_timer.h>
 #include <leds.h>
+#include <rtc.h>
 #include <rtt.h>
 #include <sensor.h>
 #include <state.h>
@@ -133,10 +134,17 @@ void handle_MODE_AWAKE_AT_REST()
 
 void handle_MODE_DISPLAY_READING()
 {
-    int ss_index;
-    ev_to_shutter_iso100_f8(g_state.last_reading_ev, &ss_index, 0);
+    int ap_index, ss_index, third;
+    ev_iso_aperture_to_shutter(g_state.last_reading_ev, g_state.iso, 6/*f8*/, &ap_index, &ss_index, &third);
+
+    SEGGER_RTT_printf(0, "Got exposure ap=%u ss=%u third=%s%u/3\n", ap_index, ss_index, sign_of(third), iabs(third));
+
     leds_all_off();
-    led_on(6 + ss_index);
+    if (ap_index == -1) {
+        // TODO handle out of range case.
+    } else {
+        leds_on((1 << ap_index) | (1 << ss_index));
+    }
 
     // The current wasted by looping is trivial compared to the current used
     // by the LEDs, so might as well do this the simple way. This also frees up
@@ -151,6 +159,10 @@ void handle_MODE_DISPLAY_READING()
 
 void handle_MODE_DOING_READING()
 {
+    // Display the ISO.
+    leds_all_off();
+    led_on((LED_ISO6_N + g_state.iso) % LED_N_IN_WHEEL);
+
     // Turn on the LDO to power up the sensor.
     SEGGER_RTT_printf(0, "Turning on LDO.\n");
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
@@ -248,11 +260,10 @@ int testmain()
 {
     // ********** TEST LED CYCLING **********
 
-    leds_all_off();
-    leds_on(0b111111);
-    //led_on(0);
+    /*leds_all_off();
+    leds_on(0b101);
 
-    for (;;) ;
+    for (;;) ;*/
 
     // ********** BATSENSE TEST **********
 
@@ -341,6 +352,6 @@ int main()
 {
     common_init();
 
-    //return real_main();
-    return testmain();
+    return real_main();
+    //return testmain();
 }

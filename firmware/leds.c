@@ -125,6 +125,7 @@ static void led_off(unsigned n)
 
 void led_on(unsigned n)
 {
+    SEGGER_RTT_printf(0, "Turning on LED %u (= %u)\n", n, normalize_led_number(n));
     led_on_with_dc(normalize_led_number(n), COUNT - ONE_LED_DUTY_CYCLE);
 }
 
