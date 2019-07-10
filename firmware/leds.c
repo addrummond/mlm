@@ -6,6 +6,7 @@
 #include <leds.h>
 #include <macroutils.h>
 #include <rtc.h>
+#include <rtt.h>
 #include <stdint.h>
 #include <time.h>
 #include <util.h>

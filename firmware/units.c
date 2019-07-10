@@ -273,6 +273,33 @@ static bool test_lux_to_ev()
     return passed;
 }
 
+static bool plot_channels_to_lux()
+{
+    FILE *fp = fopen("testoutputs/channels_to_lux.csv", "w");
+
+    static const int32_t gains[] = { 1, 2, 4, 8, 48, 96 };
+    static const int32_t integ_times[] = { 50, 100, 150, 200, 250, 300, 350, 400 };
+
+    fprintf(fp, "gain,integ_time,chan1,chan2,lux_i,lux_fp\n");
+
+    for (int gi = 0; gi < sizeof(gains)/sizeof(gains[0]); ++gi) {
+        int32_t gain = gains[gi];
+
+        for (int iti = 0; iti < sizeof(integ_times)/sizeof(integ_times[0]); ++iti) {
+            int32_t integ_time = integ_times[iti];
+
+            for (int chan1 = 512; chan1 < (1 << 16)-512; chan1 += 512) {
+                for (int chan2 = 512; chan2 < (1 << 16)-512; chan2 += 512) {
+                    int32_t lux = sensor_reading_to_lux((sensor_reading){ chan1, chan2 }, gain, integ_time);
+                    fprintf(fp, "%i,%i,%i,%i,%i,%f\n", gain, integ_time, chan1, chan2, lux, ((double)lux)/(double)(1 << EV_BPS));
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 typedef struct eviats_test {
     int32_t ev;
     int32_t iso;
@@ -313,10 +340,12 @@ static const char *passed(bool p)
 int main()
 {
     bool lux_to_ev_passed = test_lux_to_ev();
+    bool channels_to_lux_passed = plot_channels_to_lux();
     bool ev_iso_aperture_to_shutter_passed = test_ev_iso_aperture_to_shutter();
 
     printf("\n");
     printf("test_lux_to_ev.....................%s\n", passed(lux_to_ev_passed));
+    printf("plot_channels_to_lux...............%s\n", passed(channels_to_lux_passed));
     printf("test_ev_iso_aperture_to_shutter....%s\n", passed(ev_iso_aperture_to_shutter_passed));
 
     return 0;

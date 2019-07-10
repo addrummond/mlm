@@ -1,4 +1,4 @@
-EESchema Schematic File Version 4
+EESchema Schematic File Version 5
 LIBS:board-cache
 EELAYER 29 0
 EELAYER END
@@ -1547,10 +1547,6 @@ F 4 "LTR-303ALS-01" H 0   0   50  0001 C CNN "MPN"
 	1    5050 6150
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	5450 6250 5600 6250
-Text GLabel 5600 6250 2    50   Input ~ 0
-SENSORINT
 $Comp
 L device:R R6
 U 1 1 5C2B57A8
