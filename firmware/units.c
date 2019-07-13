@@ -192,6 +192,8 @@ void ev_to_shutter_iso100_f8(int32_t ev, int *ss_index_out, int *third_out)
 
 void ev_iso_aperture_to_shutter(int32_t ev, int32_t iso, int32_t ap, int *ap_index_out, int *ss_index_out, int *third_out)
 {
+    SEGGER_RTT_printf(0, "READING HERE\n");
+
     int fsiso = iso / 3;
     int r = iso % 3;
     int ss_index, third;
@@ -216,6 +218,7 @@ void ev_iso_aperture_to_shutter(int32_t ev, int32_t iso, int32_t ap, int *ap_ind
     // Make adjustments if the shutter speed is out of range.
     if (ss_index < SS_INDEX_MIN) {
         ap -= SS_INDEX_MIN - ss_index;
+        ss_index = SS_INDEX_MIN;
         if (ap < AP_INDEX_MIN) {
             // We can't display this exposure at the given ISO.
             goto error_set;
@@ -224,6 +227,7 @@ void ev_iso_aperture_to_shutter(int32_t ev, int32_t iso, int32_t ap, int *ap_ind
         }
     } else if (ss_index > SS_INDEX_MAX) {
         ap += ss_index - SS_INDEX_MAX;
+        ss_index = SS_INDEX_MAX;
         if (ap > AP_INDEX_MAX) {
             // We can't display this exposure at the given ISO.
             goto error_set;
@@ -238,8 +242,10 @@ error_set:
     *ap_index_out = -1;
     *ss_index_out = -1;
     *third_out = -1;
+    return;
 
 default_set:
+    SEGGER_RTT_printf(0, "DEFAULT SET\n");
     *ap_index_out = ap;
     *ss_index_out = ss_index;
     *third_out = third;

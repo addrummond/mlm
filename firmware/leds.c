@@ -145,10 +145,13 @@ static uint32_t current_mask;
 static uint32_t current_mask_n;
 static uint32_t led_duty_cycle;
 
+uint32_t leds_on_for_cycles;
+
 static void led_rtc_count_callback()
 {
     static unsigned last_on;
-    //SEGGER_RTT_printf(0, "Here!\n");
+
+    leds_on_for_cycles += RTC_RAW_FREQ / LED_REFRESH_RATE_HZ;
 
     // Find first set bit.
     for (;;) {
@@ -203,6 +206,8 @@ void leds_on(uint32_t mask)
     RTC_IntEnable(RTC_IEN_COMP0);
     NVIC_EnableIRQ(RTC_IRQn);
 
+    leds_on_for_cycles = 0;
+
     RTC_Init(&init);
 }
 
@@ -223,11 +228,8 @@ void led_fully_on(unsigned n)
 
 void leds_all_off()
 {
-    if (orig_mask != 0) {
-        RTC_Enable(false);
-        orig_mask = 0;
-        CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
-    }
+    RTC_Enable(false);
+    orig_mask = 0;
 
     turnoff();
 }

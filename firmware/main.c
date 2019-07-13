@@ -124,9 +124,11 @@ void handle_MODE_AWAKE_AT_REST()
 
     // Display the current reading, if any.
     if (fresh_reading_is_saved()) {
+        SEGGER_RTT_printf(0, "Fresh reading saved\n");
         g_state.mode = MODE_DISPLAY_READING;
         g_state.last_reading_flags &= ~(int32_t)LAST_READING_FLAGS_FRESH;
     } else {
+        SEGGER_RTT_printf(0, "No fresh reading saved\n");
         EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
         g_state.mode = MODE_JUST_WOKEN;
     }
@@ -140,21 +142,31 @@ void handle_MODE_DISPLAY_READING()
     SEGGER_RTT_printf(0, "Got exposure ap=%u ss=%u third=%s%u/3\n", ap_index, ss_index, sign_of(third), iabs(third));
 
     leds_all_off();
+
     if (ap_index == -1) {
-        // TODO handle out of range case.
+        leds_on(0b100000000000000000000011);
     } else {
-        leds_on((1 << ap_index) | (1 << ss_index));
+        unsigned ss_led_n = LED_1S_N + ss_index;
+        unsigned ap_led_n = (LED_F1_N + ap_index) % 24;
+        uint32_t mask = (1 << ap_led_n) | (1 << ss_led_n);
+        if (third == 1)
+            mask |= (1 << LED_PLUS_1_3_N);
+        else if (third == -1)
+            mask |= (1 << LED_MINUS_1_3_N);
+        leds_on(mask);
     }
 
-    // The current wasted by looping is trivial compared to the current used
-    // by the LEDs, so might as well do this the simple way. This also frees up
-    // the RTC to use for cycling between multiple LEDs being displayed at once.
-    // TODO: we also need to incorporate capsense + slider into this wait loop.
-    delay_ms(DISPLAY_READING_TIME_SECONDS * 1000);
+    while (leds_on_for_cycles < DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+    }
 
     leds_all_off();
 
-    g_state.mode = MODE_AWAKE_AT_REST;
+    EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
+    g_state.mode = MODE_JUST_WOKEN;
 }
 
 void handle_MODE_DOING_READING()
@@ -260,10 +272,19 @@ int testmain()
 {
     // ********** TEST LED CYCLING **********
 
-    /*leds_all_off();
+    leds_all_off();
     leds_on(0b101);
 
-    for (;;) ;*/
+    while (leds_on_for_cycles < DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+    }
+
+    leds_all_off();
+
+    for (;;) ;
 
     // ********** BATSENSE TEST **********
 
