@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define LED_N           27
+#define LED_N           26
 #define LED_N_IN_WHEEL  24
 
 #define DPIN1_GPIO_PORT gpioPortB
@@ -110,7 +110,7 @@
 #define LED25_AN_DPIN   1
 #define LED26_AN_DPIN   1
 
-#define LED_FOR_EACH(m) m(0) m(1) m(2) m(3) m(4) m(5) m(6) m(7) m(8) m(9) m(10) m(11) m(12) m(13) m(14) m(15) m(16) m(17) m(18) m(19) m(20) m(21) m(22) m(23) m(24) m(25) m(26)
+#define LED_FOR_EACH(m) m(0) m(1) m(2) m(3) m(4) m(5) m(6) m(7) m(8) m(9) m(10) m(11) m(12) m(13) m(14) m(15) m(16) m(17) m(18) m(19) m(20) m(21) m(22) m(23) m(24) m(25)
 
 #define DPIN_FOR_EACH(m) m(1) m(2) m(3) m(4) m(5) m(6)
 
@@ -141,7 +141,6 @@
 #define LED_F5_6_N      23
 #define LED_MINUS_1_3_N 24
 #define LED_PLUS_1_3_N  25
-#define LED_LOW_BAT     26
 
 void led_on(unsigned n);
 void leds_on(uint32_t mask);
