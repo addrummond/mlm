@@ -19,6 +19,7 @@ typedef enum mode {
 #define LAST_READING_FLAGS_FRESH 1
 
 typedef struct state {
+    uint32_t id; // used for wear leveling calculations
     mode mode;
     sensor_reading last_reading;
     int32_t last_reading_itime;
@@ -30,7 +31,8 @@ typedef struct state {
 } state;
 
 // Don't trust sizeof here because of possible padding.
-#define STATE_NBYTES (4 /* mode */ + \
+#define STATE_NBYTES (4 /* id */ + \
+                      4 /* mode */ + \
                       4 /* last_reading */ + \
                       4 /* last_reading_itime */ + \
                       4 /* last_reading_ev */ + \
@@ -44,7 +46,14 @@ extern state g_state;
 // Address of the user data page in flash memory.
 #define USER_DATA_PAGE_ADDR ((uint32_t *)0x0FE00000)
 
-#define USER_DATA_PAGE_NBYTES 512
+#define PAGE_NBYTES 512
+
+// There's only one page reserved for user data, but as we're not using anywhere
+// near all of the 32kb of flash available for code, we can afford to use a few
+// extra pages to help with wear leveling.
+#define N_CHEEKY_PAGES 4
+
+#define N_DATA_PAGES (N_CHEEKY_PAGES+1)
 
 void write_state_to_flash(void);
 void read_state_from_flash(void);

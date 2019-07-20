@@ -6,19 +6,26 @@
 state g_state;
 
 __attribute__((section(".ram")))
-static uint32_t *find_state_in_user_page() {
+static uint32_t *find_state_in_page(uint32_t *page_addr)
+{
     // Page is 512 bytes and state is ~28 bytes, so a linear search has
     // acceptable performance.
     uint32_t *addr;
-    for (addr = USER_DATA_PAGE_ADDR; addr < USER_DATA_PAGE_ADDR + (USER_DATA_PAGE_NBYTES/sizeof(uint32_t)); addr += STATE_NBYTES/sizeof(uint32_t)) {
+    for (addr = page_addr; addr < page_addr + (PAGE_NBYTES/sizeof(uint32_t)); addr += STATE_NBYTES/sizeof(uint32_t)) {
         if (*addr != 0xFFFFFFFF)
             break;
     }
 
-    if (addr >= USER_DATA_PAGE_ADDR + (USER_DATA_PAGE_NBYTES/sizeof(uint32_t)))
+    if (addr >= page_addr + (PAGE_NBYTES/sizeof(uint32_t)))
         return 0;
 
     return addr;
+}
+
+__attribute__((section(".ram")))
+static uint32_t *find_state_page()
+{
+
 }
 
 __attribute__((section(".ram")))
@@ -27,9 +34,9 @@ static uint32_t *next_address_of_state()
     uint32_t *a = find_state_in_user_page();
     if (a == 0)
         return USER_DATA_PAGE_ADDR;
-    if (a + (STATE_NBYTES/sizeof(uint32_t)) > a + (USER_DATA_PAGE_NBYTES/sizeof(uint32_t)))
+    if (a + (STATE_NBYTES/sizeof(uint32_t)) > a + (PAGE_NBYTES/sizeof(uint32_t)))
         return USER_DATA_PAGE_ADDR;
-    return a + (USER_DATA_PAGE_NBYTES/sizeof(uint32_t));
+    return a + (PAGE_NBYTES/sizeof(uint32_t));
 }
 
 __attribute__((section(".ram")))
@@ -45,6 +52,9 @@ void write_state_to_flash()
     g_state.last_reading_flags |= LAST_READING_FLAGS_FRESH;
 
     int off = 0;
+    uint32_t ud = g_state.id;
+    MSC_WriteWord(a + off, &ud, sizeof(uint32_t));
+    off += sizeof(uint32_t);
     int32_t d = g_state.mode;
     MSC_WriteWord(a + off, &d, sizeof(int32_t));
     off += sizeof(int32_t);
@@ -73,6 +83,7 @@ void write_state_to_flash()
 __attribute__((section(".ram")))
 void set_state_to_default()
 {
+    g_state.id = 0;
     g_state.last_reading.chan0 = 0;
     g_state.last_reading.chan1 = 0;
     g_state.last_reading_itime = 0;
@@ -89,6 +100,7 @@ void read_state_from_flash()
         set_state_to_default();
     } else {
         // Note that EFM32 is little endian.
+        g_state.id = *a;
         g_state.mode = *((mode *)(a+1));
         g_state.last_reading.chan0 = *((int16_t *)(a+2));
         g_state.last_reading.chan1 = *(((int16_t *)(a+2)) + 1);

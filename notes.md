@@ -83,6 +83,7 @@ Bottom layer component heights:
     2.28 (battery clip max within tolerance)
     USE 2.6 mm standoff
 
+
 PCB thickness:
 
     0.65 (assuming 0.05mm tolerance)
