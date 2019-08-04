@@ -97,3 +97,31 @@ With 1mm case side thickness:
     5.88mm
 
 
+Screws:
+
+    https://www.accu.co.uk/en/binding-screws/72058-SBI-4-40-1-8-A2
+    https://www.mouser.co.uk/ProductDetail/Keystone-Electronics/4939?qs=sGAEpiMZZMtrde5aJd3qwyYgzjwpx5lKLJ94YQquY3ZI0lCH3SpODQ%3D%3D\
+
+    |  board 0.6mm
+    |
+    ------
+    |  screw hole thing 0.92mm
+    |
+    |
+    |
+    ------
+    |
+    |  gap (0)
+    |
+    ------
+    |  rest 0.38mmm
+    |
+    |
+    -----
+    |
+    |  screw head within floor extension 0.98mm
+    |
+    ------
+    |
+    |  screw head within floor 0.75mm 1.73mm
+    |
