@@ -1258,7 +1258,7 @@
     )
   )
 
-  (module "Capacitors_SMD:C_0603" (layer "F.Cu") (tedit 59958EE7) (tstamp 5C1269C5)
+  (module "Capacitors_SMD:C_0603" (layer "F.Cu") (tedit 59958EE7) (tstamp 5D4B6135)
     (at 103.67 73.75)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
