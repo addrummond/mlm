@@ -100,7 +100,7 @@ With 1mm case side thickness:
 Screws:
 
     https://www.accu.co.uk/en/binding-screws/72058-SBI-4-40-1-8-A2
-    https://www.mouser.co.uk/ProductDetail/Keystone-Electronics/4939?qs=sGAEpiMZZMtrde5aJd3qwyYgzjwpx5lKLJ94YQquY3ZI0lCH3SpODQ%3D%3D\
+    https://www.mouser.co.uk/ProductDetail/Keystone-Electronics/4939?qs=sGAEpiMZZMtrde5aJd3qwyYgzjwpx5lKLJ94YQquY3ZI0lCH3SpODQ%3D%3D
 
     |  board 0.6mm
     |
