@@ -53,7 +53,7 @@ static uint32_t *prepare_next_state_address()
 {
     uint32_t *a = find_state();
     uint32_t ua = (uint32_t)a;
-    uint32_t loc = ((a / PAGE_NBYTES) * LOCS_PER_PAGE) + ((a % PAGE_NBYTES) / STATE_NBYTES);
+    uint32_t loc = ((ua / PAGE_NBYTES) * LOCS_PER_PAGE) + ((ua % PAGE_NBYTES) / STATE_NBYTES);
 
     if (a == 0 || loc + 1 == NUM_POSSIBLE_LOCS) {
         // We need to start from the beginning.
@@ -144,5 +144,5 @@ void read_state_from_flash()
 bool fresh_reading_is_saved()
 {
     return g_state.last_reading_itime != 0 &&
-           (g_state.last_reading_flags & LAST_READING_FLAGS_FRESH != 0);
+           ((g_state.last_reading_flags & LAST_READING_FLAGS_FRESH) != 0);
 }
