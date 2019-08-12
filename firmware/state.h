@@ -71,5 +71,6 @@ void write_state_to_flash(void);
 void read_state_from_flash(void);
 void set_state_to_default(void);
 bool fresh_reading_is_saved(void);
+void erase_state_pages(void);
 
 #endif

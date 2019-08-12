@@ -41,7 +41,7 @@ static uint32_t *find_state()
 }
 
 __attribute__((section(".ram")))
-static void erase_state_pages()
+void erase_state_pages()
 {
     for (uint32_t i = 0; i < N_DATA_PAGES; ++i) {
         MSC_ErasePage(FIRST_STATE_PAGE_ADDR + (i*PAGE_NBYTES)/sizeof(uint32_t));

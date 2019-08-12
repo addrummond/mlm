@@ -268,7 +268,7 @@ void common_init()
     GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInput, 0);
 }
 
-int testmain()
+int test_main()
 {
     // ********** TEST LED CYCLING **********
 
@@ -356,6 +356,14 @@ int testmain()
     return 0;
 }
 
+int reset_state_main()
+{
+    SEGGER_RTT_printf(0, "Erasing state pages...\n");
+    erase_state_pages();
+    SEGGER_RTT_printf(0, "Erased.\n");
+    return 0;
+}
+
 int real_main()
 {
 #ifdef DEBUG
@@ -374,5 +382,6 @@ int main()
     common_init();
 
     return real_main();
-    //return testmain();
+    //return test_main();
+    //return reset_state_main();
 }
