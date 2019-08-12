@@ -123,7 +123,7 @@ void set_state_to_default()
 
 void read_state_from_flash()
 {
-    uint32_t *a = find_state_in_user_page();
+    uint32_t *a = find_state();
     if (a == 0) {
         set_state_to_default();
     } else {
