@@ -5,47 +5,75 @@
 
 state g_state;
 
+static const uint32_t LOCS_PER_PAGE = PAGE_NBYTES/STATE_NBYTES;
+static const uint32_t NUM_POSSIBLE_LOCS = N_DATA_PAGES * LOCS_PER_PAGE;
+
 __attribute__((section(".ram")))
-static uint32_t *find_state_in_page(uint32_t *page_addr)
+static uint32_t *find_state()
 {
-    // Page is 512 bytes and state is ~28 bytes, so a linear search has
-    // acceptable performance.
-    uint32_t *addr;
-    for (addr = page_addr; addr < page_addr + (PAGE_NBYTES/sizeof(uint32_t)); addr += STATE_NBYTES/sizeof(uint32_t)) {
-        if (*addr != 0xFFFFFFFF)
-            break;
+    // Find the current state via a binary search.
+    
+    uint32_t *addr = 0;
+
+    for (uint32_t loc = NUM_POSSIBLE_LOCS/2;;) {
+        uint32_t pg = loc / LOCS_PER_PAGE;
+        uint32_t pgloc = loc % LOCS_PER_PAGE;
+        addr = FIRST_STATE_PAGE_ADDR + ((pg * PAGE_NBYTES) + (pgloc * STATE_NBYTES))/sizeof(uint32_t);
+
+        // This is the current stage if
+        //     (a) the first four bytes are not 0xFF, and
+        //     (b) either
+        //             (i)  the first four bytes of the next location are 0xFF, or
+        //             (ii) the current location is the last location
+        if (*addr != 0xFFFFFFFF) {
+            if (loc+1 == NUM_POSSIBLE_LOCS)
+                break;
+            uint32_t *next_addr = addr + STATE_NBYTES/sizeof(uint32_t);
+            if (*next_addr == 0xFFFFFFFF)
+                break;
+            loc = (loc + NUM_POSSIBLE_LOCS) / 2;
+        } else {
+            loc /= 2;
+        }
     }
-
-    if (addr >= page_addr + (PAGE_NBYTES/sizeof(uint32_t)))
-        return 0;
-
+    
     return addr;
 }
 
 __attribute__((section(".ram")))
-static uint32_t *find_state_page()
+static void erase_state_pages()
 {
-
+    for (uint32_t i = 0; i < N_DATA_PAGES; ++i) {
+        MSC_ErasePage(FIRST_STATE_PAGE_ADDR + (i*PAGE_NBYTES)/sizeof(uint32_t));
+    }
 }
 
 __attribute__((section(".ram")))
-static uint32_t *next_address_of_state()
+static uint32_t *prepare_next_state_address()
 {
-    uint32_t *a = find_state_in_user_page();
-    if (a == 0)
-        return USER_DATA_PAGE_ADDR;
-    if (a + (STATE_NBYTES/sizeof(uint32_t)) > a + (PAGE_NBYTES/sizeof(uint32_t)))
-        return USER_DATA_PAGE_ADDR;
-    return a + (PAGE_NBYTES/sizeof(uint32_t));
+    uint32_t *a = find_state();
+    uint32_t ua = (uint32_t)a;
+    uint32_t loc = ((a / PAGE_NBYTES) * LOCS_PER_PAGE) + ((a % PAGE_NBYTES) / STATE_NBYTES);
+
+    if (a == 0 || loc + 1 == NUM_POSSIBLE_LOCS) {
+        // We need to start from the beginning.
+        erase_state_pages();
+        return FIRST_STATE_PAGE_ADDR;
+    }
+    
+    ++loc;
+    return
+        FIRST_STATE_PAGE_ADDR +
+        ((loc / LOCS_PER_PAGE) * (PAGE_NBYTES / sizeof(uint32_t))) +
+        ((loc % LOCS_PER_PAGE) * (STATE_NBYTES / sizeof(uint32_t)));
 }
 
 __attribute__((section(".ram")))
 void write_state_to_flash()
 {
-    uint32_t *a = next_address_of_state();
-
     MSC_Init();
-    MSC_ErasePage(USER_DATA_PAGE_ADDR); // pages are 512 bytes, so one page is more than enough
+    
+    uint32_t *a = prepare_next_state_address();
 
     // Mark reading as fresh before saving it so that it will be displayed on
     // next wakeup.
