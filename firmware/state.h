@@ -38,7 +38,7 @@ typedef struct state {
                       4 /* last_reading_ev */ + \
                       4 /* last_reading_flags */ + \
                       4 /* last_reading_iso */ + \
-                      4 /* last_reading_compensation */ \
+                      4 /* compensation */ \
                      )
 
 extern state g_state;
@@ -54,6 +54,18 @@ extern state g_state;
 #define N_CHEEKY_PAGES 4
 
 #define N_DATA_PAGES (N_CHEEKY_PAGES+1)
+
+#define FIRST_STATE_PAGE_ADDR (USER_DATA_PAGE_ADDR - N_CHEEKY_PAGES*(PAGE_NBYTES/sizeof(uint32_t)))
+
+// *Note on erase cycles*
+//
+// The EFM32 part we're using claims a minimum of 10K erase cycles for the
+// flash. We erase all data pages every
+//     (N_DATA_PAGES * (PAGE_NBYTES / STATE_NBYTES)) = 80
+// times the state is written. Thus, we should be able to write the state
+// at least 800,000 times before the flash starts to fail. This should be
+// more than enough. Supposing that the state is saved 100 times a day
+// every day, that's ~22 years of life.
 
 void write_state_to_flash(void);
 void read_state_from_flash(void);
