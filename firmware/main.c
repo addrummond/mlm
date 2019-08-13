@@ -179,12 +179,11 @@ void handle_MODE_DOING_READING()
     SEGGER_RTT_printf(0, "Turning on LDO.\n");
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
-    delay_ms(100); // make sure LDO has time to start up and sensor has time to
-                   // power up
+    delay_ms(10); // make sure LDO has time to start up (datasheet says 1ms startup time is typical, so 10 is more than enough)
     sensor_init();
-    delay_ms(100);
+    delay_ms(100); // sensor requires 100ms initial startup time.
 
-    // Turn the sensor on and give it time to start up.
+    // Turn the sensor on and give it time to wake up from standby.
     sensor_turn_on(GAIN_1X);
     delay_ms(10);
 
