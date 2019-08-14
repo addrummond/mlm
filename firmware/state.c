@@ -1,4 +1,5 @@
 #include <em_msc.h>
+#include <rtt.h>
 #include <state.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -12,6 +13,8 @@ __attribute__((section(".ram")))
 static uint32_t *find_state()
 {
     // Find the current state via a binary search.
+
+    SEGGER_RTT_printf(0, "Starting search for state.\n");
     
     uint32_t *addr = 0;
 
@@ -36,6 +39,8 @@ static uint32_t *find_state()
             loc /= 2;
         }
     }
+
+    SEGGER_RTT_printf(0, "Search for state ended.\n");
     
     return addr;
 }
