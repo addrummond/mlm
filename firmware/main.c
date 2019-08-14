@@ -134,6 +134,28 @@ void handle_MODE_AWAKE_AT_REST()
     }
 }
 
+static void shift_wheel(int n, int *ap_index, int *ss_index)
+{
+    int newap = *ap_index + n;
+    int news = *ss_index + n;
+    if (newap >= AP_INDEX_MIN && newap < AP_INDEX_MAX && news >= SS_INDEX_MIN && news <= SS_INDEX_MAX) {
+        *ap_index = newap;
+        *ss_index = news;
+    }
+}
+
+static void leds_on_for_reading(int ap_index, int ss_index, int third)
+{
+    unsigned ss_led_n = LED_1S_N + ss_index;
+    unsigned ap_led_n = (LED_F1_N + ap_index) % 24;
+    uint32_t mask = (1 << ap_led_n) | (1 << ss_led_n);
+    if (third == 1)
+        mask |= (1 << LED_PLUS_1_3_N);
+    else if (third == -1)
+        mask |= (1 << LED_MINUS_1_3_N);
+    leds_on(mask);
+}
+
 void handle_MODE_DISPLAY_READING()
 {
     int ap_index, ss_index, third;
@@ -146,24 +168,39 @@ void handle_MODE_DISPLAY_READING()
     if (ap_index == -1) {
         leds_on(0b100000000000000000000011);
     } else {
-        unsigned ss_led_n = LED_1S_N + ss_index;
-        unsigned ap_led_n = (LED_F1_N + ap_index) % 24;
-        uint32_t mask = (1 << ap_led_n) | (1 << ss_led_n);
-        if (third == 1)
-            mask |= (1 << LED_PLUS_1_3_N);
-        else if (third == -1)
-            mask |= (1 << LED_MINUS_1_3_N);
-        leds_on(mask);
+        leds_on_for_reading(ap_index, ss_index, third);
     }
 
-    while (leds_on_for_cycles < DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
+    clear_capcounts();
+    setup_capsense();
+
+    int last_touch_position = INVALID_TOUCH_POSITION; // not a valid touch position
+    uint32_t base_cycles = 0;
+    while (leds_on_for_cycles - base_cycles < DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
         __NOP();
         __NOP();
         __NOP();
         __NOP();
+
+        if (ap_index != -1 && touch_readings_taken > 0 && touch_readings_taken % 4 == 0) {
+            int tp = touch_position_10();
+            SEGGER_RTT_printf(0, "Touch position %s%u\n", sign_of(tp), iabs(tp));
+            if (last_touch_position == INVALID_TOUCH_POSITION) {
+                last_touch_position = tp;
+            } else if (last_touch_position == NO_TOUCH_DETECTED) {
+                ;  
+            } else if (tp != last_touch_position) {
+                shift_wheel(tp < 0 ? -1 : 1, &ap_index, &ss_index);
+                leds_on_for_reading(ap_index, ss_index, third);
+
+                last_touch_position = tp;
+                base_cycles = leds_on_for_cycles;
+            }
+        }
     }
 
     leds_all_off();
+    disable_capsense();
 
     EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
     g_state.mode = MODE_JUST_WOKEN;

@@ -155,13 +155,6 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
     return (int32_t)lux;
 }
 
-static const int32_t F8_AP_INDEX = 6;
-static const int32_t ISO_100_INDEX = 4;
-static const int32_t AP_INDEX_MIN = 0;
-static const int32_t AP_INDEX_MAX = 12;
-static const int32_t SS_INDEX_MIN = 0;
-static const int32_t SS_INDEX_MAX = 12;
-
 // Assume that we have an infinite sequence of lights indicating shutter speeds.
 // The light at index 0 indicates 1S. The light at index n+1 indicates the
 // shutter speed at one stop above the light at index n. Given an EV@100 value,

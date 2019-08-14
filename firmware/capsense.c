@@ -6,6 +6,7 @@ uint32_t touch_counts[4];
 uint32_t touch_acmp;
 uint32_t touch_chan;
 uint32_t touch_index;
+uint32_t touch_readings_taken;
 
 static bool touch_on = true;
 
@@ -32,6 +33,11 @@ void setup_capsense()
 
     ACMP_Enable(ACMP0);
     ACMP_Enable(ACMP1);
+}
+
+void disable_capsense()
+{
+    // TODO
 }
 
 void cycle_capsense()
@@ -75,6 +81,17 @@ void clear_capcounts()
     touch_counts[1] = 0;
     touch_counts[2] = 0;
     touch_counts[3] = 0;
+    touch_readings_taken = 0;
+}
+
+int touch_position_10()
+{
+    int32_t c0 = (int32_t)touch_counts[0];
+    int32_t c1 = (int32_t)touch_counts[1];
+    int32_t c2 = (int32_t)touch_counts[2];
+    int32_t c3 = (int32_t)touch_counts[3];
+    int32_t v = ((-c0 - c1/2 + c2/2 + c3) * 10) / (c0 + c1 + c2 + c3);
+    return (int)v;
 }
 
 void ACMP0_IRQHandler(void) {
@@ -82,6 +99,8 @@ void ACMP0_IRQHandler(void) {
   	ACMP0->IFC = ACMP_IFC_EDGE;
 	ACMP1->IFC = ACMP_IFC_EDGE;
 
-    if (touch_on)
+    if (touch_on) {
         ++touch_counts[touch_index];
+        ++touch_readings_taken;
+    }
 }
