@@ -378,14 +378,14 @@ int test_main()
         if (i % (4*6) == 0) {
             touch_on = false;
             int tp = touch_position_10();
-            SEGGER_RTT_printf(0, "pos %s%u, count %u %u %u %u\n", sign_of(tp), iabs(tp), touch_counts[0], touch_counts[2], touch_counts[1], touch_counts[3]);
+            SEGGER_RTT_printf(0, "%u pos %s%u, count %u %u %u %u\n", LED_CYCLES_PER_PAD_TOUCH_COUNT, sign_of(tp), iabs(tp), touch_counts[0], touch_counts[2], touch_counts[1], touch_counts[3]);
             touch_on = true;
             clear_capcounts();
         }
 
         cycle_capsense();
 
-        delay_ms(10);
+        delay_ms(PAD_COUNT_MS);
     }
 
     // ********** LED TEST **********

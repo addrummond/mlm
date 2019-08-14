@@ -1,5 +1,4 @@
 #include <capsense.h>
-#include <config.h>
 #include <em_acmp.h>
 #include <em_cmu.h>
 
