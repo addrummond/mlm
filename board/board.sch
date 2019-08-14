@@ -644,8 +644,6 @@ Text Notes 3900 1100 0    50   ~ 0
 Connection ~ 3400 2500
 Wire Wire Line
 	3400 2500 4250 2500
-Text GLabel 6500 950  2    50   Input ~ 0
-MAINBUT
 Text GLabel 7200 5600 3    50   Input ~ 0
 DPIN1
 Text GLabel 9050 4500 2    50   Input ~ 0
@@ -1791,4 +1789,20 @@ Wire Wire Line
 Connection ~ 2750 6550
 Wire Wire Line
 	2750 6550 2750 6600
+Wire Wire Line
+	6800 950  6900 950 
+Text GLabel 6900 950  3    50   Input ~ 0
+MAINBUT
+$Comp
+L Device:R R13
+U 1 1 5D78336F
+P 6650 950
+F 0 "R13" V 6443 950 50  0000 C CNN
+F 1 "1k" V 6534 950 50  0000 C CNN
+F 2 "mlm:0603" V 6580 950 50  0001 C CNN
+F 3 "~" H 6650 950 50  0001 C CNN
+F 4 "RMCF0603FG1K00" H -3700 -5050 50  0001 C CNN "MPN"
+	1    6650 950 
+	0    1    1    0   
+$EndComp
 $EndSCHEMATC
