@@ -1,3 +1,4 @@
+#include <capsense.h>
 #include <config.h>
 #include <em_acmp.h>
 #include <em_cmu.h>
@@ -6,9 +7,14 @@ uint32_t touch_counts[4];
 uint32_t touch_acmp;
 uint32_t touch_chan;
 uint32_t touch_index;
-uint32_t touch_readings_taken;
 
-static bool touch_on = true;
+bool touch_on;
+
+// TODO
+// We may want to determine these values at startup rather than
+// hard-coding them.
+// These values assume a 10ms count window for each pad.
+static uint32_t notouch_touch_counts[] = { 6181, 5018, 5704, 5754 };
 
 // Capsense pins are PC0 (S1), PC1 (S3), PC14 (S2), PC15 (S4)
 void setup_capsense()
@@ -33,6 +39,8 @@ void setup_capsense()
 
     ACMP_Enable(ACMP0);
     ACMP_Enable(ACMP1);
+
+    touch_on = true;
 }
 
 void disable_capsense()
@@ -81,17 +89,27 @@ void clear_capcounts()
     touch_counts[1] = 0;
     touch_counts[2] = 0;
     touch_counts[3] = 0;
-    touch_readings_taken = 0;
 }
+
+static const uint32_t NOTOUCH_THRESHOLD = 3500;
 
 int touch_position_10()
 {
-    int32_t c0 = (int32_t)touch_counts[0];
-    int32_t c1 = (int32_t)touch_counts[1];
-    int32_t c2 = (int32_t)touch_counts[2];
-    int32_t c3 = (int32_t)touch_counts[3];
-    int32_t v = ((-c0 - c1/2 + c2/2 + c3) * 10) / (c0 + c1 + c2 + c3);
-    return (int)v;
+    bool notouch = true;
+    for (int i = 0; i < 4; ++i) {
+        if (touch_counts[i] < NOTOUCH_THRESHOLD)
+            notouch = false;
+    }
+
+    if (notouch)
+        return NO_TOUCH_DETECTED;
+
+    int32_t c0 = (int32_t)notouch_touch_counts[0] - (int32_t)touch_counts[0];
+    int32_t c1 = (int32_t)notouch_touch_counts[2] - (int32_t)touch_counts[2];
+    int32_t c2 = (int32_t)notouch_touch_counts[1] - (int32_t)touch_counts[1];
+    int32_t c3 = (int32_t)notouch_touch_counts[3] - (int32_t)touch_counts[3];
+    int32_t v = (((-c0 - c1/2 + c2/2 + c3) * 10) / (c0 + c1 + c2 + c3));
+    return (int)(v);
 }
 
 void ACMP0_IRQHandler(void) {
@@ -101,6 +119,5 @@ void ACMP0_IRQHandler(void) {
 
     if (touch_on) {
         ++touch_counts[touch_index];
-        ++touch_readings_taken;
     }
 }

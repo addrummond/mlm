@@ -1,13 +1,14 @@
 #ifndef CAPSENSE_H
 #define CAPSENSE_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 extern uint32_t touch_counts[4];
 extern uint32_t touch_acmp;
 extern uint32_t touch_chan;
 extern uint32_t touch_index;
-extern uint32_t touch_readings_taken;
+extern bool touch_on;
 
 void setup_capsense(void);
 void disable_capsense(void);
