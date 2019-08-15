@@ -145,7 +145,7 @@ static uint32_t current_mask;
 static uint32_t current_mask_n;
 static uint32_t led_duty_cycle;
 
-uint32_t leds_on_for_cycles;
+volatile uint32_t leds_on_for_cycles;
 
 static void led_rtc_count_callback()
 {

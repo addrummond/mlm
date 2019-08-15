@@ -175,37 +175,50 @@ void handle_MODE_DISPLAY_READING()
     setup_capsense();
 
     int last_touch_position = INVALID_TOUCH_POSITION; // not a valid touch position
-    uint32_t base_cycles = 0;
+    uint32_t base_cycles = leds_on_for_cycles;
+    uint32_t next_cycle_cycles = base_cycles + RTC_CYCLES_PER_PAD_TOUCH_COUNT;
     int capsense_n_cycled = 0;
-    for (uint32_t last = leds_on_for_cycles; leds_on_for_cycles - base_cycles < DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ;) {
+    while (leds_on_for_cycles - base_cycles < DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
         __NOP();
         __NOP();
         __NOP();
         __NOP();
 
-        if (ap_index != -1 && leds_on_for_cycles != last) {
-            last = leds_on_for_cycles;
+        if (ap_index != -1 && leds_on_for_cycles >= next_cycle_cycles) {
+            next_cycle_cycles = leds_on_for_cycles + RTC_CYCLES_PER_PAD_TOUCH_COUNT;
 
             if (capsense_n_cycled != 0 && capsense_n_cycled % 4 == 0) {
+                touch_on = false;
                 int tp = touch_position_10();
-                SEGGER_RTT_printf(0, "Touch position %s%u\n", sign_of(tp), iabs(tp));
+                SEGGER_RTT_printf(0, "Touch position %u(%u) [%u,%u,%u,%u] %s%u\n", leds_on_for_cycles, RTC_CYCLES_PER_PAD_TOUCH_COUNT, touch_counts[0], touch_counts[1], touch_counts[2], touch_counts[3], sign_of(tp), iabs(tp));
                 if (last_touch_position == INVALID_TOUCH_POSITION) {
+                    SEGGER_RTT_printf(0, "Branch 1\n");
                     last_touch_position = tp;
                 } else if (last_touch_position == NO_TOUCH_DETECTED) {
+                    SEGGER_RTT_printf(0, "Branch 2\n");
                     ;  
                 } else if (tp != last_touch_position) {
+                    /*SEGGER_RTT_printf(0, "Branch 3\n");
                     shift_wheel(tp < 0 ? -1 : 1, &ap_index, &ss_index);
+                    SEGGER_RTT_printf(0, "Leds %s%u %s%u %s%u\n", sign_of(ap_index), iabs(ap_index), sign_of(ss_index), iabs(ss_index), sign_of(third), iabs(third));
                     leds_on_for_reading(ap_index, ss_index, third);
 
                     last_touch_position = tp;
-                    base_cycles = leds_on_for_cycles;
+                    base_cycles = leds_on_for_cycles;*/
                 }
+
+                clear_capcounts();
+                next_cycle_cycles = leds_on_for_cycles + RTC_CYCLES_PER_PAD_TOUCH_COUNT;
             }
 
-            ++capsense_n_cycled;
+            //SEGGER_RTT_printf(0, "Cycle\n");
             cycle_capsense();
+            ++capsense_n_cycled;
+            touch_on = true;
         }
     }
+
+    SEGGER_RTT_printf(0, "Out of loop\n");
 
     leds_all_off();
     disable_capsense();
@@ -339,7 +352,7 @@ int test_main()
 
     // ********** SENSOR TEST **********
 
-    // Turn on the LDO to power up the sensor.
+    /*// Turn on the LDO to power up the sensor.
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
     delay_ms(100); // make sure LDO has time to start up and sensor has time to
@@ -368,17 +381,17 @@ int test_main()
         //    led_on(LED_MINUS_1_3_N);
         //else
         //    led_on(LED_PLUS_1_3_N);
-    }
+    }*/
 
     // ********** CAPSENSE TEST **********
 
-    /*setup_capsense();
+    setup_capsense();
 
     for (unsigned i = 0;; i++) {
         if (i % (4*6) == 0) {
             touch_on = false;
             int tp = touch_position_10();
-            SEGGER_RTT_printf(0, "%u pos %s%u, count %u %u %u %u\n", LED_CYCLES_PER_PAD_TOUCH_COUNT, sign_of(tp), iabs(tp), touch_counts[0], touch_counts[2], touch_counts[1], touch_counts[3]);
+            SEGGER_RTT_printf(0, "pos %s%u, count %u %u %u %u\n", sign_of(tp), iabs(tp), touch_counts[0], touch_counts[2], touch_counts[1], touch_counts[3]);
             touch_on = true;
             clear_capcounts();
         }
@@ -386,7 +399,7 @@ int test_main()
         cycle_capsense();
 
         delay_ms(PAD_COUNT_MS);
-    }*/
+    }
 
     // ********** LED TEST **********
 
@@ -426,7 +439,7 @@ int main()
 {
     common_init();
 
-    //return real_main();
-    return test_main();
+    return real_main();
+    //return test_main();
     //return reset_state_main();
 }

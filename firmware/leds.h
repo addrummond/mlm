@@ -147,6 +147,6 @@ void leds_on(uint32_t mask);
 void led_fully_on(unsigned n);
 void leds_all_off();
 
-extern uint32_t leds_on_for_cycles;
+extern volatile uint32_t leds_on_for_cycles;
 
 #endif

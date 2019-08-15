@@ -90,7 +90,7 @@ void clear_capcounts()
     touch_counts[3] = 0;
 }
 
-static const uint32_t NOTOUCH_THRESHOLD = 3500;
+static const uint32_t NOTOUCH_THRESHOLD = 2000;
 
 int touch_position_10()
 {
