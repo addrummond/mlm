@@ -175,6 +175,7 @@ void handle_MODE_DISPLAY_READING()
     setup_capsense();
 
     uint32_t base_cycles = leds_on_for_cycles;
+    int last_touch_position = INVALID_TOUCH_POSITION;
     for (unsigned i = 0;; ++i) {
         if (i != 0 && i % 4 == 0) {
             touch_on = false;
@@ -182,8 +183,16 @@ void handle_MODE_DISPLAY_READING()
             if (i % (4 * 6) == 0)
                 SEGGER_RTT_printf(0, "pos %s%u, count %u %u %u %u\n", sign_of(tp), iabs(tp), touch_counts[0], touch_counts[2], touch_counts[1], touch_counts[3]);
             
-            if (tp != NO_TOUCH_DETECTED)
+            if (tp != NO_TOUCH_DETECTED) {
                 base_cycles = leds_on_for_cycles;
+
+                if (tp != last_touch_position && last_touch_position != INVALID_TOUCH_POSITION) {
+                    //shift_wheel(tp < 0 ? -1 : 1, &ap_index, &ss_index);
+                    //leds_on_for_reading(ap_index, ss_index, third);
+                }
+
+                last_touch_position = tp;
+            }
             
             touch_on = true;
             clear_capcounts();
