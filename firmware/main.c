@@ -174,16 +174,35 @@ void handle_MODE_DISPLAY_READING()
     clear_capcounts();
     setup_capsense();
 
-    int last_touch_position = INVALID_TOUCH_POSITION; // not a valid touch position
     uint32_t base_cycles = leds_on_for_cycles;
-    uint32_t next_cycle_cycles = base_cycles + RTC_CYCLES_PER_PAD_TOUCH_COUNT;
+    for (unsigned i = 0;; ++i) {
+        if (i != 0 && i % 4 == 0) {
+            touch_on = false;
+            int tp = touch_position_10();
+            if (i % (4 * 6) == 0)
+                SEGGER_RTT_printf(0, "pos %s%u, count %u %u %u %u\n", sign_of(tp), iabs(tp), touch_counts[0], touch_counts[2], touch_counts[1], touch_counts[3]);
+            
+            if (tp != NO_TOUCH_DETECTED)
+                base_cycles = leds_on_for_cycles;
+            
+            touch_on = true;
+            clear_capcounts();
+        }
+
+        cycle_capsense();
+
+        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
+            ;
+        
+        if (leds_on_for_cycles >= base_cycles + DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ)
+            break;
+    }
+
+    /*int last_touch_position = INVALID_TOUCH_POSITION; // not a valid touch position
+    uint32_t base_cycles = leds_on_for_cycles;
+    uint32_t next_cycle_cycles = base_cycles + RTC_CYCLES_PER_PAD_TOUCH_COUNT * 4;
     int capsense_n_cycled = 0;
     while (leds_on_for_cycles - base_cycles < DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
-        __NOP();
-        __NOP();
-        __NOP();
-        __NOP();
-
         if (ap_index != -1 && leds_on_for_cycles >= next_cycle_cycles) {
             next_cycle_cycles = leds_on_for_cycles + RTC_CYCLES_PER_PAD_TOUCH_COUNT;
 
@@ -198,17 +217,17 @@ void handle_MODE_DISPLAY_READING()
                     SEGGER_RTT_printf(0, "Branch 2\n");
                     ;  
                 } else if (tp != last_touch_position) {
-                    /*SEGGER_RTT_printf(0, "Branch 3\n");
+                    SEGGER_RTT_printf(0, "Branch 3\n");
                     shift_wheel(tp < 0 ? -1 : 1, &ap_index, &ss_index);
                     SEGGER_RTT_printf(0, "Leds %s%u %s%u %s%u\n", sign_of(ap_index), iabs(ap_index), sign_of(ss_index), iabs(ss_index), sign_of(third), iabs(third));
                     leds_on_for_reading(ap_index, ss_index, third);
 
                     last_touch_position = tp;
-                    base_cycles = leds_on_for_cycles;*/
+                    base_cycles = leds_on_for_cycles;
                 }
 
                 clear_capcounts();
-                next_cycle_cycles = leds_on_for_cycles + RTC_CYCLES_PER_PAD_TOUCH_COUNT;
+                next_cycle_cycles = leds_on_for_cycles + RTC_CYCLES_PER_PAD_TOUCH_COUNT * 4;
             }
 
             //SEGGER_RTT_printf(0, "Cycle\n");
@@ -216,7 +235,7 @@ void handle_MODE_DISPLAY_READING()
             ++capsense_n_cycled;
             touch_on = true;
         }
-    }
+    }*/
 
     SEGGER_RTT_printf(0, "Out of loop\n");
 
@@ -387,11 +406,12 @@ int test_main()
 
     setup_capsense();
 
-    for (unsigned i = 0;; i++) {
-        if (i % (4*6) == 0) {
+    for (unsigned i = 0;; ++i) {
+        if (i % 4 == 0) {
             touch_on = false;
             int tp = touch_position_10();
-            SEGGER_RTT_printf(0, "pos %s%u, count %u %u %u %u\n", sign_of(tp), iabs(tp), touch_counts[0], touch_counts[2], touch_counts[1], touch_counts[3]);
+            if (i % (4*6) == 0)
+                SEGGER_RTT_printf(0, "pos %s%u, count %u %u %u %u\n", sign_of(tp), iabs(tp), touch_counts[0], touch_counts[2], touch_counts[1], touch_counts[3]);
             touch_on = true;
             clear_capcounts();
         }

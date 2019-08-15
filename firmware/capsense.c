@@ -13,7 +13,7 @@ bool touch_on;
 // We may want to determine these values at startup rather than
 // hard-coding them.
 // These values assume a 10ms count window for each pad.
-static uint32_t notouch_touch_counts[] = { 6181, 5018, 5704, 5754 };
+static uint32_t notouch_touch_counts[] = { 1030, 836, 951, 959 };
 
 // Capsense pins are PC0 (S1), PC1 (S3), PC14 (S2), PC15 (S4)
 void setup_capsense()
@@ -90,7 +90,7 @@ void clear_capcounts()
     touch_counts[3] = 0;
 }
 
-static const uint32_t NOTOUCH_THRESHOLD = 2000;
+static const uint32_t NOTOUCH_THRESHOLD = 333;
 
 int touch_position_10()
 {
