@@ -135,12 +135,12 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
 
     c0 <<= EV_BPS;
     c1 <<= EV_BPS;
-    int32_t ratio = (int32_t)(((int64_t)c1 << EV_BPS) / (int64_t)c0);
+    int32_t ratio = (int32_t)(((int64_t)c1 << EV_BPS) / ((int64_t)c0 + (int64_t)c1));
 
     int64_t lux;
     int64_t g64 = gain;
     if (ratio < (45 << EV_BPS) / 100) {
-        lux = ((c0 * 19240) + (c1 * 18119)) / g64 / (1 << 14);
+        lux = ((c0 * 29070) + (c1 * 18119)) / g64 / (1 << 14);
     } else if (ratio < (64 << EV_BPS) / 100) {
         lux = ((c0 * 70099) + (c1 * 32027)) / g64 / (1 << 14);
     } else if (ratio < (85 << EV_BPS) / 100) {
@@ -148,6 +148,8 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
     } else {
         return -1;
     }
+
+    lux = (lux * (16*150)) / (400*100);
 
     // compensate for integration time.
     lux = ((lux * integ_time) / 100);

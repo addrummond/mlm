@@ -180,7 +180,7 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
                     delay_ms(420);
                     sensor_wait_till_ready();
                     r = sensor_get_reading();
-                    if (r.chan0 < 20000) {
+                    if (r.chan0 < 20000) { // TEMP TEMP DISABLING
                         //SEGGER_RTT_printf(0, "DOWN 4\n");
                         sensor_turn_on(GAIN_96X);
                         sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_400);
