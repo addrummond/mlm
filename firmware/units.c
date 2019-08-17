@@ -121,17 +121,17 @@ int32_t lux_to_ev(int32_t lux)
 // (Apache licensed code)
 int32_t sensor_reading_to_lux(sensor_reading r, int32_t als_gain_val, int32_t als_integ_time_val)
 {
-    uint64_t als_data_ch0 = r.chan0;
-    uint64_t als_data_ch1 = r.chan1;
-    uint32_t chRatio = (als_data_ch1 * 100) / (als_data_ch0 + als_data_ch1);
+    int64_t ch0 = r.chan0;
+    int64_t ch1 = r.chan1;
+    int32_t rat = (ch1 * 100) / (ch0 + ch1);
 
-    uint64_t tmp;
-    if (chRatio < 45)
-        tmp = (18166 * als_data_ch0 + 11325 * als_data_ch1);
-    else if (chRatio >= 45 && chRatio < 64)
-        tmp = (43817 * als_data_ch0 - 20019 * als_data_ch1);
-    else if (chRatio >= 64 && chRatio < 85)
-        tmp = (5151 * als_data_ch0 + 1219 * als_data_ch1);
+    int64_t tmp;
+    if (rat < 45)
+        tmp = (18166 * ch0 + 11325 * ch1);
+    else if (rat < 64)
+        tmp = (43817 * ch0 - 20019 * ch1);
+    else if (rat < 85)
+        tmp = (5151 * ch0 + 1219 * ch1);
     else
         tmp = 0;    
 
