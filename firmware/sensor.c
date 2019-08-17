@@ -4,6 +4,7 @@
 #include <rtt.h>
 #include <sensor.h>
 #include <time.h>
+#include <units.h>
 #include <util.h>
 
 #define SENSOR_I2C_PORT       gpioPortE
@@ -137,6 +138,55 @@ bool sensor_has_valid_data()
 
 sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
 {
+    // We first do a quick reading at 50ms integ time to get an idea
+    // of the light level, and then follow up with a reading at 250ms
+    // integ time with the appropriate gain setting.
+    //
+    // As far as I can tell at the moment, the entire sensitivity
+    // range othe sensor can be covered using a 250ms integ time and
+    // adjusting the gain. Setting the gain to a shorter period takes
+    // the max calculated lux values above the maximum specified value
+    // on the datasheet (64k lux), so I assume that any such results
+    // would be bogus.
+
+    uint8_t measrate = sensor_read_reg(REG_ALS_MEAS_RATE);
+    sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_50);
+    sensor_turn_on(GAIN_1X);
+    delay_ms(60); // don't poll the sensor until it's likely to be ready (saves i2c current)
+    sensor_wait_till_ready();
+    sensor_reading r = sensor_get_reading();
+    int32_t lux50 = sensor_reading_to_lux(r, 1, 50);
+
+    sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_250);
+    *itime = 250;
+
+    if (lux50 < GAIN_96X_INTEG_250_MAX_LUX) {
+        *gain = 96;
+        sensor_turn_on(GAIN_96X);
+    } else if (lux50 < GAIN_48X_INTEG_250_MAX_LUX) {
+        *gain = 48;
+        sensor_turn_on(GAIN_48X);
+    } else if (lux50 < GAIN_8X_INTEG_250_MAX_LUX) {
+        *gain = 8;
+        sensor_turn_on(GAIN_8X);
+    } else if (lux50 < GAIN_4X_INTEG_250_MAX_LUX) {
+        *gain = 4;
+        sensor_turn_on(GAIN_4X);
+    } else if (lux50 < GAIN_2X_INTEG_250_MAX_LUX) {
+        sensor_turn_on(GAIN_2X);
+        *gain = 2;
+    } else {
+        *gain = 1;
+    }
+
+    delay_ms(260);
+    sensor_wait_till_ready();
+    return sensor_get_reading();
+}
+
+/*
+sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
+{
     // We try:
     //
     //     100ms integration 1X gain.
@@ -212,6 +262,7 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
 
     return r;
 }
+*/
 
 void sensor_turn_on(uint8_t gain)
 {
@@ -229,6 +280,6 @@ void sensor_wait_till_ready(void)
     uint8_t status;
     do {
         status = sensor_read_reg(REG_ALS_STATUS);
-        delay_ms(50); // save some current (less i2c communication)
+        delay_ms(10); // save some current (less i2c communication)
     } while (!(status & 0b100));
 }

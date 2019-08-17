@@ -119,6 +119,7 @@ int32_t lux_to_ev(int32_t lux)
 // Adapted from
 //     https://github.com/alibaba/AliOS-Things/blob/54b3f087150b0a6f18a6ebdf7760e3608547fce9/drivers/sensor/drv/drv_als_liteon_ltr303.c#L509
 // (Apache licensed code)
+// Returns lux value shifted by EV_BPS
 int32_t sensor_reading_to_lux(sensor_reading r, int32_t als_gain_val, int32_t als_integ_time_val)
 {
     int64_t ch0 = r.chan0;
@@ -135,10 +136,9 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t als_gain_val, int32_t al
     else
         tmp = 0;    
 
-    if ((als_gain_val != 0) && (als_integ_time_val != 0))
-        return (int32_t)(tmp / (int64_t)als_gain_val / (int64_t)als_integ_time_val);
-    else
-        return 0;
+    // We multiply by 10 because the code linked above appears to code als_integ_time_val
+    // in 1/100 seconds rather than milliseconds.
+    return (int32_t)((tmp * 10) / (int64_t)als_gain_val / (int64_t)als_integ_time_val);
 }
 
 // Assume that we have an infinite sequence of lights indicating shutter speeds.
