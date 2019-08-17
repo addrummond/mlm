@@ -116,45 +116,29 @@ int32_t lux_to_ev(int32_t lux)
     return log_base2(lux);
 }
 
-int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time)
+// Adapted from
+//     https://github.com/alibaba/AliOS-Things/blob/54b3f087150b0a6f18a6ebdf7760e3608547fce9/drivers/sensor/drv/drv_als_liteon_ltr303.c#L509
+// (Apache licensed code)
+int32_t sensor_reading_to_lux(sensor_reading r, int32_t als_gain_val, int32_t als_integ_time_val)
 {
-    // The LTR-303ALS-01 datasheet refers to a mysterious "Appendix A" for the
-    // lux calculation. I haven't been able to locate this appendix. The
-    // following calculation has been derived from various scraps of information
-    // online.
+    uint64_t als_data_ch0 = r.chan0;
+    uint64_t als_data_ch1 = r.chan1;
+    uint32_t chRatio = (als_data_ch1 * 100) / (als_data_ch0 + als_data_ch1);
 
-    // Doing this with int64s just to be on the safe side. This could probably
-    // be rewritten to use int32s with some more careful thought about maximum
-    // values.
+    uint64_t tmp;
+    if (chRatio < 45)
+        tmp = (18166 * als_data_ch0 + 11325 * als_data_ch1);
+    else if (chRatio >= 45 && chRatio < 64)
+        tmp = (43817 * als_data_ch0 - 20019 * als_data_ch1);
+    else if (chRatio >= 64 && chRatio < 85)
+        tmp = (5151 * als_data_ch0 + 1219 * als_data_ch1);
+    else
+        tmp = 0;    
 
-    int64_t c0 = r.chan0;
-    int64_t c1 = r.chan1;
-
-    if (c0 == 0)
+    if ((als_gain_val != 0) && (als_integ_time_val != 0))
+        return (int32_t)(tmp / (int64_t)als_gain_val / (int64_t)als_integ_time_val);
+    else
         return 0;
-
-    c0 <<= EV_BPS;
-    c1 <<= EV_BPS;
-    int32_t ratio = (int32_t)(((int64_t)c1 << EV_BPS) / ((int64_t)c0 + (int64_t)c1));
-
-    int64_t lux;
-    int64_t g64 = gain;
-    if (ratio < (45 << EV_BPS) / 100) {
-        lux = ((c0 * 29070) + (c1 * 18119)) / g64 / (1 << 14);
-    } else if (ratio < (64 << EV_BPS) / 100) {
-        lux = ((c0 * 70099) + (c1 * 32027)) / g64 / (1 << 14);
-    } else if (ratio < (85 << EV_BPS) / 100) {
-        lux = ((c0 * 9709) + (c1 * 1942)) / g64 / (1 << 14);
-    } else {
-        return -1;
-    }
-
-    lux = (lux * (16*150)) / (400*100);
-
-    // compensate for integration time.
-    lux = ((lux * integ_time) / 100);
-
-    return (int32_t)lux;
 }
 
 // Assume that we have an infinite sequence of lights indicating shutter speeds.
