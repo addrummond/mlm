@@ -151,7 +151,7 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
     // range.
     //
     // As far as I can tell at the moment, the entire sensitivity
-    // range othe sensor can be covered using a 250ms integ time and
+    // range of the sensor can be covered using a 250ms integ time and
     // adjusting the gain. Setting the gain to a shorter period takes
     // the max calculated lux values above the maximum specified value
     // on the datasheet (64k lux), so I assume that any such results
