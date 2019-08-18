@@ -380,7 +380,7 @@ int test_main()
 
     // ********** SENSOR TEST **********
 
-    /*// Turn on the LDO to power up the sensor.
+    // Turn on the LDO to power up the sensor.
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
     delay_ms(100); // make sure LDO has time to start up and sensor has time to
@@ -399,21 +399,21 @@ int test_main()
         sensor_reading sr = sensor_get_reading_auto(&gain, &itime);
         int32_t lux = sensor_reading_to_lux(sr, gain, itime);
         int32_t ev = lux_to_ev(lux);
-        SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS);
+        SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u%s)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS, (ev % (1<<EV_BPS) >= (2<<EV_BPS/3)) ? "+2/3" : (ev % (1<<EV_BPS) >= (1<<EV_BPS/3) ? "+1/3" : ""));
         int ss_index, third;
         ev_to_shutter_iso100_f8(ev, &ss_index, &third);
         SEGGER_RTT_printf(0, "SSINDEX %s%u\n", sign_of(ss_index), iabs(ss_index));
-        leds_all_off();
-        led_on(LED_1S_N + ss_index);
+        //leds_all_off();
+        //led_on(LED_1S_N + ss_index);
         //if (third == -1)
         //    led_on(LED_MINUS_1_3_N);
         //else
         //    led_on(LED_PLUS_1_3_N);
-    }*/
+    }
 
     // ********** CAPSENSE TEST **********
 
-    setup_capsense();
+    /*setup_capsense();
 
     for (unsigned i = 0;; ++i) {
         if (i % 4 == 0) {
@@ -428,7 +428,7 @@ int test_main()
         cycle_capsense();
 
         delay_ms(PAD_COUNT_MS);
-    }
+    }*/
 
     // ********** LED TEST **********
 
@@ -468,7 +468,7 @@ int main()
 {
     common_init();
 
-    return real_main();
-    //return test_main();
+    //return real_main();
+    return test_main();
     //return reset_state_main();
 }
