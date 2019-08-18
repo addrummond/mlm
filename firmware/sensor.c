@@ -157,14 +157,18 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
     // on the datasheet (64k lux), so I assume that any such results
     // would be bogus.
 
+    sensor_standby();
     uint8_t measrate = sensor_read_reg(REG_ALS_MEAS_RATE);
     sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_50);
     sensor_turn_on(GAIN_1X);
-    delay_ms(60); // don't poll the sensor until it's likely to be ready (saves i2c current)
+    delay_ms(65); // don't poll the sensor until it's likely to be ready (saves i2c current)
     sensor_wait_till_ready();
     sensor_reading r = sensor_get_reading();
     int32_t lux50 = sensor_reading_to_lux(r, 1, 50);
 
+    SEGGER_RTT_printf(0, "LUX50 = %u/%u = %u (c0=%u,c1=%u)\n", lux50, (1<<EV_BPS), lux50/(1<<EV_BPS), r.chan0, r.chan1);
+
+    sensor_standby();
     sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_250);
     *itime = 250;
 
@@ -173,23 +177,27 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
         *gain = 48;
         sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_400);
         sensor_turn_on(GAIN_48X);
+        delay_ms(410);
     } else if (lux50 < subtract_margin(GAIN_48X_INTEG_250_MAX_LUX)) {
         *gain = 48;
         sensor_turn_on(GAIN_48X);
+        delay_ms(260);
     } else if (lux50 < subtract_margin(GAIN_8X_INTEG_250_MAX_LUX)) {
         *gain = 8;
         sensor_turn_on(GAIN_8X);
+        delay_ms(260);
     } else if (lux50 < subtract_margin(GAIN_4X_INTEG_250_MAX_LUX)) {
         *gain = 4;
         sensor_turn_on(GAIN_4X);
+        delay_ms(260);
     } else if (lux50 < subtract_margin(GAIN_2X_INTEG_250_MAX_LUX)) {
-        sensor_turn_on(GAIN_2X);
         *gain = 2;
+        sensor_turn_on(GAIN_2X);
+        delay_ms(260);
     } else {
         *gain = 1;
     }
 
-    delay_ms(260);
     sensor_wait_till_ready();
     return sensor_get_reading();
 }
@@ -280,7 +288,7 @@ void sensor_turn_on(uint8_t gain)
     sensor_write_reg(REG_ALS_CONTR, 1 | gain);
 }
 
-void sensor_turn_off()
+void sensor_standby()
 {
     sensor_write_reg(REG_ALS_CONTR, 0);
 }
