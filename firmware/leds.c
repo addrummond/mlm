@@ -176,6 +176,8 @@ static void led_rtc_count_callback()
     ++current_mask_n;
 }
 
+static bool rtc_has_been_borked_for_led_cycling;
+
 void leds_on(uint32_t mask)
 {
     mask &= 0b111111111111111111111111111; // there are 27 leds
@@ -196,9 +198,9 @@ void leds_on(uint32_t mask)
     set_rtc_interrupt_handler(led_rtc_count_callback);
 
     RTC_Init_TypeDef init = {
-        true, // Start counting when initialization is done
+        true,  // Start counting when initialization is done
         false, // Enable updating during debug halt.
-        true  // Restart counting from 0 when reaching COMP0.
+        true   // Restart counting from 0 when reaching COMP0.
     };
 
     RTC_CompareSet(0, RTC_RAW_FREQ / LED_REFRESH_RATE_HZ);
@@ -209,6 +211,8 @@ void leds_on(uint32_t mask)
     leds_on_for_cycles = 0;
 
     RTC_Init(&init);
+
+    rtc_has_been_borked_for_led_cycling = true;
 }
 
 void led_fully_on(unsigned n)
@@ -228,8 +232,24 @@ void led_fully_on(unsigned n)
 
 void leds_all_off()
 {
-    RTC_Enable(false);
-    orig_mask = 0;
+    if (rtc_has_been_borked_for_led_cycling)
+        RTC_Enable(false);
 
+    orig_mask = 0;
     turnoff();
+
+    if (rtc_has_been_borked_for_led_cycling) {
+        CMU_ClockDivSet(cmuClock_RTC, MACROUTILS_CONCAT(cmuClkDiv_, RTC_CLK_DIV));
+        RTC_IntDisable(RTC_IEN_COMP0);
+        NVIC_DisableIRQ(RTC_IRQn);
+
+        RTC_Init_TypeDef init = {
+            true,  // Start counting when initialization is done
+            false, // Enable updating during debug halt.
+            false  // Restart counting from 0 when reaching COMP0.
+        };
+        RTC_Init(&init);
+
+        rtc_has_been_borked_for_led_cycling = false;
+    }
 }

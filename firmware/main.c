@@ -381,7 +381,7 @@ int test_main()
     // ********** SENSOR TEST **********
 
     // Turn on the LDO to power up the sensor.
-    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
+    /*GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
     delay_ms(100); // make sure LDO has time to start up and sensor has time to
                    // power up
@@ -409,7 +409,7 @@ int test_main()
         //    led_on(LED_MINUS_1_3_N);
         //else
         //    led_on(LED_PLUS_1_3_N);
-    }
+    }*/
 
     // ********** CAPSENSE TEST **********
 
@@ -443,6 +443,28 @@ int test_main()
     return 0;
 }
 
+int test_led_change_main()
+{
+    leds_all_off();
+    for (;;) {
+        SEGGER_RTT_printf(0, "First pattern\n");
+        leds_on(0b101);
+        uint32_t base_cycles = leds_on_for_cycles;
+        while (leds_on_for_cycles < base_cycles + RTC_RAW_FREQ)
+            ;
+        SEGGER_RTT_printf(0, "Second pattern\n");
+        leds_all_off();
+        CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFRCO);
+        CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
+        CMU_ClockEnable(cmuClock_RTC, true);
+        delay_ms(1000);
+        //leds_on(0b00011);
+        //base_cycles = leds_on_for_cycles;
+        //while (leds_on_for_cycles < base_cycles + RTC_RAW_FREQ)
+        //    ;
+        }
+}
+
 int reset_state_main()
 {
     SEGGER_RTT_printf(0, "Erasing state pages...\n");
@@ -469,6 +491,7 @@ int main()
     common_init();
 
     //return real_main();
-    return test_main();
+    //return test_main();
+    return test_led_change_main();
     //return reset_state_main();
 }
