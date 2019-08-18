@@ -136,11 +136,19 @@ bool sensor_has_valid_data()
     return !(status & 0b10000000);
 }
 
+static inline int32_t subtract_margin(int32_t max_lux)
+{
+    return (int32_t)((int64_t)max_lux * 85LL / 100LL);
+}
+
 sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
 {
     // We first do a quick reading at 50ms integ time to get an idea
     // of the light level, and then follow up with a reading at 250ms
-    // integ time with the appropriate gain setting.
+    // integ time with the appropriate gain setting, or at very low
+    // light levels, 400ms at 48X gain. The latter should be a little
+    // less noisy than 250ms at 96X gain, and has an almost identical
+    // range.
     //
     // As far as I can tell at the moment, the entire sensitivity
     // range othe sensor can be covered using a 250ms integ time and
@@ -160,19 +168,21 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
     sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_250);
     *itime = 250;
 
-    if (lux50 < GAIN_96X_INTEG_250_MAX_LUX) {
-        *gain = 96;
-        sensor_turn_on(GAIN_96X);
-    } else if (lux50 < GAIN_48X_INTEG_250_MAX_LUX) {
+    if (lux50 < subtract_margin(GAIN_96X_INTEG_250_MAX_LUX * 2 * 250 / 400)) {
+        *itime = 400;
+        *gain = 48;
+        sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_400);
+        sensor_turn_on(GAIN_48X);
+    } else if (lux50 < subtract_margin(GAIN_48X_INTEG_250_MAX_LUX)) {
         *gain = 48;
         sensor_turn_on(GAIN_48X);
-    } else if (lux50 < GAIN_8X_INTEG_250_MAX_LUX) {
+    } else if (lux50 < subtract_margin(GAIN_8X_INTEG_250_MAX_LUX)) {
         *gain = 8;
         sensor_turn_on(GAIN_8X);
-    } else if (lux50 < GAIN_4X_INTEG_250_MAX_LUX) {
+    } else if (lux50 < subtract_margin(GAIN_4X_INTEG_250_MAX_LUX)) {
         *gain = 4;
         sensor_turn_on(GAIN_4X);
-    } else if (lux50 < GAIN_2X_INTEG_250_MAX_LUX) {
+    } else if (lux50 < subtract_margin(GAIN_2X_INTEG_250_MAX_LUX)) {
         sensor_turn_on(GAIN_2X);
         *gain = 2;
     } else {
