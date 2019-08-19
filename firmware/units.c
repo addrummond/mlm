@@ -171,8 +171,6 @@ void ev_to_shutter_iso100_f8(int32_t ev, int *ss_index_out, int *third_out)
 
 void ev_iso_aperture_to_shutter(int32_t ev, int32_t iso, int32_t ap, int *ap_index_out, int *ss_index_out, int *third_out)
 {
-    SEGGER_RTT_printf(0, "READING HERE\n");
-
     int fsiso = iso / 3;
     int r = iso % 3;
     int ss_index, third;
@@ -224,7 +222,6 @@ error_set:
     return;
 
 default_set:
-    SEGGER_RTT_printf(0, "DEFAULT SET\n");
     *ap_index_out = ap;
     *ss_index_out = ss_index;
     *third_out = third;

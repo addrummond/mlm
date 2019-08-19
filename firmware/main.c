@@ -161,8 +161,6 @@ void handle_MODE_DISPLAY_READING()
     int ap_index, ss_index, third;
     ev_iso_aperture_to_shutter(g_state.last_reading_ev, g_state.iso, 6/*f8*/, &ap_index, &ss_index, &third);
 
-    SEGGER_RTT_printf(0, "Got exposure ap=%u ss=%u third=%s%u/3\n", ap_index, ss_index, sign_of(third), iabs(third));
-
     leds_all_off();
 
     if (ap_index == -1) {
@@ -180,15 +178,14 @@ void handle_MODE_DISPLAY_READING()
         if (i != 0 && i % 4 == 0) {
             touch_on = false;
             int tp = touch_position_10();
-            if (i % (4 * 6) == 0)
-                SEGGER_RTT_printf(0, "pos %s%u, count %u %u %u %u\n", sign_of(tp), iabs(tp), touch_counts[0], touch_counts[2], touch_counts[1], touch_counts[3]);
             
             if (tp != NO_TOUCH_DETECTED) {
                 base_cycles = leds_on_for_cycles;
 
                 if (tp != last_touch_position && last_touch_position != INVALID_TOUCH_POSITION) {
-                    //shift_wheel(tp < 0 ? -1 : 1, &ap_index, &ss_index);
-                    //leds_on_for_reading(ap_index, ss_index, third);
+                    leds_all_off();
+                    shift_wheel(tp < 0 ? -1 : 1, &ap_index, &ss_index);
+                    leds_on_for_reading(ap_index, ss_index, third);
                 }
 
                 last_touch_position = tp;
@@ -202,51 +199,11 @@ void handle_MODE_DISPLAY_READING()
 
         for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
             ;
-        
-        if (leds_on_for_cycles >= base_cycles + DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ)
+
+        if (leds_on_for_cycles >= base_cycles + DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
             break;
-    }
-
-    /*int last_touch_position = INVALID_TOUCH_POSITION; // not a valid touch position
-    uint32_t base_cycles = leds_on_for_cycles;
-    uint32_t next_cycle_cycles = base_cycles + RTC_CYCLES_PER_PAD_TOUCH_COUNT * 4;
-    int capsense_n_cycled = 0;
-    while (leds_on_for_cycles - base_cycles < DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
-        if (ap_index != -1 && leds_on_for_cycles >= next_cycle_cycles) {
-            next_cycle_cycles = leds_on_for_cycles + RTC_CYCLES_PER_PAD_TOUCH_COUNT;
-
-            if (capsense_n_cycled != 0 && capsense_n_cycled % 4 == 0) {
-                touch_on = false;
-                int tp = touch_position_10();
-                SEGGER_RTT_printf(0, "Touch position %u(%u) [%u,%u,%u,%u] %s%u\n", leds_on_for_cycles, RTC_CYCLES_PER_PAD_TOUCH_COUNT, touch_counts[0], touch_counts[1], touch_counts[2], touch_counts[3], sign_of(tp), iabs(tp));
-                if (last_touch_position == INVALID_TOUCH_POSITION) {
-                    SEGGER_RTT_printf(0, "Branch 1\n");
-                    last_touch_position = tp;
-                } else if (last_touch_position == NO_TOUCH_DETECTED) {
-                    SEGGER_RTT_printf(0, "Branch 2\n");
-                    ;  
-                } else if (tp != last_touch_position) {
-                    SEGGER_RTT_printf(0, "Branch 3\n");
-                    shift_wheel(tp < 0 ? -1 : 1, &ap_index, &ss_index);
-                    SEGGER_RTT_printf(0, "Leds %s%u %s%u %s%u\n", sign_of(ap_index), iabs(ap_index), sign_of(ss_index), iabs(ss_index), sign_of(third), iabs(third));
-                    leds_on_for_reading(ap_index, ss_index, third);
-
-                    last_touch_position = tp;
-                    base_cycles = leds_on_for_cycles;
-                }
-
-                clear_capcounts();
-                next_cycle_cycles = leds_on_for_cycles + RTC_CYCLES_PER_PAD_TOUCH_COUNT * 4;
-            }
-
-            //SEGGER_RTT_printf(0, "Cycle\n");
-            cycle_capsense();
-            ++capsense_n_cycled;
-            touch_on = true;
         }
-    }*/
-
-    SEGGER_RTT_printf(0, "Out of loop\n");
+    }
 
     leds_all_off();
     disable_capsense();
@@ -446,6 +403,22 @@ int test_main()
 int test_led_change_main()
 {
     leds_all_off();
+    uint32_t v = 1;
+    for (;;) {
+        SEGGER_RTT_printf(0, "MASK %u\n", v);
+        leds_on(v);
+
+        uint32_t base = leds_on_for_cycles;
+        while (leds_on_for_cycles < base + RTC_RAW_FREQ / 4)
+            ;
+
+        leds_all_off();
+
+        v <<= 1;
+        if (v > (1 << 25))
+            v = 1;
+    }
+
     for (;;) {
         SEGGER_RTT_printf(0, "First pattern\n");
         leds_on(0b101);
@@ -462,7 +435,7 @@ int test_led_change_main()
         //base_cycles = leds_on_for_cycles;
         //while (leds_on_for_cycles < base_cycles + RTC_RAW_FREQ)
         //    ;
-        }
+    }
 }
 
 int reset_state_main()
@@ -490,8 +463,8 @@ int main()
 {
     common_init();
 
-    //return real_main();
+    return real_main();
     //return test_main();
-    return test_led_change_main();
+    //return test_led_change_main();
     //return reset_state_main();
 }

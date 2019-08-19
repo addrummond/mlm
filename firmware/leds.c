@@ -126,7 +126,7 @@ static void led_off(unsigned n)
 
 void led_on(unsigned n)
 {
-    SEGGER_RTT_printf(0, "Turning on LED %u (= %u)\n", n, normalize_led_number(n));
+    //SEGGER_RTT_printf(0, "Turning on LED %u (= %u)\n", n, normalize_led_number(n));
     led_on_with_dc(normalize_led_number(n), COUNT - ONE_LED_DUTY_CYCLE);
 }
 
@@ -180,7 +180,9 @@ static bool rtc_has_been_borked_for_led_cycling;
 
 void leds_on(uint32_t mask)
 {
-    mask &= 0b111111111111111111111111111; // there are 27 leds
+    RTC_Enable(false);
+
+    mask &= (1<<LED_N)-1;
 
     if (mask == 0)
         return;
@@ -194,6 +196,7 @@ void leds_on(uint32_t mask)
 
     orig_mask = mask;
     current_mask = mask;
+    current_mask_n = 0;
 
     set_rtc_interrupt_handler(led_rtc_count_callback);
 

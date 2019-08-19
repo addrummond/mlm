@@ -24,6 +24,10 @@ ifdef DEBUG
     override ARMCFLAGS += -DDEBUG
 endif
 
+ifdef NO_RTT
+    override ARMCFLAGS += -DNO_RTT
+endif
+
 override ARMASMFLAGS += -x assembler-with-cpp -D$(DEVICE) -Wall -Wextra -mcpu=cortex-m3 -mthumb -DDEBUG_EFM
 ifdef DEBUG
     override ARMASMFLAGS += -DDEBUG_EFM
