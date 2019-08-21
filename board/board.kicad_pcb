@@ -3,7 +3,7 @@
   (general
     (thickness 1.6)
     (drawings 146)
-    (tracks 1119)
+    (tracks 1127)
     (modules 70)
     (nets 39)
   )
@@ -33,7 +33,7 @@
   )
 
   (setup
-    (last_trace_width 0.5)
+    (last_trace_width 0.3)
     (user_trace_width 0.2)
     (user_trace_width 0.28)
     (user_trace_width 0.3)
@@ -2474,6 +2474,14 @@
   (gr_circle (center 100 100) (end 117.5 100) (layer "F.SilkS") (width 0.5) (tstamp 5D23A15E))
   (gr_circle (center 100 100) (end 102 100) (layer "F.SilkS") (width 0.5))
 
+  (segment (start 116 99.93) (end 110.17 94.1) (width 0.5) (layer "B.Cu") (net 10))
+  (segment (start 116 100) (end 116 99.93) (width 0.5) (layer "B.Cu") (net 10))
+  (segment (start 116 99.97) (end 121.67 94.3) (width 0.5) (layer "B.Cu") (net 10))
+  (segment (start 116.07 100) (end 121.87 105.8) (width 0.5) (layer "B.Cu") (net 10))
+  (segment (start 116 100) (end 116.07 100) (width 0.5) (layer "B.Cu") (net 10))
+  (segment (start 109.57 106.5) (end 117.07 99) (width 0.5) (layer "B.Cu") (net 10))
+  (segment (start 116 100.07) (end 109.57 106.5) (width 0.5) (layer "B.Cu") (net 10))
+  (segment (start 116 100) (end 116 100.07) (width 0.5) (layer "B.Cu") (net 10))
   (segment (start 77.07 103.1) (end 77.07 70.3) (width 0.5) (layer "F.Cu") (net 21))
   (segment (start 79.57 67.8) (end 81.37 67.8) (width 0.5) (layer "F.Cu") (net 21))
   (segment (start 77.07 70.3) (end 79.57 67.8) (width 0.5) (layer "F.Cu") (net 21))
