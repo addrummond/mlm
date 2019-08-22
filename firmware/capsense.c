@@ -92,7 +92,7 @@ void clear_capcounts()
 
 static const uint32_t NOTOUCH_THRESHOLD = 333;
 
-int touch_position_10()
+int touch_position_100()
 {
     bool notouch = true;
     for (int i = 0; i < 4; ++i) {
@@ -107,7 +107,7 @@ int touch_position_10()
     int32_t c1 = (int32_t)notouch_touch_counts[2] - (int32_t)touch_counts[2];
     int32_t c2 = (int32_t)notouch_touch_counts[1] - (int32_t)touch_counts[1];
     int32_t c3 = (int32_t)notouch_touch_counts[3] - (int32_t)touch_counts[3];
-    int32_t v = (((-c0 - c1/2 + c2/2 + c3) * 10) / (c0 + c1 + c2 + c3));
+    int32_t v = (((-c0 - c1/2 + c2/2 + c3) * 100) / (c0 + c1 + c2 + c3));
     return (int)(v);
 }
 

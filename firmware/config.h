@@ -20,4 +20,6 @@
 // Maximum of 12 LEDs being displayed at once.
 #define LED_REFRESH_RATE_HZ                    (80*12)
 
+#define TOUCH_MOVE_THRESHOLD                   3 // out of 200
+
 #endif

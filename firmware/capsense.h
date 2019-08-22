@@ -17,8 +17,8 @@ void disable_capsense(void);
 void cycle_capsense(void);
 void clear_capcounts(void);
 
-#define NO_TOUCH_DETECTED      99
-#define INVALID_TOUCH_POSITION 999
+#define NO_TOUCH_DETECTED      999
+#define INVALID_TOUCH_POSITION 9999
 
 #define PAD_COUNT_MS 10 // we count alternations on each touch pad for this number of ms
 
@@ -31,7 +31,7 @@ void clear_capcounts(void);
               : RTC_CYCLES_PER_PAD_TOUCH_COUNT_TIMES_10/10)
 
 // Get the current finger position as a value from
-// -10 (leftmost) to 10 (rightmost), or NO_TOUCH_DETECTED.
-int touch_position_10(void);
+// -100 (leftmost) to 100 (rightmost), or NO_TOUCH_DETECTED.
+int touch_position_100(void);
 
 #endif

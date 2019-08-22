@@ -177,12 +177,12 @@ void handle_MODE_DISPLAY_READING()
     for (unsigned i = 0;; ++i) {
         if (i != 0 && i % 4 == 0) {
             touch_on = false;
-            int tp = touch_position_10();
+            int tp = touch_position_100();
             
             if (tp != NO_TOUCH_DETECTED) {
                 base_cycles = leds_on_for_cycles;
 
-                if (tp != last_touch_position && last_touch_position != INVALID_TOUCH_POSITION) {
+                if (iabs(tp - last_touch_position) >= TOUCH_MOVE_THRESHOLD && last_touch_position != INVALID_TOUCH_POSITION) {
                     leds_all_off();
                     shift_wheel(tp < 0 ? -1 : 1, &ap_index, &ss_index);
                     leds_on_for_reading(ap_index, ss_index, third);
@@ -201,6 +201,7 @@ void handle_MODE_DISPLAY_READING()
             ;
 
         if (leds_on_for_cycles >= base_cycles + DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
+            SEGGER_RTT_printf(0, "Reading display timoeout\n");
             break;
         }
     }
@@ -463,8 +464,8 @@ int main()
 {
     common_init();
 
-    //return real_main();
+    return real_main();
     //return test_main();
-    return test_led_change_main();
+    //return test_led_change_main();
     //return reset_state_main();
 }
