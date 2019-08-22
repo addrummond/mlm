@@ -118,8 +118,8 @@ static void led_off(unsigned n)
     int an_pin = led_an_pins[n];
     CMU_Clock_TypeDef cat_clock = led_cat_clock[n];
 
-    GPIO_PinModeSet(cat_port, cat_pin, gpioModeInput, 0);
-    GPIO_PinModeSet(an_port, an_pin, gpioModeInput, 0);
+    GPIO_PinModeSet(cat_port, cat_pin, gpioModeInput, 1);
+    GPIO_PinModeSet(an_port, an_pin, gpioModeInput, 1);
 
     CMU_ClockEnable(cat_clock, false);
 }
@@ -132,12 +132,12 @@ void led_on(unsigned n)
 
 static void turnoff()
 {
-    CMU_ClockEnable(cmuClock_TIMER0, false);
-    CMU_ClockEnable(cmuClock_TIMER1, false);
-
-#define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeInput, 0);
+#define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeInput, 1);
     DPIN_FOR_EACH(M)
 #undef M
+
+    CMU_ClockEnable(cmuClock_TIMER0, false);
+    CMU_ClockEnable(cmuClock_TIMER1, false);
 }
 
 static uint32_t orig_mask;
@@ -235,11 +235,12 @@ void led_fully_on(unsigned n)
 
 void leds_all_off()
 {
+    turnoff();
+
     if (rtc_has_been_borked_for_led_cycling)
         RTC_Enable(false);
 
     orig_mask = 0;
-    turnoff();
 
     if (rtc_has_been_borked_for_led_cycling) {
         CMU_ClockDivSet(cmuClock_RTC, MACROUTILS_CONCAT(cmuClkDiv_, RTC_CLK_DIV));
