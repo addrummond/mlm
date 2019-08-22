@@ -196,6 +196,7 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
         delay_ms(260);
     } else {
         *gain = 1;
+        sensor_turn_on(GAIN_1X);
     }
 
     sensor_wait_till_ready();
