@@ -1,8 +1,8 @@
 #ifndef BATSENSE_H
 #define BATSENSE_H
 
-#define VOLTAGE_BPS 2 // binary places for fixed-point representation of voltage
+#include <stdbool.h>
 
-int get_battery_voltage(void);
+bool low_battery(void);
 
 #endif

@@ -91,6 +91,7 @@ void clear_capcounts()
 }
 
 static const uint32_t NOTOUCH_THRESHOLD = 333;
+static const int BIAS = 7;
 
 int touch_position_100()
 {
@@ -108,7 +109,7 @@ int touch_position_100()
     int32_t c2 = (int32_t)notouch_touch_counts[1] - (int32_t)touch_counts[1];
     int32_t c3 = (int32_t)notouch_touch_counts[3] - (int32_t)touch_counts[3];
     int32_t v = (((-c0 - c1/2 + c2/2 + c3) * 100) / (c0 + c1 + c2 + c3));
-    return (int)(v);
+    return (int)(v) + BIAS;
 }
 
 void ACMP0_IRQHandler(void) {

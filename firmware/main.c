@@ -339,7 +339,7 @@ int test_main()
     // ********** SENSOR TEST **********
 
     // Turn on the LDO to power up the sensor.
-    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
+    /*GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
     delay_ms(100); // make sure LDO has time to start up and sensor has time to
                    // power up
@@ -367,16 +367,16 @@ int test_main()
         //    led_on(LED_MINUS_1_3_N);
         //else
         //    led_on(LED_PLUS_1_3_N);
-    }
+    }*/
 
     // ********** CAPSENSE TEST **********
 
-    /*setup_capsense();
+    setup_capsense();
 
     for (unsigned i = 0;; ++i) {
         if (i % 4 == 0) {
             touch_on = false;
-            int tp = touch_position_10();
+            int tp = touch_position_100();
             if (i % (4*6) == 0)
                 SEGGER_RTT_printf(0, "pos %s%u, count %u %u %u %u\n", sign_of(tp), iabs(tp), touch_counts[0], touch_counts[2], touch_counts[1], touch_counts[3]);
             touch_on = true;
@@ -386,7 +386,7 @@ int test_main()
         cycle_capsense();
 
         delay_ms(PAD_COUNT_MS);
-    }*/
+    }
 
     // ********** LED TEST **********
 
@@ -464,8 +464,8 @@ int main()
 {
     common_init();
 
-    return real_main();
-    //return test_main();
+    //return real_main();
+    return test_main();
     //return test_led_change_main();
     //return reset_state_main();
 }
