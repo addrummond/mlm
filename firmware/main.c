@@ -173,22 +173,30 @@ void handle_MODE_DISPLAY_READING()
     setup_capsense();
 
     uint32_t base_cycles = leds_on_for_cycles;
-    int last_touch_position = INVALID_TOUCH_POSITION;
+    int zero_touch_position = INVALID_TOUCH_POSITION;
     for (unsigned i = 0;; ++i) {
         if (i != 0 && i % 4 == 0) {
             touch_on = false;
             int tp = touch_position_100();
             
-            if (tp != NO_TOUCH_DETECTED) {
+            if (tp == NO_TOUCH_DETECTED) {
+                zero_touch_position = INVALID_TOUCH_POSITION;
+            } else {
                 base_cycles = leds_on_for_cycles;
 
-                if (iabs(tp - last_touch_position) >= TOUCH_MOVE_THRESHOLD && last_touch_position != INVALID_TOUCH_POSITION) {
-                    leds_all_off();
-                    shift_wheel(tp < 0 ? -1 : 1, &ap_index, &ss_index);
-                    leds_on_for_reading(ap_index, ss_index, third);
-                }
+                //SEGGER_RTT_printf(0, "Touch: %s%u\n", sign_of(tp), iabs(tp));
 
-                last_touch_position = tp;
+                if (zero_touch_position != INVALID_TOUCH_POSITION) {
+                    int wheel_offset_100ths = (tp - zero_touch_position) * TOUCH_MOVE_SENSITIVITY;
+                    if (iabs(wheel_offset_100ths) >= 100) {
+                        leds_all_off();
+                        shift_wheel(wheel_offset_100ths / 100, &ap_index, &ss_index);
+                        wheel_offset_100ths = 0;
+                        leds_on_for_reading(ap_index, ss_index, third);
+                    }
+                } else {
+                    zero_touch_position = tp;
+                }
             }
             
             touch_on = true;
@@ -464,8 +472,8 @@ int main()
 {
     common_init();
 
-    //return real_main();
-    return test_main();
+    return real_main();
+    //return test_main();
     //return test_led_change_main();
     //return reset_state_main();
 }
