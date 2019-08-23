@@ -189,9 +189,9 @@ void handle_MODE_DISPLAY_READING()
                 if (zero_touch_position != INVALID_TOUCH_POSITION) {
                     int wheel_offset_100ths = (tp - zero_touch_position) * TOUCH_MOVE_SENSITIVITY;
                     if (iabs(wheel_offset_100ths) >= 100) {
+                        zero_touch_position = tp;
                         leds_all_off();
                         shift_wheel(wheel_offset_100ths / 100, &ap_index, &ss_index);
-                        wheel_offset_100ths = 0;
                         leds_on_for_reading(ap_index, ss_index, third);
                     }
                 } else {
