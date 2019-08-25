@@ -1,4 +1,5 @@
 EESchema Schematic File Version 5
+LIBS:board-cache
 EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
@@ -674,8 +675,6 @@ F 4 "KMT211NG HF LFS" H 6150 950 50  0001 C CNN "MPN"
 	1    6150 950 
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	6350 950  6500 950 
 $Comp
 L power:GND #PWR011
 U 1 1 5C287599
@@ -1805,4 +1804,6 @@ F 4 "RMCF0603FG1K00" H -3700 -5050 50  0001 C CNN "MPN"
 	1    6650 950 
 	0    1    1    0   
 $EndComp
+Wire Wire Line
+	6350 950  6500 950 
 $EndSCHEMATC
