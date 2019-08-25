@@ -1876,4 +1876,6 @@ Wire Wire Line
 	4900 2400 4900 2500
 Wire Wire Line
 	3400 2500 4900 2500
+Text Notes 3950 2150 0    50   ~ 0
+ISO fixed / exposure fixed switch
 $EndSCHEMATC
