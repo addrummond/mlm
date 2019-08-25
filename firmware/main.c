@@ -472,8 +472,8 @@ int main()
 {
     common_init();
 
-    return real_main();
-    //return test_main();
+    //return real_main();
+    return test_main();
     //return test_led_change_main();
     //return reset_state_main();
 }

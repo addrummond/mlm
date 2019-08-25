@@ -103,13 +103,39 @@ int touch_position_100()
 
     if (notouch)
         return NO_TOUCH_DETECTED;
+    
+    // The channels in left-to-right order
+    int32_t ltr_chans[] = { touch_counts[0], touch_counts[2], touch_counts[1], touch_counts[3] };
 
-    int32_t c0 = (int32_t)notouch_touch_counts[0] - (int32_t)touch_counts[0];
-    int32_t c1 = (int32_t)notouch_touch_counts[2] - (int32_t)touch_counts[2];
-    int32_t c2 = (int32_t)notouch_touch_counts[1] - (int32_t)touch_counts[1];
-    int32_t c3 = (int32_t)notouch_touch_counts[3] - (int32_t)touch_counts[3];
-    int32_t v = (((-c0 - c1/2 + c2/2 + c3) * 100) / (c0 + c1 + c2 + c3));
-    return (int)(v) + BIAS;
+    int32_t min = ltr_chans[0];
+    int32_t mini = 0;
+    for (int i = 1; i < 4; ++i) {
+        if (ltr_chans[i] < min) {
+            min = ltr_chans[i];
+            mini = i;
+        }
+    }
+
+    switch (mini) {
+        case 0: { 
+            return (int)((66 * ltr_chans[0]) / (ltr_chans[0] + ltr_chans[1])) - 100;
+        };
+        case 1: {
+            if (ltr_chans[0] < ltr_chans[2])
+                return (int)((66 * ltr_chans[0]) / (ltr_chans[0] + ltr_chans[1])) - 100;
+            else
+                return (int)(66 + (66 * ltr_chans[1]) / (ltr_chans[1] + ltr_chans[2])) - 100;
+        };
+        case 2: {
+            if (ltr_chans[1] < ltr_chans[3])
+                return (int)(66 + ((66 * ltr_chans[1]) / (ltr_chans[1] + ltr_chans[2]))) - 100;
+            else
+                return (int)(132 + ((66 * ltr_chans[2]) / (ltr_chans[2] + ltr_chans[3]))) - 100;
+        };
+        case 3: {
+            return (int)(132 + ((66 * ltr_chans[2]) / (ltr_chans[2] + ltr_chans[3]))) - 100;
+        };
+    }
 }
 
 void ACMP0_IRQHandler(void) {
