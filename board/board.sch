@@ -611,10 +611,6 @@ Connection ~ 3400 3500
 Wire Wire Line
 	3250 1500 3900 1500
 Wire Wire Line
-	3400 3000 4250 3000
-Wire Wire Line
-	3400 3500 4250 3500
-Wire Wire Line
 	3750 500  3750 1000
 Wire Wire Line
 	3750 1100 3900 1100
@@ -643,8 +639,6 @@ Text Notes 3350 3150 0    50   ~ 0
 Text Notes 3900 1100 0    50   ~ 0
 -1/3 stop
 Connection ~ 3400 2500
-Wire Wire Line
-	3400 2500 4250 2500
 Text GLabel 7200 5600 3    50   Input ~ 0
 DPIN1
 Text GLabel 9050 4500 2    50   Input ~ 0
@@ -1572,62 +1566,62 @@ Wire Wire Line
 $Comp
 L Connector:TestPoint TP1
 U 1 1 5C4A9582
-P 5000 1250
-F 0 "TP1" V 5195 1322 50  0000 C CNN
-F 1 "TestPoint" V 5104 1322 50  0000 C CNN
-F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 5200 1250 50  0001 C CNN
-F 3 "~" H 5200 1250 50  0001 C CNN
-	1    5000 1250
+P 5400 1300
+F 0 "TP1" V 5595 1372 50  0000 C CNN
+F 1 "TestPoint" V 5504 1372 50  0000 C CNN
+F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 5600 1300 50  0001 C CNN
+F 3 "~" H 5600 1300 50  0001 C CNN
+	1    5400 1300
 	0    -1   -1   0   
 $EndComp
 $Comp
 L Connector:TestPoint TP2
 U 1 1 5C4AA1A8
-P 5000 1550
-F 0 "TP2" V 5195 1622 50  0000 C CNN
-F 1 "TestPoint" V 5104 1622 50  0000 C CNN
-F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 5200 1550 50  0001 C CNN
-F 3 "~" H 5200 1550 50  0001 C CNN
-	1    5000 1550
+P 5400 1600
+F 0 "TP2" V 5595 1672 50  0000 C CNN
+F 1 "TestPoint" V 5504 1672 50  0000 C CNN
+F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 5600 1600 50  0001 C CNN
+F 3 "~" H 5600 1600 50  0001 C CNN
+	1    5400 1600
 	0    -1   -1   0   
 $EndComp
 $Comp
 L Connector:TestPoint TP3
 U 1 1 5C4AA480
-P 5000 1900
-F 0 "TP3" V 5195 1972 50  0000 C CNN
-F 1 "TestPoint" V 5104 1972 50  0000 C CNN
-F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 5200 1900 50  0001 C CNN
-F 3 "~" H 5200 1900 50  0001 C CNN
-	1    5000 1900
+P 5400 1950
+F 0 "TP3" V 5595 2022 50  0000 C CNN
+F 1 "TestPoint" V 5504 2022 50  0000 C CNN
+F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 5600 1950 50  0001 C CNN
+F 3 "~" H 5600 1950 50  0001 C CNN
+	1    5400 1950
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
-	5000 1250 5300 1250
+	5400 1300 5700 1300
 Wire Wire Line
-	5000 1550 5300 1550
+	5400 1600 5700 1600
 Wire Wire Line
-	5000 1900 5300 1900
-Text GLabel 5300 1250 2    50   Input ~ 0
+	5400 1950 5700 1950
+Text GLabel 5700 1300 2    50   Input ~ 0
 VBAT
-Text GLabel 5300 1550 2    50   Input ~ 0
+Text GLabel 5700 1600 2    50   Input ~ 0
 SCL
-Text GLabel 5300 1900 2    50   Input ~ 0
+Text GLabel 5700 1950 2    50   Input ~ 0
 SDA
 $Comp
 L Connector:TestPoint TP4
 U 1 1 5C4E93D6
-P 5000 2250
-F 0 "TP4" V 5195 2322 50  0000 C CNN
-F 1 "TestPoint" V 5104 2322 50  0000 C CNN
-F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 5200 2250 50  0001 C CNN
-F 3 "~" H 5200 2250 50  0001 C CNN
-	1    5000 2250
+P 5400 2300
+F 0 "TP4" V 5595 2372 50  0000 C CNN
+F 1 "TestPoint" V 5504 2372 50  0000 C CNN
+F 2 "Connectors_TestPoints:Test_Point_Pad_d1.5mm" H 5600 2300 50  0001 C CNN
+F 3 "~" H 5600 2300 50  0001 C CNN
+	1    5400 2300
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
-	5000 2250 5300 2250
-Text GLabel 5300 2250 2    50   Input ~ 0
+	5400 2300 5700 2300
+Text GLabel 5700 2300 2    50   Input ~ 0
 PVREG
 Wire Wire Line
 	7300 800  7300 750 
@@ -1673,12 +1667,12 @@ VBAT
 Wire Wire Line
 	7800 2650 7800 2900
 $Comp
-L Device:D_Zener D28
+L Device:D_Zener D29
 U 1 1 5D2AD20A
 P 4000 4500
-F 0 "D28" H 4000 4716 50  0000 C CNN
+F 0 "D29" H 4000 4716 50  0000 C CNN
 F 1 "Zener 2.43V" H 4000 4625 50  0000 C CNN
-F 2 "Diodes_SMD:D_SOD-323_HandSoldering" H 4000 4500 50  0001 C CNN
+F 2 "Diode_SMD:D_SOD-323_HandSoldering" H 4000 4500 50  0001 C CNN
 F 3 "~" H 4000 4500 50  0001 C CNN
 F 4 "DDZ2V4ASF-7" H 4000 4500 50  0001 C CNN "MPN"
 	1    4000 4500
@@ -1733,9 +1727,7 @@ Wire Wire Line
 Wire Wire Line
 	2250 4325 2250 4800
 Wire Wire Line
-	3750 1100 3750 3750
-Wire Wire Line
-	3400 2000 4250 2000
+	3750 1100 3750 1600
 $Comp
 L Device:R R2
 U 1 1 5C5424BF
@@ -1806,4 +1798,82 @@ F 4 "RMCF0603FG1K00" H -3700 -5050 50  0001 C CNN "MPN"
 $EndComp
 Wire Wire Line
 	6350 950  6500 950 
+$Comp
+L Device:D_Schottky D27
+U 1 1 5D843B7D
+P 3900 1750
+F 0 "D27" V 3946 1671 50  0000 R CNN
+F 1 "D_Schottky" V 3855 1671 50  0000 R CNN
+F 2 "Diode_SMD:D_SOD-523" H 3900 1750 50  0001 C CNN
+F 3 "~" H 3900 1750 50  0001 C CNN
+F 4 "CSS-1210TB" V 3900 1750 50  0001 C CNN "MPN"
+	1    3900 1750
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	3750 1600 3900 1600
+Connection ~ 3750 1600
+Wire Wire Line
+	3750 1600 3750 2100
+$Comp
+L Device:D_Schottky D28
+U 1 1 5D84534C
+P 3900 2250
+F 0 "D28" V 3946 2171 50  0000 R CNN
+F 1 "D_Schottky" V 3855 2171 50  0000 R CNN
+F 2 "Diode_SMD:D_SOD-523" H 3900 2250 50  0001 C CNN
+F 3 "~" H 3900 2250 50  0001 C CNN
+F 4 "CSS-1210TB" V 3900 2250 50  0001 C CNN "MPN"
+	1    3900 2250
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	3750 2100 3900 2100
+Connection ~ 3750 2100
+Wire Wire Line
+	3900 1900 4450 1900
+$Comp
+L Switch:SW_SPST SW2
+U 1 1 5D869D18
+P 4650 1900
+F 0 "SW2" H 4650 2135 50  0000 C CNN
+F 1 "SW_SPST" H 4650 2044 50  0000 C CNN
+F 2 "mlm:CSS-1210TB" H 4650 1900 50  0001 C CNN
+F 3 "~" H 4650 1900 50  0001 C CNN
+	1    4650 1900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4850 1900 4900 1900
+Wire Wire Line
+	4900 1900 4900 2000
+Wire Wire Line
+	3400 2000 4900 2000
+Text Notes 3950 1650 0    50   ~ 0
+IR mode on/off switch
+Wire Wire Line
+	3400 3500 4250 3500
+Wire Wire Line
+	3750 2100 3750 3750
+Wire Wire Line
+	3400 3000 4250 3000
+Wire Wire Line
+	3900 2400 4450 2400
+$Comp
+L Switch:SW_SPST SW3
+U 1 1 5D8941EF
+P 4650 2400
+F 0 "SW3" H 4650 2635 50  0000 C CNN
+F 1 "SW_SPST" H 4650 2544 50  0000 C CNN
+F 2 "mlm:CSS-1210TB" H 4650 2400 50  0001 C CNN
+F 3 "~" H 4650 2400 50  0001 C CNN
+	1    4650 2400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4850 2400 4900 2400
+Wire Wire Line
+	4900 2400 4900 2500
+Wire Wire Line
+	3400 2500 4900 2500
 $EndSCHEMATC
