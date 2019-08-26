@@ -789,9 +789,9 @@ S3
 Text GLabel 10000 2000 2    50   Input ~ 0
 S4
 Text GLabel 5750 3900 0    50   Input ~ 0
-S1
-Text GLabel 5750 4100 0    50   Input ~ 0
 S3
+Text GLabel 5750 4100 0    50   Input ~ 0
+S1
 Text GLabel 8800 3700 2    50   Input ~ 0
 S2
 Wire Wire Line
