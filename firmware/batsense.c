@@ -12,8 +12,8 @@ bool low_battery()
     // reading indicating a low battery.
 
     GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInputPullFilter, 0);
-    delay_ms(1); // probably not needed, but just to make sure things stabilize
+    delay_ms(2); // probably not needed, but just to make sure things stabilize
     bool r = GPIO_PinInGet(BATSENSE_PORT, BATSENSE_PIN);
     GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeDisabled, 0);
-    return r;
+    return !r;
 }

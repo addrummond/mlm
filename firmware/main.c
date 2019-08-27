@@ -447,6 +447,14 @@ int test_led_change_main()
     }
 }
 
+int test_batsense_main()
+{
+    for (;;) {
+        SEGGER_RTT_printf(0, "Low battery: %u\n", low_battery());
+        delay_ms(1000);
+    }
+}
+
 int reset_state_main()
 {
     SEGGER_RTT_printf(0, "Erasing state pages...\n");
@@ -472,8 +480,9 @@ int main()
 {
     common_init();
 
-    return real_main();
+    //return real_main();
     //return test_main();
+    return test_batsense_main();
     //return test_led_change_main();
     //return reset_state_main();
 }
