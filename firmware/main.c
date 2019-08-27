@@ -134,14 +134,21 @@ void handle_MODE_AWAKE_AT_REST()
     }
 }
 
+static int bound(int v, int min, int max)
+{
+    if (v < min)
+        return min;
+    if (v > max)
+        return max;
+    return v;
+}
+
 static void shift_wheel(int n, int *ap_index, int *ss_index)
 {
     int newap = *ap_index + n;
-    int news = *ss_index + n;
-    if (newap >= AP_INDEX_MIN && newap < AP_INDEX_MAX && news >= SS_INDEX_MIN && news <= SS_INDEX_MAX) {
-        *ap_index = newap;
-        *ss_index = news;
-    }
+    int news = *ss_index - n;
+    *ap_index = bound(newap, AP_INDEX_MIN, AP_INDEX_MAX);
+    *ss_index = bound(news, SS_INDEX_MIN, SS_INDEX_MAX);
 }
 
 static void leds_on_for_reading(int ap_index, int ss_index, int third)
@@ -377,25 +384,6 @@ int test_main()
         //    led_on(LED_PLUS_1_3_N);
     }*/
 
-    // ********** CAPSENSE TEST **********
-
-    setup_capsense();
-
-    for (unsigned i = 0;; ++i) {
-        if (i % 4 == 0) {
-            touch_on = false;
-            int tp = touch_position_100();
-            if (i % (4*6) == 0)
-                SEGGER_RTT_printf(0, "pos %s%u, count %u %u %u %u\n", sign_of(tp), iabs(tp), touch_counts[0], touch_counts[2], touch_counts[1], touch_counts[3]);
-            touch_on = true;
-            clear_capcounts();
-        }
-
-        cycle_capsense();
-
-        delay_ms(PAD_COUNT_MS);
-    }
-
     // ********** LED TEST **********
 
     /*for (unsigned i = 1;; ++i) {
@@ -447,6 +435,26 @@ int test_led_change_main()
     }
 }
 
+int test_capsense_main()
+{
+    setup_capsense();
+
+    for (unsigned i = 0;; ++i) {
+        if (i % 4 == 0) {
+            touch_on = false;
+            int tp = touch_position_100();
+            if (i % (4*6) == 0)
+                SEGGER_RTT_printf(0, "pos %s%u, count %u %u %u %u\n", sign_of(tp), iabs(tp), touch_counts[0], touch_counts[2], touch_counts[1], touch_counts[3]);
+            touch_on = true;
+            clear_capcounts();
+        }
+
+        cycle_capsense();
+
+        delay_ms(PAD_COUNT_MS);
+    }
+}
+
 int test_batsense_main()
 {
     for (;;) {
@@ -482,7 +490,8 @@ int main()
 
     //return real_main();
     //return test_main();
-    return test_batsense_main();
+    //return test_batsense_main();
+    return test_capsense_main();
     //return test_led_change_main();
     //return reset_state_main();
 }
