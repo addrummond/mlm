@@ -7,11 +7,11 @@
 #define EV_BPS 10 // ev and lux values stored with this number of binary places
 
 #define F8_AP_INDEX   6
-#define ISO_100_INDEX 4
+#define ISO_100_INDEX 6
 #define AP_INDEX_MIN  0
-#define AP_INDEX_MAX  12
+#define AP_INDEX_MAX  11
 #define SS_INDEX_MIN  0
-#define SS_INDEX_MAX  12
+#define SS_INDEX_MAX  11
 
 #define GAIN_2X_INTEG_250_MAX_LUX  (32000 << EV_BPS)
 #define GAIN_4X_INTEG_250_MAX_LUX  (16000 << EV_BPS)

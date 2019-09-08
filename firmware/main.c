@@ -29,7 +29,7 @@ void GPIO_EVEN_IRQHandler()
 
     int v = GPIO_PinInGet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN);
 
-    //SEGGER_RTT_printf(0, "Hi!\n");
+    SEGGER_RTT_printf(0, "Hi!\n");
 }
 
 void sleep_awaiting_button_press()
@@ -115,12 +115,14 @@ void handle_MODE_JUST_WOKEN()
 
 void handle_MODE_AWAKE_AT_REST()
 {
-    // Await further button presses in EM2.
+    // Set up button press interrupt for when we're in EM2.
     setup_button_press_interrupt();
 
+#ifndef DEBUG
     // If we've been in EM2 for a while and nothing has happened,
     // we want to go into EM4.
     turn_on_wake_timer();
+#endif
 
     // Display the current reading, if any.
     if (fresh_reading_is_saved()) {
@@ -130,8 +132,25 @@ void handle_MODE_AWAKE_AT_REST()
     } else {
         SEGGER_RTT_printf(0, "No fresh reading saved\n");
         EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
+        SEGGER_RTT_printf(0, "AFTER EM2\n");
         g_state.mode = MODE_JUST_WOKEN;
     }
+}
+
+
+void handle_MODE_SNOOZE()
+{
+    // Set up button press interrupt for when we're in EM2.
+    setup_button_press_interrupt();
+
+    // If we've been in EM2 for a while and nothing has happened,
+    // we want to go into EM4.
+    turn_on_wake_timer();
+
+    SEGGER_RTT_printf(0, "Entering EM2 for snooze\n");
+    EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
+    SEGGER_RTT_printf(0, "Woken up WTF?!\n");
+    g_state.mode = MODE_JUST_WOKEN;
 }
 
 static int bound(int v, int min, int max)
@@ -145,10 +164,33 @@ static int bound(int v, int min, int max)
 
 static void shift_wheel(int n, int *ap_index, int *ss_index)
 {
-    int newap = *ap_index + n;
-    int news = *ss_index - n;
-    *ap_index = bound(newap, AP_INDEX_MIN, AP_INDEX_MAX);
-    *ss_index = bound(news, SS_INDEX_MIN, SS_INDEX_MAX);
+    int ap = *ap_index;
+    int ss = *ss_index;
+    while (n != 0) {
+        if (n > 0) {
+            if (ap < AP_INDEX_MAX)
+                ++ap;
+            if (ss > SS_INDEX_MIN)
+                --ss;
+            if (ap == AP_INDEX_MAX)
+                break;
+            if (ss == SS_INDEX_MIN)
+                break;
+            --n;
+        } else {
+            if (ss < SS_INDEX_MAX)
+                ++ss;
+            if (ap > AP_INDEX_MIN)
+                --ap;
+            if (ss == SS_INDEX_MAX)
+                break;
+            if (ap == AP_INDEX_MIN)
+                break;
+            ++n;
+        }
+        *ap_index = ap;
+        *ss_index = ss;
+    }
 }
 
 static void leds_on_for_reading(int ap_index, int ss_index, int third)
@@ -193,6 +235,20 @@ void handle_MODE_DISPLAY_READING()
 
                 //SEGGER_RTT_printf(0, "Touch: %s%u\n", sign_of(tp), iabs(tp));
 
+#if SLIDER_MODE == LEFT_RIGHT_BUTTONS
+                SEGGER_RTT_printf(0, "Zero %s%u tp %s%u\n", sign_of(zero_touch_position), iabs(zero_touch_position), sign_of(tp), iabs(tp));
+                if (zero_touch_position == INVALID_TOUCH_POSITION) {
+                    if (tp != INVALID_TOUCH_POSITION) {
+                        SEGGER_RTT_printf(0, "Shifting wheel\n");
+                        leds_all_off();
+                        shift_wheel(tp > 0 ? 1 : -1, &ap_index, &ss_index);
+                        leds_on_for_reading(ap_index, ss_index, third);
+                    }
+                    zero_touch_position = tp;
+                } else {
+                    zero_touch_position = tp;
+                }
+#elif SLIDER_MODE == SLIDER
                 if (zero_touch_position != INVALID_TOUCH_POSITION) {
                     int wheel_offset_100ths = (tp - zero_touch_position) * TOUCH_MOVE_SENSITIVITY;
                     if (iabs(wheel_offset_100ths) >= 100) {
@@ -204,6 +260,9 @@ void handle_MODE_DISPLAY_READING()
                 } else {
                     zero_touch_position = tp;
                 }
+#else
+#error "Bad value for SLIDER_MODE config option"
+#endif
             }
             
             touch_on = true;
@@ -216,16 +275,17 @@ void handle_MODE_DISPLAY_READING()
             ;
 
         if (leds_on_for_cycles >= base_cycles + DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
-            SEGGER_RTT_printf(0, "Reading display timoeout\n");
+            SEGGER_RTT_printf(0, "Reading display timeout\n");
             break;
         }
     }
 
     leds_all_off();
+    SEGGER_RTT_printf(0, "Disabling capsense\n");
     disable_capsense();
 
-    EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
-    g_state.mode = MODE_JUST_WOKEN;
+    SEGGER_RTT_printf(0, "Going into MODE_SNOOZE\n");
+    g_state.mode = MODE_SNOOZE;
 }
 
 void handle_MODE_DOING_READING()
@@ -271,8 +331,7 @@ void handle_MODE_DOING_READING()
     // Turn the LDO off to power down the sensor.
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 0);
 
-    // TODO temporary
-    g_state.mode = MODE_AWAKE_AT_REST;
+    g_state.mode = MODE_DISPLAY_READING;
 }
 
 void state_loop()
@@ -298,9 +357,38 @@ void state_loop()
                 SEGGER_RTT_printf(0, "MODE_DISPLAY_READING\n");
 
                 handle_MODE_DISPLAY_READING();
-            }
+            } break;
+            case MODE_SNOOZE: {
+                SEGGER_RTT_printf(0, "MODE_SNOOZE\n");
+
+                handle_MODE_SNOOZE();
+            } break;
         }
     }
+}
+
+void gpio_pins_to_initial_states()
+{
+    GPIO_PinModeSet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN, gpioModeInputPullFilter, 1);
+
+    // Setting pins to input with a pulldown as the default should minimize power consumption.
+    /*GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortF, 1, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortF, 2, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortC, 15, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortC, 14, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortD, 7, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortD, 6, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortB, 14, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortB, 13, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortB, 11, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortB, 8, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortB, 7, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortC, 0, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortC, 1, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortA, 0, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortE, 13, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortE, 12, gpioModeInputPull, 0);*/
 }
 
 void common_init()
@@ -322,8 +410,7 @@ void common_init()
     rtt_init();
     SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
 
-    GPIO_PinModeSet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN, gpioModeInputPullFilter, 1);
-    GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInput, 0);
+    gpio_pins_to_initial_states();
 }
 
 int test_main()
@@ -349,39 +436,6 @@ int test_main()
     /*for (;;) {
         int v = get_battery_voltage();
         SEGGER_RTT_printf(0, "V count %u\n", v);
-    }*/
-
-    // ********** SENSOR TEST **********
-
-    // Turn on the LDO to power up the sensor.
-    /*GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
-    SEGGER_RTT_printf(0, "LDO turned on\n");
-    delay_ms(100); // make sure LDO has time to start up and sensor has time to
-                   // power up
-    sensor_init();
-    delay_ms(100);
-
-    // Turn the sensor on an give it time to get ready. (We have to set a gain
-    // value when we turn the sensor on, but the choice here is immaterial.)
-    sensor_turn_on(GAIN_1X);
-    delay_ms(10);
-
-    for (;;) {
-        int32_t gain, itime;
-        sensor_wait_till_ready();
-        sensor_reading sr = sensor_get_reading_auto(&gain, &itime);
-        int32_t lux = sensor_reading_to_lux(sr, gain, itime);
-        int32_t ev = lux_to_ev(lux);
-        SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u%s)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS, (ev % (1<<EV_BPS) >= (2<<EV_BPS/3)) ? "+2/3" : (ev % (1<<EV_BPS) >= (1<<EV_BPS/3) ? "+1/3" : ""));
-        int ss_index, third;
-        ev_to_shutter_iso100_f8(ev, &ss_index, &third);
-        SEGGER_RTT_printf(0, "SSINDEX %s%u\n", sign_of(ss_index), iabs(ss_index));
-        //leds_all_off();
-        //led_on(LED_1S_N + ss_index);
-        //if (third == -1)
-        //    led_on(LED_MINUS_1_3_N);
-        //else
-        //    led_on(LED_PLUS_1_3_N);
     }*/
 
     // ********** LED TEST **********
@@ -437,6 +491,8 @@ int test_led_change_main()
 
 int test_capsense_main()
 {
+    SEGGER_RTT_printf(0, "Capsense test...\n");
+
     setup_capsense();
 
     for (unsigned i = 0;; ++i) {
@@ -452,6 +508,62 @@ int test_capsense_main()
         cycle_capsense();
 
         delay_ms(PAD_COUNT_MS);
+    }
+}
+
+int test_capsense_with_wheel_main()
+{
+    int led_index = LED_MINUS_1_3_N;
+
+    leds_all_off();
+    leds_on(1 << led_index);
+
+    clear_capcounts();
+    setup_capsense();
+
+    uint32_t base_cycles = leds_on_for_cycles;
+    int zero_touch_position = INVALID_TOUCH_POSITION;
+    for (unsigned i = 0;; ++i) {
+        if (i != 0 && i % 4 == 0) {
+            touch_on = false;
+            int tp = touch_position_100();
+            SEGGER_RTT_printf(0, "TP: %s%u\n", sign_of(tp), iabs(tp));
+            
+            if (tp == NO_TOUCH_DETECTED) {
+                zero_touch_position = INVALID_TOUCH_POSITION;
+                leds_all_off();
+                leds_on(1 << LED_MINUS_1_3_N);
+            } else {
+                base_cycles = leds_on_for_cycles;
+
+                if (zero_touch_position != INVALID_TOUCH_POSITION) {
+                    int wheel_offset_100ths = (tp - zero_touch_position) * TOUCH_MOVE_SENSITIVITY;
+                    if (iabs(wheel_offset_100ths) >= 100) {
+                        zero_touch_position = tp;
+                        leds_all_off();
+                        led_index += wheel_offset_100ths / 100;
+                        if (led_index < 0) {
+                            led_index = -led_index;
+                            led_index %= LED_N_IN_WHEEL;
+                            led_index = LED_N_IN_WHEEL - led_index;
+                        } else {
+                            led_index %= LED_N_IN_WHEEL;
+                        }
+                        leds_on(1 << led_index);
+                    }
+                } else {
+                    zero_touch_position = tp;
+                }
+            }
+            
+            touch_on = true;
+            clear_capcounts();
+        }
+
+        cycle_capsense();
+
+        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
+            ;
     }
 }
 
@@ -471,6 +583,40 @@ int reset_state_main()
     return 0;
 }
 
+int test_sensor_main()
+{
+    // Turn on the LDO to power up the sensor.
+    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
+    SEGGER_RTT_printf(0, "LDO turned on\n");
+    delay_ms(100); // make sure LDO has time to start up and sensor has time to
+                   // power up
+    sensor_init();
+    delay_ms(100);
+
+    // Turn the sensor on an give it time to get ready. (We have to set a gain
+    // value when we turn the sensor on, but the choice here is immaterial.)
+    sensor_turn_on(GAIN_1X);
+    delay_ms(10);
+
+    for (;;) {
+        int32_t gain, itime;
+        sensor_wait_till_ready();
+        sensor_reading sr = sensor_get_reading_auto(&gain, &itime);
+        int32_t lux = sensor_reading_to_lux(sr, gain, itime);
+        int32_t ev = lux_to_ev(lux);
+        SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u%s)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS, (ev % (1<<EV_BPS) >= (2<<EV_BPS/3)) ? "+2/3" : (ev % (1<<EV_BPS) >= (1<<EV_BPS/3) ? "+1/3" : ""));
+        int ss_index, third;
+        ev_to_shutter_iso100_f8(ev, &ss_index, &third);
+        SEGGER_RTT_printf(0, "SSINDEX %s%u\n", sign_of(ss_index), iabs(ss_index));
+        //leds_all_off();
+        //led_on(LED_1S_N + ss_index);
+        //if (third == -1)
+        //    led_on(LED_MINUS_1_3_N);
+        //else
+        //    led_on(LED_PLUS_1_3_N);
+    }
+}
+
 int real_main()
 {
 #ifdef DEBUG
@@ -488,10 +634,12 @@ int main()
 {
     common_init();
 
-    //return real_main();
+    return real_main();
+    //return test_sensor_main();
+    //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
-    return test_capsense_main();
+    //return test_capsense_main();
     //return test_led_change_main();
     //return reset_state_main();
 }

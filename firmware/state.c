@@ -116,6 +116,7 @@ void write_state_to_flash()
 __attribute__((section(".ram")))
 void set_state_to_default()
 {
+    g_state.mode = MODE_JUST_WOKEN;
     g_state.id = 0;
     g_state.last_reading.chan0 = 0;
     g_state.last_reading.chan1 = 0;

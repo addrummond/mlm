@@ -14,6 +14,8 @@ typedef enum mode {
     MODE_AWAKE_AT_REST,
     // a reading is being shown and can be manipulated using the slider
     MODE_DISPLAY_READING,
+    // the device is snoozing after a reading display has timed out
+    MODE_SNOOZE
 } mode;
 
 #define LAST_READING_FLAGS_FRESH 1

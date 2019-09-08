@@ -15,11 +15,14 @@
 
 #define IDLE_TIME_BEFORE_DEEPEST_SLEEP_SECONDS 30
 
-#define DISPLAY_READING_TIME_SECONDS           5
+#define DISPLAY_READING_TIME_SECONDS           10
 
 // Maximum of 12 LEDs being displayed at once.
 #define LED_REFRESH_RATE_HZ                    (80*12)
 
 #define TOUCH_MOVE_SENSITIVITY                 10 // higher values = higher sensitivity
+
+#define SLIDER_MODE                            LEFT_RIGHT_BUTTONS
+#define SLIDER_MODE                            SLIDER
 
 #endif
