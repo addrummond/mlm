@@ -761,38 +761,7 @@ Wire Wire Line
 	9700 950  10000 950 
 Text GLabel 10000 950  2    50   Input ~ 0
 SWDIO
-$Comp
-L Connector:Conn_01x04_Female J2
-U 1 1 5C3DD769
-P 9500 2200
-F 0 "J2" H 9392 1775 50  0000 C CNN
-F 1 "Conn_01x04_Female" H 9392 1866 50  0000 C CNN
-F 2 "mlm:TouchSlider-4_40x11mm" H 9500 2200 50  0001 C CNN
-F 3 "~" H 9500 2200 50  0001 C CNN
-	1    9500 2200
-	-1   0    0    1   
-$EndComp
-Wire Wire Line
-	9700 2300 10000 2300
-Wire Wire Line
-	9700 2200 10000 2200
-Wire Wire Line
-	9700 2100 10000 2100
-Wire Wire Line
-	9700 2000 10000 2000
-Text GLabel 10000 2300 2    50   Input ~ 0
-S1
-Text GLabel 10000 2200 2    50   Input ~ 0
-S2
-Text GLabel 10000 2100 2    50   Input ~ 0
-S3
-Text GLabel 10000 2000 2    50   Input ~ 0
-S4
-Text GLabel 5750 3900 0    50   Input ~ 0
-S3
 Text GLabel 5750 4100 0    50   Input ~ 0
-S1
-Text GLabel 8800 3700 2    50   Input ~ 0
 S2
 Wire Wire Line
 	8600 3900 9200 3900
@@ -1058,8 +1027,6 @@ F 3 "" H 6350 6100 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	6350 6100 6500 6100
-Wire Wire Line
-	5750 3900 6400 3900
 Wire Wire Line
 	5750 4100 6400 4100
 $Comp
@@ -1427,8 +1394,6 @@ Text GLabel 2550 7200 2    50   Input ~ 0
 REGMODE
 Text GLabel 7600 2650 1    50   Input ~ 0
 MAINBUT
-Text GLabel 8800 3500 2    50   Input ~ 0
-S4
 $Comp
 L mlm:EFM32TG108 IC3
 U 1 1 5C23B73F
@@ -1445,10 +1410,6 @@ Text GLabel 5750 4300 0    50   Input ~ 0
 DPIN4
 Text GLabel 5750 4500 0    50   Input ~ 0
 DPIN5
-Wire Wire Line
-	8600 3500 8800 3500
-Wire Wire Line
-	8600 3700 8800 3700
 $Comp
 L mlm:LTR303ALS01 IC2
 U 1 1 5C406329
@@ -1878,4 +1839,44 @@ Wire Wire Line
 	3400 2500 4900 2500
 Text Notes 3950 2150 0    50   ~ 0
 ISO fixed / exposure fixed switch
+Wire Wire Line
+	9850 2350 10150 2350
+Wire Wire Line
+	9850 2150 10150 2150
+Text GLabel 10150 2350 2    50   Input ~ 0
+S1
+Text GLabel 10150 2150 2    50   Input ~ 0
+S2
+Text Label 9800 2550 0    50   ~ 0
+Touch
+Text Label 10050 2550 0    50   ~ 0
+pads
+Text GLabel 5750 3900 0    50   Input ~ 0
+S1
+Wire Wire Line
+	5750 3900 6400 3900
+NoConn ~ 8600 3500
+NoConn ~ 8600 3700
+$Comp
+L Connector:Conn_01x01_Female J2
+U 1 1 5D7AC38F
+P 9650 2150
+F 0 "J2" H 9750 2150 50  0000 C CNN
+F 1 " " H 9542 2016 50  0000 C CNN
+F 2 "mlm:TOUCHPAD" H 9650 2150 50  0001 C CNN
+F 3 "~" H 9650 2150 50  0001 C CNN
+	1    9650 2150
+	-1   0    0    1   
+$EndComp
+$Comp
+L Connector:Conn_01x01_Female J3
+U 1 1 5D7ADEB8
+P 9650 2350
+F 0 "J3" H 9750 2350 50  0000 C CNN
+F 1 " " H 9542 2216 50  0000 C CNN
+F 2 "mlm:TOUCHPAD" H 9650 2350 50  0001 C CNN
+F 3 "~" H 9650 2350 50  0001 C CNN
+	1    9650 2350
+	-1   0    0    1   
+$EndComp
 $EndSCHEMATC
