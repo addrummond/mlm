@@ -762,7 +762,7 @@ Wire Wire Line
 Text GLabel 10000 950  2    50   Input ~ 0
 SWDIO
 Text GLabel 5750 4100 0    50   Input ~ 0
-S2
+S1
 Wire Wire Line
 	8600 3900 9200 3900
 $Comp
@@ -1852,7 +1852,7 @@ Touch
 Text Label 10050 2550 0    50   ~ 0
 pads
 Text GLabel 5750 3900 0    50   Input ~ 0
-S1
+S2
 Wire Wire Line
 	5750 3900 6400 3900
 NoConn ~ 8600 3500
