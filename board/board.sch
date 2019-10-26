@@ -657,31 +657,6 @@ Text GLabel 7000 2650 1    50   Input ~ 0
 SCL
 Text GLabel 7200 2650 1    50   Input ~ 0
 SDA
-$Comp
-L Switch:SW_Push SW1
-U 1 1 5C2826CE
-P 6150 950
-F 0 "SW1" H 6150 1235 50  0000 C CNN
-F 1 "SW_Push" H 6150 1144 50  0000 C CNN
-F 2 "mlm:TL3700AF100QG" H 6150 1150 50  0001 C CNN
-F 3 "" H 6150 1150 50  0001 C CNN
-F 4 "KMT211NG HF LFS" H 6150 950 50  0001 C CNN "MPN"
-	1    6150 950 
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:GND #PWR011
-U 1 1 5C287599
-P 5700 950
-F 0 "#PWR011" H 5700 700 50  0001 C CNN
-F 1 "GND" V 5705 822 50  0000 R CNN
-F 2 "" H 5700 950 50  0001 C CNN
-F 3 "" H 5700 950 50  0001 C CNN
-	1    5700 950 
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	5700 950  5950 950 
 Wire Wire Line
 	8600 4100 9350 4100
 Text GLabel 10000 4100 2    50   Input ~ 0
@@ -1394,18 +1369,6 @@ Text GLabel 2550 7200 2    50   Input ~ 0
 REGMODE
 Text GLabel 7600 2650 1    50   Input ~ 0
 MAINBUT
-$Comp
-L mlm:EFM32TG108 IC3
-U 1 1 5C23B73F
-P 7500 4000
-F 0 "IC3" H 7500 5281 50  0000 C CNN
-F 1 "EFM32TG108F32" H 7500 5190 50  0000 C CNN
-F 2 "mlm:EFM32TG108_QFN24" H 7500 4000 50  0001 C CNN
-F 3 "" H 7500 4000 50  0001 C CNN
-F 4 "EFM32TG108F32" H 7500 4000 50  0001 C CNN "MPN"
-	1    7500 4000
-	1    0    0    -1  
-$EndComp
 Text GLabel 5750 4300 0    50   Input ~ 0
 DPIN4
 Text GLabel 5750 4500 0    50   Input ~ 0
@@ -1741,24 +1704,6 @@ Wire Wire Line
 Connection ~ 2750 6550
 Wire Wire Line
 	2750 6550 2750 6600
-Wire Wire Line
-	6800 950  6900 950 
-Text GLabel 6900 950  3    50   Input ~ 0
-MAINBUT
-$Comp
-L Device:R R13
-U 1 1 5D78336F
-P 6650 950
-F 0 "R13" V 6443 950 50  0000 C CNN
-F 1 "1k" V 6534 950 50  0000 C CNN
-F 2 "mlm:0603" V 6580 950 50  0001 C CNN
-F 3 "~" H 6650 950 50  0001 C CNN
-F 4 "RMCF0603FG1K00" H -3700 -5050 50  0001 C CNN "MPN"
-	1    6650 950 
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	6350 950  6500 950 
 $Comp
 L Device:D_Schottky D27
 U 1 1 5D843B7D
@@ -1847,16 +1792,15 @@ Text GLabel 10150 2350 2    50   Input ~ 0
 S1
 Text GLabel 10150 2150 2    50   Input ~ 0
 S2
-Text Label 9800 2550 0    50   ~ 0
+Text Label 9750 1950 0    50   ~ 0
 Touch
-Text Label 10050 2550 0    50   ~ 0
+Text Label 10000 1950 0    50   ~ 0
 pads
 Text GLabel 5750 3900 0    50   Input ~ 0
 S2
 Wire Wire Line
 	5750 3900 6400 3900
 NoConn ~ 8600 3500
-NoConn ~ 8600 3700
 $Comp
 L Connector:Conn_01x01_Female J2
 U 1 1 5D7AC38F
@@ -1879,4 +1823,35 @@ F 3 "~" H 9650 2350 50  0001 C CNN
 	1    9650 2350
 	-1   0    0    1   
 $EndComp
+$Comp
+L Connector:Conn_01x01_Female J4
+U 1 1 5DDCBEDD
+P 9650 2550
+F 0 "J4" H 9750 2550 50  0000 C CNN
+F 1 " " H 9542 2416 50  0000 C CNN
+F 2 "mlm:TOUCHPAD" H 9650 2550 50  0001 C CNN
+F 3 "~" H 9650 2550 50  0001 C CNN
+	1    9650 2550
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	9850 2550 10150 2550
+Text GLabel 10150 2550 2    50   Input ~ 0
+S3
+$Comp
+L mlm:EFM32TG108 IC3
+U 1 1 5C23B73F
+P 7500 4000
+F 0 "IC3" H 7500 5281 50  0000 C CNN
+F 1 "EFM32TG108F32" H 7500 5190 50  0000 C CNN
+F 2 "mlm:EFM32TG108_QFN24" H 7500 4000 50  0001 C CNN
+F 3 "" H 7500 4000 50  0001 C CNN
+F 4 "EFM32TG108F32" H 7500 4000 50  0001 C CNN "MPN"
+	1    7500 4000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8600 3700 8900 3700
+Text GLabel 8900 3700 2    50   Input ~ 0
+S3
 $EndSCHEMATC
