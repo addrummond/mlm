@@ -2592,7 +2592,7 @@
   (gr_line (start 78 141) (end 122 141) (layer "Edge.Cuts") (width 0.05))
   (gr_circle (center 100 100) (end 117.5 100) (layer "B.SilkS") (width 0.5) (tstamp 5D23A15E))
 
-  (segment (start 96.6 102.5) (end 103.4 102.5) (width 0.25) (layer "F.Cu") (net 10))
+  (segment (start 103.4 102.5) (end 96.6 102.5) (width 0.25) (layer "F.Cu") (net 10))
   (segment (start 96.6 98.5) (end 103.4 98.5) (width 0.25) (layer "F.Cu") (net 36))
   (segment (start 103.4 102.235) (end 103.4 103.78) (width 0.25) (layer "F.Cu") (net 10))
   (segment (start 103.4 103.78) (end 103.42 103.8) (width 0.25) (layer "F.Cu") (net 10))
