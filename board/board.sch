@@ -1135,14 +1135,6 @@ Wire Wire Line
 	7350 2100 7400 2100
 Wire Wire Line
 	7150 2100 7400 2100
-Wire Wire Line
-	7800 5100 7800 5300
-Text GLabel 7800 5300 3    50   Input ~ 0
-BATSENSE
-Text GLabel 4500 4500 2    50   Input ~ 0
-BATSENSE
-Text GLabel 3500 4500 0    50   Input ~ 0
-VBAT
 Text GLabel 4350 6050 0    50   Input ~ 0
 PVREG
 Text GLabel 5600 6150 2    50   Input ~ 0
@@ -1628,22 +1620,6 @@ VBAT
 Wire Wire Line
 	7800 2650 7800 2900
 $Comp
-L Device:D_Zener D29
-U 1 1 5D2AD20A
-P 4000 4500
-F 0 "D29" H 4000 4716 50  0000 C CNN
-F 1 "Zener 2.43V" H 4000 4625 50  0000 C CNN
-F 2 "Diode_SMD:D_SOD-323_HandSoldering" H 4000 4500 50  0001 C CNN
-F 3 "~" H 4000 4500 50  0001 C CNN
-F 4 "DDZ2V4ASF-7" H 4000 4500 50  0001 C CNN "MPN"
-	1    4000 4500
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3500 4500 3850 4500
-Wire Wire Line
-	4150 4500 4500 4500
-$Comp
 L Connector:TestPoint SPACER1
 U 1 1 5D2C4D4E
 P 2250 4325
@@ -1856,7 +1832,6 @@ S2
 Wire Wire Line
 	5750 3900 6400 3900
 NoConn ~ 8600 3500
-NoConn ~ 8600 3700
 $Comp
 L Connector:Conn_01x01_Female J2
 U 1 1 5D7AC38F
@@ -1879,4 +1854,8 @@ F 3 "~" H 9650 2350 50  0001 C CNN
 	1    9650 2350
 	-1   0    0    1   
 $EndComp
+Wire Wire Line
+	8600 3700 8850 3700
+Text GLabel 8850 3700 2    50   Input ~ 0
+VBAT
 $EndSCHEMATC
