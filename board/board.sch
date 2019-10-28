@@ -1787,7 +1787,7 @@ Wire Wire Line
 Wire Wire Line
 	3400 2000 4900 2000
 Text Notes 3950 1650 0    50   ~ 0
-IR mode on/off switch
+Meter / set switch
 Wire Wire Line
 	3400 3500 4250 3500
 Wire Wire Line
