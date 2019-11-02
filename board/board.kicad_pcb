@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 76)
+    (drawings 74)
     (tracks 1380)
     (modules 72)
     (nets 40)
@@ -2463,12 +2463,6 @@
     (effects (font (size 2 2) (thickness 0.15)) (justify mirror))
   )
   (gr_circle (center 114 131.5) (end 120 131.5) (layer "B.SilkS") (width 1))
-  (gr_text "↻" (at 86.2 131.5 90) (layer "B.SilkS")
-    (effects (font (size 10 10) (thickness 1)) (justify mirror))
-  )
-  (gr_text "↺" (at 113.79 131.74 270) (layer "B.SilkS")
-    (effects (font (size 10 10) (thickness 1)) (justify mirror))
-  )
   (gr_circle (center 86 131.5) (end 92 131.5) (layer "B.SilkS") (width 1))
   (gr_text "FIX EXP" (at 78.03 86.35) (layer "B.SilkS")
     (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
