@@ -3,7 +3,7 @@
   (general
     (thickness 1.6)
     (drawings 74)
-    (tracks 1379)
+    (tracks 1381)
     (modules 72)
     (nets 40)
   )
@@ -33,7 +33,7 @@
   )
 
   (setup
-    (last_trace_width 0.28)
+    (last_trace_width 1)
     (user_trace_width 0.2)
     (user_trace_width 0.28)
     (user_trace_width 0.3)
@@ -2509,6 +2509,8 @@
   (gr_line (start 78 141) (end 122 141) (layer "Edge.Cuts") (width 0.05))
   (gr_circle (center 100 100) (end 117.5 100) (layer "B.SilkS") (width 0.5) (tstamp 5D23A15E))
 
+  (segment (start 114.895 116) (end 114.895 117.585) (width 1) (layer "F.Cu") (net 12))
+  (segment (start 114.895 117.585) (end 114.89 117.59) (width 1) (layer "F.Cu") (net 12))
   (segment (start 79.91 91.65) (end 79.52 91.65) (width 0.28) (layer "F.Cu") (net 5))
   (segment (start 79.52 91.65) (end 79.09 92.08) (width 0.28) (layer "F.Cu") (net 5))
   (via (at 78.26 90.21) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (net 5))
