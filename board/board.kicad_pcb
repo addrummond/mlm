@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 74)
+    (drawings 72)
     (tracks 1373)
     (modules 73)
     (nets 41)
@@ -2542,13 +2542,7 @@
     (effects (font (size 1.5 1.5) (thickness 0.3)))
   )
   (gr_circle (center 100 119) (end 110 119) (layer "F.Fab") (width 0.15))
-  (gr_text "-1/3" (at 113.7 74.96) (layer "B.SilkS") (tstamp 5D753A26)
-    (effects (font (size 1.75 1.75) (thickness 0.4375)) (justify mirror))
-  )
   (gr_circle (center 100 100) (end 110 100) (layer "F.Fab") (width 0.5))
-  (gr_text "+1/3" (at 86.4 74.96) (layer "B.SilkS") (tstamp 5C1176F2)
-    (effects (font (size 1.75 1.75) (thickness 0.4375)) (justify mirror))
-  )
   (gr_line (start 78 60) (end 122 60) (layer "Edge.Cuts") (width 0.05) (tstamp 5C110B34))
   (gr_line (start 75 138) (end 75 63) (layer "Edge.Cuts") (width 0.05) (tstamp 5C110AF1))
   (gr_line (start 125 138) (end 125 63) (layer "Edge.Cuts") (width 0.05))
