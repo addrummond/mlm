@@ -1787,7 +1787,6 @@ Text GLabel 5750 3900 0    50   Input ~ 0
 S2
 Wire Wire Line
 	5750 3900 6400 3900
-NoConn ~ 8600 3500
 $Comp
 L Connector:Conn_01x01_Female J2
 U 1 1 5D7AC38F
@@ -1829,4 +1828,6 @@ Wire Wire Line
 	7800 5650 7800 5800
 Text GLabel 7800 5800 3    50   Input ~ 0
 VBAT
+NoConn ~ 8600 3500
+NoConn ~ 8600 3700
 $EndSCHEMATC
