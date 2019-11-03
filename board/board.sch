@@ -1810,10 +1810,23 @@ F 3 "~" H 9650 2350 50  0001 C CNN
 	1    9650 2350
 	-1   0    0    1   
 $EndComp
-Wire Wire Line
-	8600 3700 8850 3700
-Text GLabel 8850 3700 2    50   Input ~ 0
-VBAT
 Text Notes 7500 1300 0    50   ~ 0
 Protects against reverse insertion of battery
+$Comp
+L Device:D_Zener D29
+U 1 1 5DC7B09C
+P 7800 5500
+F 0 "D29" V 7846 5421 50  0000 R CNN
+F 1 "D_Zener" V 7755 5421 50  0000 R CNN
+F 2 "Diode_SMD:D_SOD-323F" H 7800 5500 50  0001 C CNN
+F 3 "~" H 7800 5500 50  0001 C CNN
+	1    7800 5500
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	7800 5100 7800 5350
+Wire Wire Line
+	7800 5650 7800 5800
+Text GLabel 7800 5800 3    50   Input ~ 0
+VBAT
 $EndSCHEMATC
