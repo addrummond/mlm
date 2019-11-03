@@ -1814,4 +1814,6 @@ Wire Wire Line
 	8600 3700 8850 3700
 Text GLabel 8850 3700 2    50   Input ~ 0
 VBAT
+Text Notes 7500 1300 0    50   ~ 0
+Protects against reverse insertion of battery
 $EndSCHEMATC
