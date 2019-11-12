@@ -226,7 +226,8 @@ void handle_MODE_DISPLAY_READING()
     for (unsigned i = 0;; ++i) {
         if (i != 0 && i % 4 == 0) {
             touch_on = false;
-            int tp = touch_position_100();
+            // TODO TODO slider mode no longer exists
+            int tp = 0;//touch_position_100();
             
             if (tp == NO_TOUCH_DETECTED) {
                 zero_touch_position = INVALID_TOUCH_POSITION;
@@ -498,9 +499,8 @@ int test_capsense_main()
     for (unsigned i = 0;; ++i) {
         if (i % 4 == 0) {
             touch_on = false;
-            int tp = touch_position_100();
             if (i % (4*6) == 0)
-                SEGGER_RTT_printf(0, "pos %s%u, count %u %u %u %u\n", sign_of(tp), iabs(tp), touch_counts[0], touch_counts[2], touch_counts[1], touch_counts[3]);
+                SEGGER_RTT_printf(0, "count %u %u\n", touch_counts[1], touch_counts[0]);
             touch_on = true;
             clear_capcounts();
         }
@@ -511,6 +511,8 @@ int test_capsense_main()
     }
 }
 
+// TODO UPDATE FOR NO SLIDER
+/*
 int test_capsense_with_wheel_main()
 {
     int led_index = LED_MINUS_1_3_N;
@@ -566,6 +568,7 @@ int test_capsense_with_wheel_main()
             ;
     }
 }
+*/
 
 int test_batsense_main()
 {
@@ -634,12 +637,12 @@ int main()
 {
     common_init();
 
-    return real_main();
+    //return real_main();
     //return test_sensor_main();
-    //return test_capsense_with_wheel_main();
+    //return test_capsense_with_wheel_main(); // TODO UPDATE FOR NO SLIDER
     //return test_main();
     //return test_batsense_main();
-    //return test_capsense_main();
+    return test_capsense_main();
     //return test_led_change_main();
     //return reset_state_main();
 }

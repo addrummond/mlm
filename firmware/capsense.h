@@ -6,8 +6,7 @@
 #include <stdint.h>
 #include <time.h>
 
-extern uint32_t touch_counts[4];
-extern uint32_t touch_acmp;
+extern uint32_t touch_counts[2];
 extern uint32_t touch_chan;
 extern uint32_t touch_index;
 extern bool touch_on;
@@ -17,6 +16,7 @@ void disable_capsense(void);
 void cycle_capsense(void);
 void clear_capcounts(void);
 
+// TODO REDEFINE THESE IN SOME SENSIBLE WAY NOW THAT THERE'S NO SLIDER
 #define NO_TOUCH_DETECTED      999
 #define INVALID_TOUCH_POSITION 9999
 
@@ -29,9 +29,5 @@ void clear_capcounts(void);
           (RTC_CYCLES_PER_PAD_TOUCH_COUNT_TIMES_10 % 10 >= 5 \
               ? RTC_CYCLES_PER_PAD_TOUCH_COUNT_TIMES_10/10 + 1 \
               : RTC_CYCLES_PER_PAD_TOUCH_COUNT_TIMES_10/10)
-
-// Get the current finger position as a value from
-// -100 (leftmost) to 100 (rightmost), or NO_TOUCH_DETECTED.
-int touch_position_100(void);
 
 #endif
