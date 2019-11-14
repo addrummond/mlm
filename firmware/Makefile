@@ -28,6 +28,14 @@ ifdef NO_RTT
     override ARMCFLAGS += -DNO_RTT
 endif
 
+ifdef NO_EM4
+    override ARMCFLAGS += -DNO_EM4
+endif
+
+ifdef NO_FLASHREAD
+    override ARMCFLAGS += -DNO_FLASHREAD
+endif
+
 override ARMASMFLAGS += -x assembler-with-cpp -D$(DEVICE) -Wall -Wextra -mcpu=cortex-m3 -mthumb -DDEBUG_EFM
 ifdef DEBUG
     override ARMASMFLAGS += -DDEBUG_EFM

@@ -118,10 +118,13 @@ void handle_MODE_AWAKE_AT_REST()
     // Set up button press interrupt for when we're in EM2.
     setup_button_press_interrupt();
 
-#ifndef DEBUG
+#ifndef DEBUG // TODO changed to proper #if defined conditional (I forget the syntax...)
+#ifndef NO_EM4
     // If we've been in EM2 for a while and nothing has happened,
     // we want to go into EM4.
+    TEMPORARY_CANARY
     turn_on_wake_timer();
+#endif
 #endif
 
     // Display the current reading, if any.
@@ -369,6 +372,8 @@ void common_init()
 
     CHIP_Init();
 
+    for (;;);
+
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
     CMU_ClockEnable(cmuClock_CORELE, true);
@@ -584,9 +589,10 @@ int test_sensor_main()
 
 int real_main()
 {
-#ifdef DEBUG
+#if defined(DEBUG) || defined (NO_FLASHREAD)
     set_state_to_default();
 #else
+    TEMPORARY_CANARY
     read_state_from_flash();
 #endif
 
