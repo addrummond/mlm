@@ -1,6 +1,7 @@
 #include <capsense.h>
 #include <em_acmp.h>
 #include <em_cmu.h>
+#include <em_gpio.h>
 
 uint32_t touch_counts[2];
 uint32_t touch_chan;
@@ -8,16 +9,14 @@ uint32_t touch_index;
 
 bool touch_on;
 
-static int32_t sq(int32_t v)
-{
-    return v*v;
-}
-
-static const uint32_t NOTOUCH_THRESHOLD = 333;
+static const uint32_t NOTOUCH_THRESHOLD = 1000;
 
 // Capsense pins are PC0 (S2), PC1 (S1)
 void setup_capsense()
 {
+    GPIO_PinModeSet(gpioPortC, 0, gpioModeInput, 0);
+    GPIO_PinModeSet(gpioPortC, 1, gpioModeInput, 0);
+
     ACMP_CapsenseInit_TypeDef capsenseInit = ACMP_CAPSENSE_INIT_DEFAULT;
     CMU_ClockEnable(cmuClock_ACMP0, true);
     ACMP_CapsenseInit(ACMP0, &capsenseInit);
@@ -46,6 +45,8 @@ void disable_capsense()
     ACMP_IntDisable(ACMP0, ACMP_IEN_EDGE);
     CMU_ClockEnable(cmuClock_ACMP0, false);
     touch_on = false;
+    GPIO_PinModeSet(gpioPortC, 0, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortC, 1, gpioModeInputPull, 0);
 }
 
 void cycle_capsense()
@@ -65,6 +66,20 @@ void clear_capcounts()
 {
     touch_counts[0] = 0;
     touch_counts[1] = 0;
+}
+
+touch_position get_touch_position()
+{
+    if (touch_counts[0] > NOTOUCH_THRESHOLD && touch_counts[1] > NOTOUCH_THRESHOLD)
+        return NO_TOUCH_DETECTED;
+    
+    if (touch_counts[0] < touch_counts[1] * 5 / 6)
+        return LEFT_BUTTON;
+    
+    if (touch_counts[1] < touch_counts[0] * 5 / 6)
+        return RIGHT_BUTTON;
+    
+    return NO_TOUCH_DETECTED;
 }
 
 void ACMP0_IRQHandler(void) {

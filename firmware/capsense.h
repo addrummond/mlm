@@ -11,14 +11,18 @@ extern uint32_t touch_chan;
 extern uint32_t touch_index;
 extern bool touch_on;
 
+typedef enum touch_position {
+    INVALID_TOUCH_POSITION = -99,
+    NO_TOUCH_DETECTED = 0,
+    LEFT_BUTTON = -1,
+    RIGHT_BUTTON = 1
+} touch_position;
+
 void setup_capsense(void);
 void disable_capsense(void);
 void cycle_capsense(void);
 void clear_capcounts(void);
-
-// TODO REDEFINE THESE IN SOME SENSIBLE WAY NOW THAT THERE'S NO SLIDER
-#define NO_TOUCH_DETECTED      999
-#define INVALID_TOUCH_POSITION 9999
+touch_position get_touch_position(void);
 
 #define PAD_COUNT_MS 10 // we count alternations on each touch pad for this number of ms
 

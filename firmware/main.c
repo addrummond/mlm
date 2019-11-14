@@ -27,7 +27,7 @@ void GPIO_EVEN_IRQHandler()
 {
     GPIO_IntClear(GPIO_IntGet());
 
-    int v = GPIO_PinInGet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN);
+    //int v = GPIO_PinInGet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN);
 
     SEGGER_RTT_printf(0, "Hi!\n");
 }
@@ -153,15 +153,6 @@ void handle_MODE_SNOOZE()
     g_state.mode = MODE_JUST_WOKEN;
 }
 
-static int bound(int v, int min, int max)
-{
-    if (v < min)
-        return min;
-    if (v > max)
-        return max;
-    return v;
-}
-
 static void shift_wheel(int n, int *ap_index, int *ss_index)
 {
     int ap = *ap_index;
@@ -226,8 +217,7 @@ void handle_MODE_DISPLAY_READING()
     for (unsigned i = 0;; ++i) {
         if (i != 0 && i % 4 == 0) {
             touch_on = false;
-            // TODO TODO slider mode no longer exists
-            int tp = 0;//touch_position_100();
+            int tp = get_touch_position();
             
             if (tp == NO_TOUCH_DETECTED) {
                 zero_touch_position = INVALID_TOUCH_POSITION;
@@ -236,34 +226,18 @@ void handle_MODE_DISPLAY_READING()
 
                 //SEGGER_RTT_printf(0, "Touch: %s%u\n", sign_of(tp), iabs(tp));
 
-#if SLIDER_MODE == LEFT_RIGHT_BUTTONS
                 SEGGER_RTT_printf(0, "Zero %s%u tp %s%u\n", sign_of(zero_touch_position), iabs(zero_touch_position), sign_of(tp), iabs(tp));
                 if (zero_touch_position == INVALID_TOUCH_POSITION) {
                     if (tp != INVALID_TOUCH_POSITION) {
                         SEGGER_RTT_printf(0, "Shifting wheel\n");
                         leds_all_off();
-                        shift_wheel(tp > 0 ? 1 : -1, &ap_index, &ss_index);
+                        shift_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index);
                         leds_on_for_reading(ap_index, ss_index, third);
                     }
                     zero_touch_position = tp;
                 } else {
                     zero_touch_position = tp;
                 }
-#elif SLIDER_MODE == SLIDER
-                if (zero_touch_position != INVALID_TOUCH_POSITION) {
-                    int wheel_offset_100ths = (tp - zero_touch_position) * TOUCH_MOVE_SENSITIVITY;
-                    if (iabs(wheel_offset_100ths) >= 100) {
-                        zero_touch_position = tp;
-                        leds_all_off();
-                        shift_wheel(wheel_offset_100ths / 100, &ap_index, &ss_index);
-                        leds_on_for_reading(ap_index, ss_index, third);
-                    }
-                } else {
-                    zero_touch_position = tp;
-                }
-#else
-#error "Bad value for SLIDER_MODE config option"
-#endif
             }
             
             touch_on = true;
@@ -373,7 +347,7 @@ void gpio_pins_to_initial_states()
     GPIO_PinModeSet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN, gpioModeInputPullFilter, 1);
 
     // Setting pins to input with a pulldown as the default should minimize power consumption.
-    /*GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInputPull, 0);
+    GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortF, 1, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortF, 2, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortC, 15, gpioModeInputPull, 0);
@@ -389,7 +363,7 @@ void gpio_pins_to_initial_states()
     GPIO_PinModeSet(gpioPortC, 1, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortA, 0, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortE, 13, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortE, 12, gpioModeInputPull, 0);*/
+    GPIO_PinModeSet(gpioPortE, 12, gpioModeInputPull, 0);
 }
 
 void common_init()
@@ -511,11 +485,9 @@ int test_capsense_main()
     }
 }
 
-// TODO UPDATE FOR NO SLIDER
-/*
 int test_capsense_with_wheel_main()
 {
-    int led_index = LED_MINUS_1_3_N;
+    int led_index = 0;
 
     leds_all_off();
     leds_on(1 << led_index);
@@ -523,40 +495,34 @@ int test_capsense_with_wheel_main()
     clear_capcounts();
     setup_capsense();
 
-    uint32_t base_cycles = leds_on_for_cycles;
     int zero_touch_position = INVALID_TOUCH_POSITION;
     for (unsigned i = 0;; ++i) {
-        if (i != 0 && i % 4 == 0) {
+        if (i != 0 && i % 2 == 0) {
             touch_on = false;
-            int tp = touch_position_100();
-            SEGGER_RTT_printf(0, "TP: %s%u\n", sign_of(tp), iabs(tp));
+            int tp = get_touch_position();
+            //SEGGER_RTT_printf(0,"Pads %u %u (%s%u)\n", touch_counts[1], touch_counts[0], sign_of(tp), tp);
             
             if (tp == NO_TOUCH_DETECTED) {
                 zero_touch_position = INVALID_TOUCH_POSITION;
-                leds_all_off();
-                leds_on(1 << LED_MINUS_1_3_N);
             } else {
-                base_cycles = leds_on_for_cycles;
+                //SEGGER_RTT_printf(0, "Touch: %s%u\n", sign_of(tp), iabs(tp));
 
-                if (zero_touch_position != INVALID_TOUCH_POSITION) {
-                    int wheel_offset_100ths = (tp - zero_touch_position) * TOUCH_MOVE_SENSITIVITY;
-                    if (iabs(wheel_offset_100ths) >= 100) {
-                        zero_touch_position = tp;
+                if (zero_touch_position == INVALID_TOUCH_POSITION) {
+                    if (tp != INVALID_TOUCH_POSITION) {
                         leds_all_off();
-                        led_index += wheel_offset_100ths / 100;
-                        if (led_index < 0) {
-                            led_index = -led_index;
-                            led_index %= LED_N_IN_WHEEL;
-                            led_index = LED_N_IN_WHEEL - led_index;
-                        } else {
-                            led_index %= LED_N_IN_WHEEL;
-                        }
+                        led_index += (tp == LEFT_BUTTON ? -1 : 1);
+                        if (led_index < 0)
+                            led_index = LED_N + led_index;
+                        else if (led_index >= LED_N)
+                            led_index %= LED_N;
                         leds_on(1 << led_index);
                     }
+                    zero_touch_position = tp;
                 } else {
                     zero_touch_position = tp;
                 }
             }
+            
             
             touch_on = true;
             clear_capcounts();
@@ -568,7 +534,6 @@ int test_capsense_with_wheel_main()
             ;
     }
 }
-*/
 
 int test_batsense_main()
 {
@@ -639,10 +604,10 @@ int main()
 
     //return real_main();
     //return test_sensor_main();
-    //return test_capsense_with_wheel_main(); // TODO UPDATE FOR NO SLIDER
+    return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
-    return test_capsense_main();
+    //return test_capsense_main();
     //return test_led_change_main();
     //return reset_state_main();
 }
