@@ -224,14 +224,12 @@ void handle_MODE_DISPLAY_READING()
             } else {
                 base_cycles = leds_on_for_cycles;
 
-                //SEGGER_RTT_printf(0, "Touch: %s%u\n", sign_of(tp), iabs(tp));
-
-                //SEGGER_RTT_printf(0, "Zero %s%u tp %s%u\n", sign_of(zero_touch_position), iabs(zero_touch_position), sign_of(tp), iabs(tp));
                 if (zero_touch_position == INVALID_TOUCH_POSITION) {
                     if (tp != INVALID_TOUCH_POSITION) {
-                        //SEGGER_RTT_printf(0, "Shifting wheel\n");
+                        SEGGER_RTT_printf(0, "Shifting wheel from %u %u (iso %u)\n", ap_index, ss_index, g_state.iso);
                         leds_all_off();
                         shift_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index);
+                        SEGGER_RTT_printf(0, "...to %u %u\n", ap_index, ss_index);
                         leds_on_for_reading(ap_index, ss_index, third);
                     }
                     zero_touch_position = tp;
