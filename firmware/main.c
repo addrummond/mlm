@@ -226,10 +226,10 @@ void handle_MODE_DISPLAY_READING()
 
                 //SEGGER_RTT_printf(0, "Touch: %s%u\n", sign_of(tp), iabs(tp));
 
-                SEGGER_RTT_printf(0, "Zero %s%u tp %s%u\n", sign_of(zero_touch_position), iabs(zero_touch_position), sign_of(tp), iabs(tp));
+                //SEGGER_RTT_printf(0, "Zero %s%u tp %s%u\n", sign_of(zero_touch_position), iabs(zero_touch_position), sign_of(tp), iabs(tp));
                 if (zero_touch_position == INVALID_TOUCH_POSITION) {
                     if (tp != INVALID_TOUCH_POSITION) {
-                        SEGGER_RTT_printf(0, "Shifting wheel\n");
+                        //SEGGER_RTT_printf(0, "Shifting wheel\n");
                         leds_all_off();
                         shift_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index);
                         leds_on_for_reading(ap_index, ss_index, third);
@@ -349,7 +349,6 @@ void gpio_pins_to_initial_states()
     // Setting pins to input with a pulldown as the default should minimize power consumption.
     GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortF, 1, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortF, 2, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortC, 15, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortC, 14, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortD, 7, gpioModeInputPull, 0);
@@ -602,9 +601,9 @@ int main()
 {
     common_init();
 
-    //return real_main();
+    return real_main();
     //return test_sensor_main();
-    return test_capsense_with_wheel_main();
+    //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
     //return test_capsense_main();
