@@ -82,6 +82,8 @@ touch_position get_touch_position()
     return NO_TOUCH_DETECTED;
 }
 
+// Using an interrupt to update counts because all of the timers
+// are tied up cycling the LEDs.
 void ACMP0_IRQHandler(void) {
 	// Clear interrupt flag
   	ACMP0->IFC = ACMP_IFC_EDGE;
