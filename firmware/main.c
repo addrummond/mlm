@@ -209,7 +209,8 @@ static void leds_on_for_reading(int ap_index, int ss_index, int third)
 void handle_MODE_DISPLAY_READING()
 {
     int ap_index, ss_index, third;
-    ev_iso_aperture_to_shutter(g_state.last_reading_ev, g_state.iso, 6/*f8*/, &ap_index, &ss_index, &third);
+    ev_iso_aperture_to_shutter(g_state.last_reading_ev, g_state.iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
+    SEGGER_RTT_printf(0, "ISO %u ss %s%u ap %s%u\n", g_state.iso, sign_of(ap_index), iabs(ap_index), sign_of(ss_index), iabs(ss_index));
 
     leds_all_off();
 
@@ -583,8 +584,8 @@ int main()
 {
     common_init();
 
-    //return real_main();
-    return test_show_reading();
+    return real_main();
+    //return test_show_reading();
     //return test_sensor_main();
     //return test_capsense_with_wheel_main();
     //return test_main();

@@ -180,6 +180,8 @@ void ev_iso_aperture_to_shutter(int32_t ev, int32_t iso, int32_t ap, int *ap_ind
     // ISO not on a full stop boundary, we adjust the ev value to compensate.
     ev_to_shutter_iso100_f8(ev + ((1<<EV_BPS)*r)/3, &ss_index, &third);
 
+    SEGGER_RTT_printf(0, "Initial ss %s%u for ap %s%u\n", sign_of(ss_index), iabs(ss_index), sign_of(ap), iabs(ap));
+
 #ifdef TEST
     fprintf(stderr, "EV %i -> ss %i at f8 with %i/3\n", ev, ss_index, third);
     fprintf(stderr, "SS iso comp %i\n", fsiso - ISO_100_INDEX);
@@ -187,10 +189,13 @@ void ev_iso_aperture_to_shutter(int32_t ev, int32_t iso, int32_t ap, int *ap_ind
 #endif
 
     // Adjust shutter speed to compensate for ISO difference.
-    ss_index += fsiso - ISO_100_INDEX;
+    SEGGER_RTT_printf(0, "ISOS %u %u\n", fsiso, ISO_100_INDEX);
+    ss_index += fsiso - ISO_100_INDEX/3;
 
     // Adjust shutter speed to get desired aperture.
     ss_index -= ap - F8_AP_INDEX;
+
+    SEGGER_RTT_printf(0, "Pre adjustment ss %s%u\n", sign_of(ss_index), iabs(ss_index));
 
     // Make adjustments if the shutter speed is out of range.
     if (ss_index < SS_INDEX_MIN) {
