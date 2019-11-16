@@ -6,11 +6,6 @@
 #include <stdint.h>
 #include <time.h>
 
-extern uint32_t touch_counts[2];
-extern uint32_t touch_chan;
-extern uint32_t touch_index;
-extern bool touch_on;
-
 typedef enum touch_position {
     INVALID_TOUCH_POSITION = -99,
     NO_TOUCH_DETECTED = 0,
@@ -21,8 +16,8 @@ typedef enum touch_position {
 void setup_capsense(void);
 void disable_capsense(void);
 void cycle_capsense(void);
-void clear_capcounts(void);
-touch_position get_touch_position(void);
+void get_touch_count(uint32_t *chan1, uint32_t *chan2);
+touch_position get_touch_position(uint32_t chan1, uint32_t chan2);
 
 #define PAD_COUNT_MS 10 // we count alternations on each touch pad for this number of ms
 

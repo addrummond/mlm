@@ -168,15 +168,17 @@ void handle_MODE_DISPLAY_READING()
         leds_on_for_reading(ap_index, ss_index, third);
     }
 
-    clear_capcounts();
     setup_capsense();
 
     uint32_t base_cycles = leds_on_for_cycles;
     int zero_touch_position = INVALID_TOUCH_POSITION;
+    uint32_t touch_counts[] = { 0, 0 };
     for (unsigned i = 0;; ++i) {
         if (i != 0 && i % 4 == 0) {
-            touch_on = false;
-            int tp = get_touch_position();
+            uint32_t count, chan;
+            get_touch_count(&count, &chan);
+            touch_counts[chan] = count;
+            int tp = get_touch_position(touch_counts[0], touch_counts[1]);
             
             if (tp == NO_TOUCH_DETECTED) {
                 zero_touch_position = INVALID_TOUCH_POSITION;
@@ -195,10 +197,7 @@ void handle_MODE_DISPLAY_READING()
                 } else {
                     zero_touch_position = tp;
                 }
-            }
-            
-            touch_on = true;
-            clear_capcounts();
+            }            
         }
 
         cycle_capsense();
@@ -399,15 +398,15 @@ int test_capsense_main()
 
     setup_capsense();
 
+    uint32_t touch_counts[] = { 0, 0 };
     for (unsigned i = 0;; ++i) {
-        if (i % 4 == 0) {
-            touch_on = false;
-            if (i % (4*6) == 0)
-                SEGGER_RTT_printf(0, "count %u %u\n", touch_counts[1], touch_counts[0]);
-            touch_on = true;
-            clear_capcounts();
-        }
+        uint32_t count, chan;
+        get_touch_count(&count, &chan);
+        touch_counts[chan] = count;
 
+        if (i % (4*6) == 0)
+            SEGGER_RTT_printf(0, "count %u %u\n", touch_counts[1], touch_counts[0]);
+        
         cycle_capsense();
 
         delay_ms(PAD_COUNT_MS);
@@ -421,14 +420,16 @@ int test_capsense_with_wheel_main()
     leds_all_off();
     leds_on(1 << led_index);
 
-    clear_capcounts();
     setup_capsense();
 
     int zero_touch_position = INVALID_TOUCH_POSITION;
+    uint32_t touch_counts[] = { 0, 0 };
     for (unsigned i = 0;; ++i) {
         if (i != 0 && i % 2 == 0) {
-            touch_on = false;
-            int tp = get_touch_position();
+            uint32_t count, chan;
+            get_touch_count(&count, &chan);
+            touch_counts[chan] = count;
+            int tp = get_touch_position(touch_counts[0], touch_counts[1]);
             //SEGGER_RTT_printf(0,"Pads %u %u (%s%u)\n", touch_counts[1], touch_counts[0], sign_of(tp), tp);
             
             if (tp == NO_TOUCH_DETECTED) {
@@ -451,10 +452,6 @@ int test_capsense_with_wheel_main()
                     zero_touch_position = tp;
                 }
             }
-            
-            
-            touch_on = true;
-            clear_capcounts();
         }
 
         cycle_capsense();
@@ -519,13 +516,13 @@ int main()
 {
     common_init();
 
-    return real_main();
+    //return real_main();
     //return test_show_reading();
     //return test_sensor_main();
     //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
-    //return test_capsense_main();
+    return test_capsense_main();
     //return test_led_change_main();
     //return reset_state_main();
 }
