@@ -151,7 +151,7 @@ void handle_MODE_SNOOZE()
     turn_on_wake_timer();
 
     SEGGER_RTT_printf(0, "Entering EM2 for snooze\n");
-    EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
+    EMU_EnterEM3(true); // true = restore oscillators, clocks and voltage scaling
     SEGGER_RTT_printf(0, "Woken up WTF?!\n");
     g_state.mode = MODE_JUST_WOKEN;
 }
@@ -371,8 +371,6 @@ void common_init()
     // https://www.silabs.com/community/mcu/32-bit/forum.topic.html/happy_gecko_em4_conf-Y9Bw
 
     CHIP_Init();
-
-    for (;;);
 
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
