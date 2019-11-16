@@ -189,8 +189,15 @@ static void shift_wheel(int n, int *ap_index, int *ss_index)
 
 static void leds_on_for_reading(int ap_index, int ss_index, int third)
 {
-    unsigned ss_led_n = LED_1S_N + ss_index;
-    unsigned ap_led_n = (LED_F1_N + ap_index) % 24;
+    // calculated as if leds were numbered clockwise
+    unsigned ss_led_n = (LED_1S_N + ss_index) % LED_N_IN_WHEEL;
+    unsigned ap_led_n = (LED_F1_N + ap_index) % LED_N_IN_WHEEL;
+
+    // convert to counterclockwise numbering
+    ss_led_n = (LED_N_IN_WHEEL - ss_led_n) % LED_N_IN_WHEEL;
+    ap_led_n = (LED_N_IN_WHEEL - ap_led_n) % LED_N_IN_WHEEL;
+
+    SEGGER_RTT_printf(0, "SS = %u, AP = %u, LEDS = %u %u\n", ss_index, ap_index, ss_led_n, ap_led_n);
     uint32_t mask = (1 << ap_led_n) | (1 << ss_led_n);
     if (third == 1)
         mask |= (1 << LED_PLUS_1_3_N);
@@ -388,44 +395,6 @@ void common_init()
     gpio_pins_to_initial_states();
 }
 
-int test_main()
-{
-    // ********** TEST LED CYCLING **********
-
-    /*leds_all_off();
-    leds_on(0b101);
-
-    while (leds_on_for_cycles < DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
-        __NOP();
-        __NOP();
-        __NOP();
-        __NOP();
-    }
-
-    leds_all_off();
-
-    for (;;) ;*/
-
-    // ********** BATSENSE TEST **********
-
-    /*for (;;) {
-        int v = get_battery_voltage();
-        SEGGER_RTT_printf(0, "V count %u\n", v);
-    }*/
-
-    // ********** LED TEST **********
-
-    /*for (unsigned i = 1;; ++i) {
-        leds_all_off();
-        SEGGER_RTT_printf(0, "Led %u\n", i);
-        led_on(i);
-
-        delay_ms(300);
-    }*/
-
-    return 0;
-}
-
 int test_led_change_main()
 {
     leds_all_off();
@@ -462,6 +431,17 @@ int test_led_change_main()
         //while (leds_on_for_cycles < base_cycles + RTC_RAW_FREQ)
         //    ;
     }
+}
+
+int test_show_reading()
+{
+    leds_all_off();
+
+    leds_on_for_reading(F22_AP_INDEX, SS500_INDEX, 0);
+
+    for (;;);
+
+    return 0;
 }
 
 int test_capsense_main()
@@ -603,7 +583,8 @@ int main()
 {
     common_init();
 
-    return real_main();
+    //return real_main();
+    return test_show_reading();
     //return test_sensor_main();
     //return test_capsense_with_wheel_main();
     //return test_main();
