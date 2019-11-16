@@ -72,26 +72,6 @@ void wake_timer_rtc_count_callback()
 #endif
 }
 
-void turn_on_wake_timer()
-{
-    RTC_Enable(false);
-
-    set_rtc_interrupt_handler(wake_timer_rtc_count_callback);
-
-    RTC_Init_TypeDef init = {
-        true, // Start counting when initialization is done
-        false, // Enable updating during debug halt.
-        true  // Restart counting from 0 when reaching COMP0.
-    };
-
-    RTC_CompareSet(0, IDLE_TIME_BEFORE_DEEPEST_SLEEP_SECONDS * RTC_FREQ);
-
-    // Enabling Interrupt from RTC
-    RTC_IntEnable(RTC_IEN_COMP0);
-    NVIC_EnableIRQ(RTC_IRQn);
-    RTC_Init(&init);
-}
-
 void handle_MODE_JUST_WOKEN()
 {
     // If it was a brief tap on the button, go to AWAKE_AT_REST.
@@ -118,15 +98,6 @@ void handle_MODE_AWAKE_AT_REST()
     // Set up button press interrupt for when we're in EM2.
     setup_button_press_interrupt();
 
-#ifndef DEBUG // TODO changed to proper #if defined conditional (I forget the syntax...)
-#ifndef NO_EM4
-    // If we've been in EM2 for a while and nothing has happened,
-    // we want to go into EM4.
-    TEMPORARY_CANARY
-    turn_on_wake_timer();
-#endif
-#endif
-
     // Display the current reading, if any.
     if (fresh_reading_is_saved()) {
         SEGGER_RTT_printf(0, "Fresh reading saved\n");
@@ -145,10 +116,6 @@ void handle_MODE_SNOOZE()
 {
     // Set up button press interrupt for when we're in EM2.
     setup_button_press_interrupt();
-
-    // If we've been in EM3 for a while and nothing has happened,
-    // we want to go into EM4.
-    turn_on_wake_timer();
 
     SEGGER_RTT_printf(0, "Entering EM2 for snooze\n");
     EMU_EnterEM3(true); // true = restore oscillators, clocks and voltage scaling
@@ -505,14 +472,6 @@ int test_batsense_main()
     }
 }
 
-int reset_state_main()
-{
-    SEGGER_RTT_printf(0, "Erasing state pages...\n");
-    erase_state_pages();
-    SEGGER_RTT_printf(0, "Erased.\n");
-    return 0;
-}
-
 int test_sensor_main()
 {
     // Turn on the LDO to power up the sensor.
@@ -549,12 +508,7 @@ int test_sensor_main()
 
 int real_main()
 {
-#if defined(DEBUG) || defined (NO_FLASHREAD)
     set_state_to_default();
-#else
-    TEMPORARY_CANARY
-    read_state_from_flash();
-#endif
 
     state_loop();
 

@@ -45,34 +45,7 @@ typedef struct state {
 
 extern state g_state;
 
-// Address of the user data page in flash memory.
-#define USER_DATA_PAGE_ADDR ((uint32_t *)0x0FE00000)
-
-#define PAGE_NBYTES 512
-
-// There's only one page reserved for user data, but as we're not using anywhere
-// near all of the 32kb of flash available for code, we can afford to use a few
-// extra pages to help with wear leveling.
-#define N_CHEEKY_PAGES 4
-
-#define N_DATA_PAGES (N_CHEEKY_PAGES+1)
-
-#define FIRST_STATE_PAGE_ADDR (USER_DATA_PAGE_ADDR - N_CHEEKY_PAGES*(PAGE_NBYTES/sizeof(uint32_t)))
-
-// *Note on erase cycles*
-//
-// The EFM32 part we're using claims a minimum of 10K erase cycles for the
-// flash. We erase all data pages every
-//     (N_DATA_PAGES * (PAGE_NBYTES / STATE_NBYTES)) = 80
-// times the state is written. Thus, we should be able to write the state
-// at least 800,000 times before the flash starts to fail. This should be
-// more than enough. Supposing that the state is saved 100 times a day
-// every day, that's ~22 years of life.
-
-void write_state_to_flash(void);
-void read_state_from_flash(void);
 void set_state_to_default(void);
 bool fresh_reading_is_saved(void);
-void erase_state_pages(void);
 
 #endif
