@@ -146,7 +146,7 @@ void handle_MODE_SNOOZE()
     // Set up button press interrupt for when we're in EM2.
     setup_button_press_interrupt();
 
-    // If we've been in EM2 for a while and nothing has happened,
+    // If we've been in EM3 for a while and nothing has happened,
     // we want to go into EM4.
     turn_on_wake_timer();
 
