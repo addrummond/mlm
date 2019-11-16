@@ -187,25 +187,6 @@ static void shift_wheel(int n, int *ap_index, int *ss_index)
     }
 }
 
-static void leds_on_for_reading(int ap_index, int ss_index, int third)
-{
-    // calculated as if leds were numbered clockwise
-    unsigned ss_led_n = (LED_1S_N + ss_index) % LED_N_IN_WHEEL;
-    unsigned ap_led_n = (LED_F1_N + ap_index) % LED_N_IN_WHEEL;
-
-    // convert to counterclockwise numbering
-    ss_led_n = (LED_N_IN_WHEEL - ss_led_n) % LED_N_IN_WHEEL;
-    ap_led_n = (LED_N_IN_WHEEL - ap_led_n) % LED_N_IN_WHEEL;
-
-    SEGGER_RTT_printf(0, "SS = %u, AP = %u, LEDS = %u %u\n", ss_index, ap_index, ss_led_n, ap_led_n);
-    uint32_t mask = (1 << ap_led_n) | (1 << ss_led_n);
-    if (third == 1)
-        mask |= (1 << LED_PLUS_1_3_N);
-    else if (third == -1)
-        mask |= (1 << LED_MINUS_1_3_N);
-    leds_on(mask);
-}
-
 void handle_MODE_DISPLAY_READING()
 {
     int ap_index, ss_index, third;

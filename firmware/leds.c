@@ -257,3 +257,21 @@ void leds_all_off()
         rtc_has_been_borked_for_led_cycling = false;
     }
 }
+
+void leds_on_for_reading(int ap_index, int ss_index, int third)
+{
+    // calculated as if leds were numbered clockwise
+    unsigned ss_led_n = (LED_1S_N + ss_index) % LED_N_IN_WHEEL;
+    unsigned ap_led_n = (LED_F1_N + ap_index) % LED_N_IN_WHEEL;
+
+    // convert to counterclockwise numbering
+    ss_led_n = (LED_N_IN_WHEEL - ss_led_n) % LED_N_IN_WHEEL;
+    ap_led_n = (LED_N_IN_WHEEL - ap_led_n) % LED_N_IN_WHEEL;
+
+    uint32_t mask = (1 << ap_led_n) | (1 << ss_led_n);
+    if (third == 1)
+        mask |= (1 << LED_PLUS_1_3_N);
+    else if (third == -1)
+        mask |= (1 << LED_MINUS_1_3_N);
+    leds_on(mask);
+}

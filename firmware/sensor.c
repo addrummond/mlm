@@ -59,7 +59,7 @@ void sensor_init()
     SEGGER_RTT_printf(0, "Sensor initialization complete.\n");
 }
 
-static void print_stat(int status)
+__attribute__((unused)) static void print_stat(int status)
 {
     if (status == 0)
         SEGGER_RTT_printf(0, "S: I2C done.\n");
