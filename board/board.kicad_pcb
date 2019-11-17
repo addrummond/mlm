@@ -1080,7 +1080,7 @@
   (module "mlm:CSS-1210TB" (layer "F.Cu") (tedit 5DB48018) (tstamp 5D633EC0)
     (at 78.99 74.72 270)
     (path "/5D8941EF")
-    (fp_text reference "SW3" (at 3.9 4.89 270) (layer "F.SilkS")
+    (fp_text reference "SW2" (at 3.9 4.89 270) (layer "F.SilkS")
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value "SW_SPST" (at 0 -2.54 270) (layer "F.Fab")
