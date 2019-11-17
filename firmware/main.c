@@ -329,7 +329,6 @@ void common_init()
 
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
-    CMU_ClockEnable(cmuClock_CORELE, true);
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
     CMU_OscillatorEnable(cmuOsc_LFRCO, true, true);
 
@@ -503,6 +502,16 @@ int test_sensor_main()
     }
 }
 
+int test_le_capsense_main()
+{
+    for (;;) {
+        SEGGER_RTT_printf(0, "LOOP\n");
+        setup_le_capsense();
+        SEGGER_RTT_printf(0, "Setup complete\n");
+        EMU_EnterEM2(true);
+    }
+}
+
 int real_main()
 {
     set_state_to_default();
@@ -522,7 +531,8 @@ int main()
     //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
-    return test_capsense_main();
+    //return test_capsense_main();
+    return test_le_capsense_main();
     //return test_led_change_main();
     //return reset_state_main();
 }
