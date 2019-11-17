@@ -1,4 +1,5 @@
 #include <em_rtc.h>
+#include <rtt.h>
 
 // The RTC interrupt seems to be triggered immediately by the configuration code
 // in turn_on_wake timer for some reason. That's a bug either in this code or in
@@ -8,7 +9,7 @@
 // turn_on_wake_timer.
 static bool RTC_IRQHandler_first_time;
 
-static void (*rtc_count_callback)(void);
+static void (*rtc_count_callbacks[4])(void);
 
 void RTC_IRQHandler()
 {
@@ -19,12 +20,28 @@ void RTC_IRQHandler()
         return;
     }
 
-    if (rtc_count_callback)
-        rtc_count_callback();
+    for (int i = 0; i < sizeof(rtc_count_callbacks)/sizeof(rtc_count_callbacks[0]); ++i) {
+        if (rtc_count_callbacks[i])
+            rtc_count_callbacks[i]();
+    }
 }
 
-void set_rtc_interrupt_handler(void (*callback)(void))
+void add_rtc_interrupt_handler(void (*callback)(void))
 {
     RTC_IRQHandler_first_time = true;
-    rtc_count_callback = callback;
+    int i;
+    for (i = 0; i < sizeof(rtc_count_callbacks)/sizeof(rtc_count_callbacks[0]); ++i) {
+        if (!rtc_count_callbacks[i]) {
+            rtc_count_callbacks[i] = callback;
+            break;
+        }
+    }
+    if (i == sizeof(rtc_count_callbacks)/sizeof(rtc_count_callbacks[0]))
+        SEGGER_RTT_printf(0, "WARNING: RTC count callbacks array full\n");
+}
+
+void clear_rtc_interrupt_handlers()
+{
+    for (int i = 0; i < sizeof(rtc_count_callbacks)/sizeof(rtc_count_callbacks[0]); ++i)
+        rtc_count_callbacks[i] = 0;
 }

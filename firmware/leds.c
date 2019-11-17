@@ -198,7 +198,7 @@ void leds_on(uint32_t mask)
     current_mask = mask;
     current_mask_n = 0;
 
-    set_rtc_interrupt_handler(led_rtc_count_callback);
+    add_rtc_interrupt_handler(led_rtc_count_callback);
 
     RTC_Init_TypeDef init = {
         true,  // Start counting when initialization is done
@@ -216,6 +216,13 @@ void leds_on(uint32_t mask)
     RTC_Init(&init);
 
     rtc_has_been_borked_for_led_cycling = true;
+}
+
+void leds_change_mask(uint32_t mask)
+{
+    orig_mask = mask;
+    current_mask = mask;
+    current_mask_n = 0;
 }
 
 void led_fully_on(unsigned n)
@@ -256,6 +263,8 @@ void leds_all_off()
 
         rtc_has_been_borked_for_led_cycling = false;
     }
+
+    clear_rtc_interrupt_handlers();
 }
 
 void leds_on_for_reading(int ap_index, int ss_index, int third)

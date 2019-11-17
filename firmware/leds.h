@@ -144,6 +144,7 @@
 
 void led_on(unsigned n);
 void leds_on(uint32_t mask);
+void leds_change_mask(uint32_t mask);
 void led_fully_on(unsigned n);
 void leds_all_off();
 void leds_on_for_reading(int ap_index, int ss_index, int third);

@@ -628,6 +628,47 @@ int test_le_capsense_main()
     }
 }
 
+static uint32_t test_led_interrupt_cycle_mask1;
+static uint32_t test_led_interrupt_cycle_mask2;
+static uint32_t test_led_interrupt_cycle_mask3;
+static void test_led_interrupt_cycle_interrupt_handler()
+{
+    if (leds_on_for_cycles % 32 != 0)
+        return;
+
+    if (leds_on_for_cycles % 96 != 0) {
+        test_led_interrupt_cycle_mask1 <<= 1;
+        if (test_led_interrupt_cycle_mask1 > (1 << (LED_N_IN_WHEEL - 1)))
+            test_led_interrupt_cycle_mask1 = 1;
+    }
+
+    if (leds_on_for_cycles % 64 != 0) {
+        test_led_interrupt_cycle_mask2 >>= 1;
+        if (test_led_interrupt_cycle_mask2 == 0)
+            test_led_interrupt_cycle_mask2 = (1 << (LED_N_IN_WHEEL - 1));
+    }
+
+    test_led_interrupt_cycle_mask3 <<= 1;
+    if (test_led_interrupt_cycle_mask3 > (1 << (LED_N_IN_WHEEL - 1)))
+        test_led_interrupt_cycle_mask3 = 1;
+
+    leds_change_mask(test_led_interrupt_cycle_mask1 | test_led_interrupt_cycle_mask2 | test_led_interrupt_cycle_mask3);
+}
+
+int test_led_interrupt_cycle()
+{
+    add_rtc_interrupt_handler(test_led_interrupt_cycle_interrupt_handler);
+    test_led_interrupt_cycle_mask1 = 1;
+    test_led_interrupt_cycle_mask2 = 8;
+    test_led_interrupt_cycle_mask3 = 16;
+    leds_on(test_led_interrupt_cycle_mask1 | test_led_interrupt_cycle_mask2 | test_led_interrupt_cycle_mask3);
+
+    for (;;)
+        ;
+
+    return 1;
+}
+
 int real_main()
 {
     set_state_to_default();
@@ -641,7 +682,8 @@ int main()
 {
     common_init();
 
-    return real_main();
+    //return real_main();
+    return test_led_interrupt_cycle();
     //return test_show_reading();
     //return test_sensor_main();
     //return test_capsense_with_wheel_main();
