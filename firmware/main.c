@@ -177,10 +177,11 @@ void handle_MODE_DISPLAY_READING()
     int zero_touch_position = INVALID_TOUCH_POSITION;
     uint32_t touch_counts[] = { 0, 0 };
     for (unsigned i = 0;; ++i) {
-        if (i != 0 && i % 4 == 0) {
-            uint32_t count, chan;
-            get_touch_count(&count, &chan);
-            touch_counts[chan] = count;
+        uint32_t count, chan;
+        get_touch_count(&count, &chan);
+        touch_counts[chan] = count;
+
+        if (i != 0 && i % 2 == 0) {
             int tp = get_touch_position(touch_counts[0], touch_counts[1]);
             
             if (tp == NO_TOUCH_DETECTED) {
@@ -552,13 +553,13 @@ int main()
 {
     common_init();
 
-    //return real_main();
+    return real_main();
     //return test_show_reading();
     //return test_sensor_main();
     //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
-    return test_capsense_main();
+    //return test_capsense_main();
     //return test_le_capsense_main();
     //return test_led_change_main();
     //return reset_state_main();
