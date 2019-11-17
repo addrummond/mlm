@@ -6,11 +6,11 @@
 
 #define EV_BPS 10 // ev and lux values stored with this number of binary places
 
-
 #define AP_INDEX_MIN  0
 #define AP_INDEX_MAX  11
 #define SS_INDEX_MIN  0
 #define SS_INDEX_MAX  11
+#define ISO_MAX       23
 
 #define ISO_100_FULL_STOP_INDEX 6
 
@@ -54,16 +54,16 @@
 #define ISO_80_INDEX   11
 #define ISO_100_INDEX  12
 #define ISO_125_INDEX  13
-#define ISO_160_INDEX  16
-#define ISO_200_INDEX  17
-#define ISO_250_INDEX  18
-#define ISO_320_INDEX  19
-#define ISO_400_INDEX  20
-#define ISO_500_INDEX  21
-#define ISO_640_INDEX  22
-#define ISO_800_INDEX  23
-#define ISO_1000_INDEX 24
-#define ISO_1200_INDEX 25
+#define ISO_160_INDEX  14
+#define ISO_200_INDEX  15
+#define ISO_250_INDEX  16
+#define ISO_320_INDEX  17
+#define ISO_400_INDEX  18
+#define ISO_500_INDEX  19
+#define ISO_640_INDEX  20
+#define ISO_800_INDEX  21
+#define ISO_1000_INDEX 22
+#define ISO_1200_INDEX 23
 
 #define GAIN_2X_INTEG_250_MAX_LUX  (32000 << EV_BPS)
 #define GAIN_4X_INTEG_250_MAX_LUX  (16000 << EV_BPS)

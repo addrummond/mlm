@@ -134,7 +134,7 @@ void handle_MODE_SNOOZE()
     g_state.mode = MODE_JUST_WOKEN;
 }
 
-static void shift_wheel(int n, int *ap_index, int *ss_index)
+static void shift_exposure_wheel(int n, int *ap_index, int *ss_index)
 {
     int ap = *ap_index;
     int ss = *ss_index;
@@ -200,7 +200,7 @@ void handle_MODE_DISPLAY_READING()
                 if (zero_touch_position == INVALID_TOUCH_POSITION) {
                     if (tp != INVALID_TOUCH_POSITION) {
                         leds_all_off();
-                        shift_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index);
+                        shift_exposure_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index);
                         leds_on_for_reading(ap_index, ss_index, third);
                     }
                     zero_touch_position = tp;
@@ -217,6 +217,68 @@ void handle_MODE_DISPLAY_READING()
 
         if (leds_on_for_cycles >= base_cycles + DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
             SEGGER_RTT_printf(0, "Reading display timeout\n");
+            break;
+        }
+    }
+
+    leds_all_off();
+    SEGGER_RTT_printf(0, "Disabling capsense\n");
+    disable_capsense();
+
+    SEGGER_RTT_printf(0, "Going into MODE_SNOOZE\n");
+    g_state.mode = MODE_SNOOZE;
+}
+
+void handle_MODE_SETTING_ISO()
+{
+    leds_all_off();
+
+    leds_on(1 << ((LED_ISO6_N + g_state.iso) % LED_N_IN_WHEEL));
+
+    setup_capsense();
+
+    uint32_t base_cycles = leds_on_for_cycles;
+    int zero_touch_position = INVALID_TOUCH_POSITION;
+    uint32_t touch_counts[] = { 0, 0 };
+    for (unsigned i = 0;; ++i) {
+        uint32_t count, chan;
+        get_touch_count(&count, &chan);
+        touch_counts[chan] = count;
+
+        if (i != 0 && i % 2 == 0) {
+            int tp = get_touch_position(touch_counts[0], touch_counts[1]);
+            
+            if (tp == NO_TOUCH_DETECTED) {
+                zero_touch_position = INVALID_TOUCH_POSITION;
+            } else {
+                base_cycles = leds_on_for_cycles;
+
+                if (zero_touch_position == INVALID_TOUCH_POSITION) {
+                    if (tp != INVALID_TOUCH_POSITION) {
+                        leds_all_off();
+                        
+                        g_state.iso += (tp == RIGHT_BUTTON ? 1 : -1);
+                        if (g_state.iso < 0)
+                            g_state.iso = ISO_MAX + g_state.iso + 1;
+                        if (g_state.iso > ISO_MAX)
+                            g_state.iso = 0;
+                        
+                        leds_on(1 << ((LED_ISO6_N + g_state.iso) % LED_N_IN_WHEEL));
+                    }
+                    zero_touch_position = tp;
+                } else {
+                    zero_touch_position = tp;
+                }
+            }            
+        }
+
+        cycle_capsense();
+
+        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
+            ;
+
+        if (leds_on_for_cycles >= base_cycles + DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
+            SEGGER_RTT_printf(0, "Reading display timeout (in ISO set mode)\n");
             break;
         }
     }
@@ -263,82 +325,10 @@ void handle_MODE_DOING_READING()
     g_state.last_reading_ev = ev;
     SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS);
 
-    //
-    int ss_index;
-    ev_to_shutter_iso100_f8(ev, &ss_index, 0);
-    leds_all_off();
-    led_on(6 + ss_index);
-
     // Turn the LDO off to power down the sensor.
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 0);
 
     g_state.mode = MODE_DISPLAY_READING;
-}
-
-void handle_MODE_SETTING_ISO()
-{
-    // TODO TODO replace with actual ISO / exposure setting.
-
-    int ap_index, ss_index, third;
-    ev_iso_aperture_to_shutter(g_state.last_reading_ev, g_state.iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
-    SEGGER_RTT_printf(0, "ISO %u ss %s%u ap %s%u\n", g_state.iso, sign_of(ap_index), iabs(ap_index), sign_of(ss_index), iabs(ss_index));
-
-    leds_all_off();
-
-    if (ap_index == -1) {
-        leds_on(0b100000000000000000000011);
-    } else {
-        leds_on_for_reading(ap_index, ss_index, third);
-    }
-
-    setup_capsense();
-
-    uint32_t base_cycles = leds_on_for_cycles;
-    int zero_touch_position = INVALID_TOUCH_POSITION;
-    uint32_t touch_counts[] = { 0, 0 };
-    for (unsigned i = 0;; ++i) {
-        uint32_t count, chan;
-        get_touch_count(&count, &chan);
-        touch_counts[chan] = count;
-
-        if (i != 0 && i % 2 == 0) {
-            int tp = get_touch_position(touch_counts[0], touch_counts[1]);
-            
-            if (tp == NO_TOUCH_DETECTED) {
-                zero_touch_position = INVALID_TOUCH_POSITION;
-            } else {
-                base_cycles = leds_on_for_cycles;
-
-                if (zero_touch_position == INVALID_TOUCH_POSITION) {
-                    if (tp != INVALID_TOUCH_POSITION) {
-                        leds_all_off();
-                        shift_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index);
-                        leds_on_for_reading(ap_index, ss_index, third);
-                    }
-                    zero_touch_position = tp;
-                } else {
-                    zero_touch_position = tp;
-                }
-            }            
-        }
-
-        cycle_capsense();
-
-        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
-            ;
-
-        if (leds_on_for_cycles >= base_cycles + DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
-            SEGGER_RTT_printf(0, "Reading display timeout\n");
-            break;
-        }
-    }
-
-    leds_all_off();
-    SEGGER_RTT_printf(0, "Disabling capsense\n");
-    disable_capsense();
-
-    SEGGER_RTT_printf(0, "Going into MODE_SNOOZE\n");
-    g_state.mode = MODE_SNOOZE;
 }
 
 void state_loop()
