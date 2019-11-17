@@ -12,6 +12,7 @@
 #define BATSENSE_PIN                           14
 
 #define LONG_BUTTON_PRESS_MS                   200
+#define DOUBLE_TAP_INTERVAL_MS                 400
 
 #define IDLE_TIME_BEFORE_DEEPEST_SLEEP_SECONDS 30
 

@@ -29,7 +29,7 @@ void GPIO_EVEN_IRQHandler()
 
     //int v = GPIO_PinInGet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN);
 
-    SEGGER_RTT_printf(0, "Hi!\n");
+    SEGGER_RTT_printf(0, "Button press interrupt\n");
 }
 
 void sleep_awaiting_button_press()
@@ -74,20 +74,28 @@ void wake_timer_rtc_count_callback()
 void handle_MODE_JUST_WOKEN()
 {
     // If it was a brief tap on the button, go to AWAKE_AT_REST.
-    // Otherwise, if they've held the button down for a little bit,
-    // start doing a reading.
+    // If they've held the button down for a little bit,
+    // start doing a reading. If it was a double tap, go to
+    // ISO / exposure set mode.
     RTC->CNT = 0;
     RTC->CTRL |= RTC_CTRL_EN;
     int v = 1;
-    SEGGER_RTT_printf(0, "Start loop\n");
     while (((v = GPIO_PinInGet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN)) == 0) && RTC->CNT < (RTC_FREQ * LONG_BUTTON_PRESS_MS)/1000)
         ;
-    SEGGER_RTT_printf(0, "End loop %u\n", RTC->CNT);
+    int vv = 1;
+    if (v == 1 && RTC->CNT < DOUBLE_TAP_INTERVAL_MS) {
+        while (((vv = GPIO_PinInGet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN)) == 1) && RTC->CNT < (RTC_FREQ * DOUBLE_TAP_INTERVAL_MS)/1000)
+            ;
+    }
     RTC->CTRL &= ~RTC_CTRL_EN;
-    if (v == 0) {
+
+    if (v == 0 && vv == 1) {
         SEGGER_RTT_printf(0, "Holding\n");
         // They're holding the button down.
         g_state.mode = MODE_DOING_READING;
+    } else if (v == 1 && vv == 0) {
+        SEGGER_RTT_printf(0, "Double tap\n");
+        g_state.mode = MODE_SETTING_ISO;
     } else {
         SEGGER_RTT_printf(0, "Tap\n");
         // It was just a tap.
@@ -191,10 +199,8 @@ void handle_MODE_DISPLAY_READING()
 
                 if (zero_touch_position == INVALID_TOUCH_POSITION) {
                     if (tp != INVALID_TOUCH_POSITION) {
-                        SEGGER_RTT_printf(0, "Shifting wheel from %u %u (iso %u)\n", ap_index, ss_index, g_state.iso);
                         leds_all_off();
                         shift_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index);
-                        SEGGER_RTT_printf(0, "...to %u %u\n", ap_index, ss_index);
                         leds_on_for_reading(ap_index, ss_index, third);
                     }
                     zero_touch_position = tp;
@@ -269,6 +275,72 @@ void handle_MODE_DOING_READING()
     g_state.mode = MODE_DISPLAY_READING;
 }
 
+void handle_MODE_SETTING_ISO()
+{
+    // TODO TODO replace with actual ISO / exposure setting.
+
+    int ap_index, ss_index, third;
+    ev_iso_aperture_to_shutter(g_state.last_reading_ev, g_state.iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
+    SEGGER_RTT_printf(0, "ISO %u ss %s%u ap %s%u\n", g_state.iso, sign_of(ap_index), iabs(ap_index), sign_of(ss_index), iabs(ss_index));
+
+    leds_all_off();
+
+    if (ap_index == -1) {
+        leds_on(0b100000000000000000000011);
+    } else {
+        leds_on_for_reading(ap_index, ss_index, third);
+    }
+
+    setup_capsense();
+
+    uint32_t base_cycles = leds_on_for_cycles;
+    int zero_touch_position = INVALID_TOUCH_POSITION;
+    uint32_t touch_counts[] = { 0, 0 };
+    for (unsigned i = 0;; ++i) {
+        uint32_t count, chan;
+        get_touch_count(&count, &chan);
+        touch_counts[chan] = count;
+
+        if (i != 0 && i % 2 == 0) {
+            int tp = get_touch_position(touch_counts[0], touch_counts[1]);
+            
+            if (tp == NO_TOUCH_DETECTED) {
+                zero_touch_position = INVALID_TOUCH_POSITION;
+            } else {
+                base_cycles = leds_on_for_cycles;
+
+                if (zero_touch_position == INVALID_TOUCH_POSITION) {
+                    if (tp != INVALID_TOUCH_POSITION) {
+                        leds_all_off();
+                        shift_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index);
+                        leds_on_for_reading(ap_index, ss_index, third);
+                    }
+                    zero_touch_position = tp;
+                } else {
+                    zero_touch_position = tp;
+                }
+            }            
+        }
+
+        cycle_capsense();
+
+        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
+            ;
+
+        if (leds_on_for_cycles >= base_cycles + DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
+            SEGGER_RTT_printf(0, "Reading display timeout\n");
+            break;
+        }
+    }
+
+    leds_all_off();
+    SEGGER_RTT_printf(0, "Disabling capsense\n");
+    disable_capsense();
+
+    SEGGER_RTT_printf(0, "Going into MODE_SNOOZE\n");
+    g_state.mode = MODE_SNOOZE;
+}
+
 void state_loop()
 {
     for (;;) {
@@ -292,6 +364,11 @@ void state_loop()
                 SEGGER_RTT_printf(0, "MODE_DISPLAY_READING\n");
 
                 handle_MODE_DISPLAY_READING();
+            } break;
+            case MODE_SETTING_ISO: {
+                SEGGER_RTT_printf(0, "MODE_SETTING_ISO\n");
+
+                handle_MODE_SETTING_ISO();
             } break;
             case MODE_SNOOZE: {
                 SEGGER_RTT_printf(0, "MODE_SNOOZE\n");

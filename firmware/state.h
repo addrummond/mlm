@@ -12,6 +12,8 @@ typedef enum mode {
     MODE_DOING_READING,
     // the device is awake, not doing anything.
     MODE_AWAKE_AT_REST,
+    // setting the iso (or exposure if exposure priority)
+    MODE_SETTING_ISO,
     // a reading is being shown and can be manipulated using the slider
     MODE_DISPLAY_READING,
     // the device is snoozing after a reading display has timed out
