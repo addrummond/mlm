@@ -1619,8 +1619,6 @@ Text GLabel 850  6700 0    50   Input ~ 0
 VBAT
 Wire Wire Line
 	7800 2650 7800 2900
-Wire Wire Line
-	3750 1100 3750 1600
 $Comp
 L Device:R R2
 U 1 1 5C5424BF
@@ -1692,23 +1690,6 @@ $EndComp
 Wire Wire Line
 	6350 950  6500 950 
 $Comp
-L Device:D_Schottky D27
-U 1 1 5D843B7D
-P 3900 1750
-F 0 "D27" V 3946 1671 50  0000 R CNN
-F 1 "D_Schottky" V 3855 1671 50  0000 R CNN
-F 2 "Diode_SMD:D_SOD-523" H 3900 1750 50  0001 C CNN
-F 3 "~" H 3900 1750 50  0001 C CNN
-F 4 "RB751S40T1G" V 3900 1750 50  0001 C CNN "MPN"
-	1    3900 1750
-	0    -1   -1   0   
-$EndComp
-Wire Wire Line
-	3750 1600 3900 1600
-Connection ~ 3750 1600
-Wire Wire Line
-	3750 1600 3750 2100
-$Comp
 L Device:D_Schottky D28
 U 1 1 5D84534C
 P 3900 2250
@@ -1724,24 +1705,7 @@ Wire Wire Line
 	3750 2100 3900 2100
 Connection ~ 3750 2100
 Wire Wire Line
-	3900 1900 4450 1900
-$Comp
-L Switch:SW_SPST SW2
-U 1 1 5D869D18
-P 4650 1900
-F 0 "SW2" H 4650 2135 50  0000 C CNN
-F 1 "SW_SPST" H 4650 2044 50  0000 C CNN
-F 2 "mlm:CSS-1210TB" H 4650 1900 50  0001 C CNN
-F 3 "~" H 4650 1900 50  0001 C CNN
-	1    4650 1900
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4850 1900 4900 1900
-Wire Wire Line
-	4900 1900 4900 2000
-Wire Wire Line
-	3400 2000 4900 2000
+	3400 2000 4250 2000
 Text Notes 3950 1650 0    50   ~ 0
 Meter / set switch
 Wire Wire Line
@@ -1831,4 +1795,6 @@ Text GLabel 7800 5800 3    50   Input ~ 0
 VBAT
 NoConn ~ 8600 3500
 NoConn ~ 8600 3700
+Wire Wire Line
+	3750 1100 3750 2100
 $EndSCHEMATC
