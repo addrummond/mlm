@@ -1,6 +1,7 @@
 #include <config.h>
 
 #include <batsense.h>
+#include <button.h>
 #include <capsense.h>
 #include <em_acmp.h>
 #include <em_chip.h>
@@ -77,26 +78,15 @@ void handle_MODE_JUST_WOKEN()
     // If they've held the button down for a little bit,
     // start doing a reading. If it was a double tap, go to
     // ISO / exposure set mode.
-    RTC->CNT = 0;
-    RTC->CTRL |= RTC_CTRL_EN;
-    int v = 1;
-    while (((v = GPIO_PinInGet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN)) == 0) && RTC->CNT < (RTC_FREQ * LONG_BUTTON_PRESS_MS)/1000)
-        ;
-    int vv = 1;
-    if (v == 1 && RTC->CNT < DOUBLE_TAP_INTERVAL_MS) {
-        while (((vv = GPIO_PinInGet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN)) == 1) && RTC->CNT < (RTC_FREQ * DOUBLE_TAP_INTERVAL_MS)/1000)
-            ;
-    }
-    RTC->CTRL &= ~RTC_CTRL_EN;
+    button_press bp = check_button_press();
 
-    if (v == 0 && vv == 1) {
+    if (bp == BUTTON_PRESS_HOLD) {
         SEGGER_RTT_printf(0, "Holding\n");
-        // They're holding the button down.
         g_state.mode = MODE_DOING_READING;
-    } else if (v == 1 && vv == 0) {
+    } else if (bp == BUTTON_PRESS_DOUBLE_TAP) {
         SEGGER_RTT_printf(0, "Double tap\n");
         g_state.mode = MODE_SETTING_ISO;
-    } else {
+    } else if (bp == BUTTON_PRESS_TAP) {
         SEGGER_RTT_printf(0, "Tap\n");
         // It was just a tap.
         g_state.last_reading_flags |= LAST_READING_FLAGS_FRESH;
@@ -212,8 +202,10 @@ void handle_MODE_DISPLAY_READING()
 
         cycle_capsense();
 
-        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
-            ;
+        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;) {
+            if (i != 0 && button_pressed())
+                goto handle_button_press;
+        }
 
         if (leds_on_for_cycles >= base_cycles + DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
             SEGGER_RTT_printf(0, "Reading display timeout\n");
@@ -227,6 +219,19 @@ void handle_MODE_DISPLAY_READING()
 
     SEGGER_RTT_printf(0, "Going into MODE_SNOOZE\n");
     g_state.mode = MODE_SNOOZE;
+
+    return;
+
+handle_button_press:
+    leds_all_off();
+    disable_capsense();
+    button_press bp = check_button_press();
+    if (bp == BUTTON_PRESS_HOLD)
+        g_state.mode = MODE_DOING_READING;
+    else if (bp == BUTTON_PRESS_DOUBLE_TAP)
+        g_state.mode = MODE_SETTING_ISO;
+    else if (bp == BUTTON_PRESS_TAP)
+        g_state.mode = MODE_SNOOZE;
 }
 
 void handle_MODE_SETTING_ISO()
@@ -274,8 +279,10 @@ void handle_MODE_SETTING_ISO()
 
         cycle_capsense();
 
-        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
-            ;
+        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;) {
+            if (i != 0 && button_pressed())
+                goto handle_button_press;
+        }
 
         if (leds_on_for_cycles >= base_cycles + DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
             SEGGER_RTT_printf(0, "Reading display timeout (in ISO set mode)\n");
@@ -289,6 +296,20 @@ void handle_MODE_SETTING_ISO()
 
     SEGGER_RTT_printf(0, "Going into MODE_SNOOZE\n");
     g_state.mode = MODE_SNOOZE;
+
+    return;
+
+handle_button_press:
+    SEGGER_RTT_printf(0, "ISO button press\n");
+    leds_all_off();
+    disable_capsense();
+    button_press bp = check_button_press();
+    if (bp == BUTTON_PRESS_HOLD)
+        g_state.mode = MODE_DOING_READING;
+    else if (bp == BUTTON_PRESS_DOUBLE_TAP)
+        g_state.mode = MODE_SETTING_ISO;
+    else if (bp == BUTTON_PRESS_TAP)
+        g_state.mode = MODE_SNOOZE;
 }
 
 void handle_MODE_DOING_READING()
