@@ -312,30 +312,61 @@ handle_button_press:
         g_state.mode = MODE_SNOOZE;
 }
 
+static uint32_t display_reading_interrupt_cycle_mask1;
+static uint32_t display_reading_interrupt_cycle_mask2;
+static uint32_t display_reading_interrupt_cycle_mask3;
+static void display_reading_interrupt_cycle_interrupt_handler()
+{
+    if (leds_on_for_cycles % 32 != 0)
+        return;
+
+    if (leds_on_for_cycles % 96 != 0) {
+        display_reading_interrupt_cycle_mask1 <<= 1;
+        if (display_reading_interrupt_cycle_mask1 > (1 << (LED_N_IN_WHEEL - 1)))
+            display_reading_interrupt_cycle_mask1 = 1;
+    }
+
+    if (leds_on_for_cycles % 64 != 0) {
+        display_reading_interrupt_cycle_mask2 >>= 1;
+        if (display_reading_interrupt_cycle_mask2 == 0)
+            display_reading_interrupt_cycle_mask2 = (1 << (LED_N_IN_WHEEL - 1));
+    }
+
+    display_reading_interrupt_cycle_mask3 <<= 1;
+    if (display_reading_interrupt_cycle_mask3 > (1 << (LED_N_IN_WHEEL - 1)))
+        display_reading_interrupt_cycle_mask3 = 1;
+
+    leds_change_mask(display_reading_interrupt_cycle_mask1 | display_reading_interrupt_cycle_mask2 | display_reading_interrupt_cycle_mask3);
+}
+
 void handle_MODE_DOING_READING()
 {
-    // Display the ISO.
+    // Light show while the reading is being done.
     leds_all_off();
-    led_on((LED_ISO6_N + g_state.iso) % LED_N_IN_WHEEL);
+    add_rtc_interrupt_handler(display_reading_interrupt_cycle_interrupt_handler);
+    display_reading_interrupt_cycle_mask1 = 0;
+    display_reading_interrupt_cycle_mask2 = 8;
+    display_reading_interrupt_cycle_mask3 = 16;
+    leds_on(display_reading_interrupt_cycle_mask1 | display_reading_interrupt_cycle_mask2 | display_reading_interrupt_cycle_mask3);
 
     // Turn on the LDO to power up the sensor.
     SEGGER_RTT_printf(0, "Turning on LDO.\n");
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
-    delay_ms(10); // make sure LDO has time to start up (datasheet says 1ms startup time is typical, so 10 is more than enough)
+    delay_ms_with_led_rtc(10); // make sure LDO has time to start up (datasheet says 1ms startup time is typical, so 10 is more than enough)
     sensor_init();
-    delay_ms(100); // sensor requires 100ms initial startup time.
+    delay_ms_with_led_rtc(100); // sensor requires 100ms initial startup time.
 
     // Turn the sensor on and give it time to wake up from standby.
     sensor_turn_on(GAIN_1X);
-    delay_ms(10);
+    delay_ms_with_led_rtc(10);
 
     // Get the raw sensor reading.
     int32_t gain, itime;
     SEGGER_RTT_printf(0, "Waiting for sensor\n");
-    sensor_wait_till_ready();
+    sensor_wait_till_ready(delay_ms_with_led_rtc);
     SEGGER_RTT_printf(0, "Sensor ready\n");
-    sensor_reading sr = sensor_get_reading_auto(&gain, &itime);
+    sensor_reading sr = sensor_get_reading_auto(delay_ms_with_led_rtc, &gain, &itime);
     g_state.last_reading = sr;
     g_state.last_reading_itime = itime;
     g_state.last_reading_gain = gain;
@@ -348,6 +379,9 @@ void handle_MODE_DOING_READING()
 
     // Turn the LDO off to power down the sensor.
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 0);
+
+    leds_all_off();
+    clear_rtc_interrupt_handlers();
 
     g_state.mode = MODE_DISPLAY_READING;
 }
@@ -601,8 +635,8 @@ int test_sensor_main()
 
     for (;;) {
         int32_t gain, itime;
-        sensor_wait_till_ready();
-        sensor_reading sr = sensor_get_reading_auto(&gain, &itime);
+        sensor_wait_till_ready(delay_ms);
+        sensor_reading sr = sensor_get_reading_auto(delay_ms, &gain, &itime);
         int32_t lux = sensor_reading_to_lux(sr, gain, itime);
         int32_t ev = lux_to_ev(lux);
         SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u%s)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS, (ev % (1<<EV_BPS) >= (2<<EV_BPS/3)) ? "+2/3" : (ev % (1<<EV_BPS) >= (1<<EV_BPS/3) ? "+1/3" : ""));
@@ -628,47 +662,6 @@ int test_le_capsense_main()
     }
 }
 
-static uint32_t test_led_interrupt_cycle_mask1;
-static uint32_t test_led_interrupt_cycle_mask2;
-static uint32_t test_led_interrupt_cycle_mask3;
-static void test_led_interrupt_cycle_interrupt_handler()
-{
-    if (leds_on_for_cycles % 32 != 0)
-        return;
-
-    if (leds_on_for_cycles % 96 != 0) {
-        test_led_interrupt_cycle_mask1 <<= 1;
-        if (test_led_interrupt_cycle_mask1 > (1 << (LED_N_IN_WHEEL - 1)))
-            test_led_interrupt_cycle_mask1 = 1;
-    }
-
-    if (leds_on_for_cycles % 64 != 0) {
-        test_led_interrupt_cycle_mask2 >>= 1;
-        if (test_led_interrupt_cycle_mask2 == 0)
-            test_led_interrupt_cycle_mask2 = (1 << (LED_N_IN_WHEEL - 1));
-    }
-
-    test_led_interrupt_cycle_mask3 <<= 1;
-    if (test_led_interrupt_cycle_mask3 > (1 << (LED_N_IN_WHEEL - 1)))
-        test_led_interrupt_cycle_mask3 = 1;
-
-    leds_change_mask(test_led_interrupt_cycle_mask1 | test_led_interrupt_cycle_mask2 | test_led_interrupt_cycle_mask3);
-}
-
-int test_led_interrupt_cycle()
-{
-    add_rtc_interrupt_handler(test_led_interrupt_cycle_interrupt_handler);
-    test_led_interrupt_cycle_mask1 = 1;
-    test_led_interrupt_cycle_mask2 = 8;
-    test_led_interrupt_cycle_mask3 = 16;
-    leds_on(test_led_interrupt_cycle_mask1 | test_led_interrupt_cycle_mask2 | test_led_interrupt_cycle_mask3);
-
-    for (;;)
-        ;
-
-    return 1;
-}
-
 int real_main()
 {
     set_state_to_default();
@@ -682,8 +675,8 @@ int main()
 {
     common_init();
 
-    //return real_main();
-    return test_led_interrupt_cycle();
+    return real_main();
+    //return test_led_interrupt_cycle();
     //return test_show_reading();
     //return test_sensor_main();
     //return test_capsense_with_wheel_main();

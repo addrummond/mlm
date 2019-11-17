@@ -284,3 +284,18 @@ void leds_on_for_reading(int ap_index, int ss_index, int third)
         mask |= (1 << LED_MINUS_1_3_N);
     leds_on(mask);
 }
+
+void delay_ms_with_led_rtc(int ms)
+{
+    uint32_t start = leds_on_for_cycles;
+    uint32_t target = start + ((ms * RTC_RAW_FREQ) / 1000);
+    if (start < target) {
+        while (leds_on_for_cycles < target)
+            ;
+    } else {
+        while (leds_on_for_cycles > start)
+            ;
+        while (leds_on_for_cycles < target)
+            ;
+    }
+}

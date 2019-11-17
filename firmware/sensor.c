@@ -141,7 +141,7 @@ static inline int32_t subtract_margin(int32_t max_lux)
     return (int32_t)((int64_t)max_lux * 85LL / 100LL);
 }
 
-sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
+sensor_reading sensor_get_reading_auto(delay_func delayf, int32_t *gain, int32_t *itime)
 {
     // We first do a quick reading at 50ms integ time to get an idea
     // of the light level, and then follow up with a reading at 250ms
@@ -161,8 +161,8 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
     uint8_t measrate = sensor_read_reg(REG_ALS_MEAS_RATE);
     sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_50);
     sensor_turn_on(GAIN_1X);
-    delay_ms(65); // don't poll the sensor until it's likely to be ready (saves i2c current)
-    sensor_wait_till_ready();
+    delayf(65); // don't poll the sensor until it's likely to be ready (saves i2c current)
+    sensor_wait_till_ready(delayf);
     sensor_reading r = sensor_get_reading();
     int32_t lux50 = sensor_reading_to_lux(r, 1, 50);
 
@@ -177,29 +177,29 @@ sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
         *gain = 48;
         sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_400);
         sensor_turn_on(GAIN_48X);
-        delay_ms(410);
+        delayf(410);
     } else if (lux50 < subtract_margin(GAIN_48X_INTEG_250_MAX_LUX)) {
         *gain = 48;
         sensor_turn_on(GAIN_48X);
-        delay_ms(260);
+        delayf(260);
     } else if (lux50 < subtract_margin(GAIN_8X_INTEG_250_MAX_LUX)) {
         *gain = 8;
         sensor_turn_on(GAIN_8X);
-        delay_ms(260);
+        delayf(260);
     } else if (lux50 < subtract_margin(GAIN_4X_INTEG_250_MAX_LUX)) {
         *gain = 4;
         sensor_turn_on(GAIN_4X);
-        delay_ms(260);
+        delayf(260);
     } else if (lux50 < subtract_margin(GAIN_2X_INTEG_250_MAX_LUX)) {
         *gain = 2;
         sensor_turn_on(GAIN_2X);
-        delay_ms(260);
+        delayf(260);
     } else {
         *gain = 1;
         sensor_turn_on(GAIN_1X);
     }
 
-    sensor_wait_till_ready();
+    sensor_wait_till_ready(delayf);
     return sensor_get_reading();
 }
 
@@ -294,11 +294,11 @@ void sensor_standby()
     sensor_write_reg(REG_ALS_CONTR, 0);
 }
 
-void sensor_wait_till_ready(void)
+void sensor_wait_till_ready(delay_func delayf)
 {
     uint8_t status;
     do {
         status = sensor_read_reg(REG_ALS_STATUS);
-        delay_ms(10); // save some current (less i2c communication)
+        delayf(10); // save some current (less i2c communication)
     } while (!(status & 0b100));
 }
