@@ -3,6 +3,7 @@
 #include <em_cmu.h>
 #include <em_gpio.h>
 #include <em_lesense.h>
+#include <em_wdog.h>
 #include <em_pcnt.h>
 #include <em_prs.h>
 #include <rtt.h>
@@ -12,9 +13,9 @@
 
 uint32_t touch_chan;
 
-static const uint32_t NOTOUCH_THRESHOLD = 1000;
-
 static uint32_t old_count;
+
+uint32_t calibration_values[2];
 
 // Capsense pins are PC0 (S2), PC1 (S1)
 void setup_capsense()
@@ -23,7 +24,6 @@ void setup_capsense()
     GPIO_PinModeSet(gpioPortC, 1, gpioModeInput, 0);
 
     ACMP_CapsenseInit_TypeDef capsenseInit = ACMP_CAPSENSE_INIT_DEFAULT;
-    CMU_ClockEnable(cmuClock_CORELE, true);
     CMU_ClockEnable(cmuClock_ACMP0, true);
     CMU_ClockEnable(cmuClock_PRS, true);
     CMU_ClockEnable(cmuClock_PCNT0, true);
@@ -70,7 +70,6 @@ void disable_capsense()
     ACMP0->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
     NVIC_ClearPendingIRQ(ACMP0_IRQn);
     NVIC_DisableIRQ(ACMP0_IRQn);
-    CMU_ClockEnable(cmuClock_CORELE, false);
     CMU_ClockEnable(cmuClock_ACMP0, false);
     CMU_ClockEnable(cmuClock_PRS, false); // NEW
     CMU_ClockEnable(cmuClock_PCNT0, false); // NEW
@@ -89,12 +88,37 @@ void cycle_capsense()
     }
 }
 
+void calibrate_capsense()
+{
+    uint32_t count, chan;
+    get_touch_count(&count, &chan);
+    delay_ms(PAD_COUNT_MS);
+
+    uint32_t chans_done = 0;
+    do {
+        get_touch_count(&count, &chan);
+        if (! (chans_done & (1 << chan))) {
+            calibration_values[chan] = count;
+            chans_done |= (1 << chan);
+        }
+        
+        cycle_capsense();
+
+        delay_ms(PAD_COUNT_MS);
+    } while (chans_done != 0b11);
+
+    SEGGER_RTT_printf(0, "Capsense calibration values: %u %u\n", calibration_values[0], calibration_values[1]);
+}
+
 touch_position get_touch_position(uint32_t chan0, uint32_t chan1)
 {
+    uint32_t NOTOUCH_THRESHOLD0 = calibration_values[0] * 5 / 4;
+    uint32_t NOTOUCH_THRESHOLD1 = calibration_values[1] * 5 / 4;
+
     if (chan0 == 0 || chan1 == 0)
         return NO_TOUCH_DETECTED;
 
-    if (chan0 > NOTOUCH_THRESHOLD && chan1 > NOTOUCH_THRESHOLD)
+    if (chan0 > NOTOUCH_THRESHOLD0 && chan1 > NOTOUCH_THRESHOLD1)
         return NO_TOUCH_DETECTED;
     
     if (chan0 < chan1 * 5 / 6)
@@ -209,7 +233,6 @@ void setup_le_capsense()
     static bool init = true;
 
     CMU_ClockEnable(cmuClock_ACMP0, true);
-    CMU_ClockEnable(cmuClock_CORELE, true);
     CMU_ClockEnable(cmuClock_LESENSE, true);
 
     CMU_ClockDivSet(cmuClock_LESENSE, cmuClkDiv_1);
@@ -297,7 +320,6 @@ void LESENSE_IRQHandler(void)
 void disable_le_capsense()
 {
     CMU_ClockEnable(cmuClock_ACMP0, false);
-    CMU_ClockEnable(cmuClock_CORELE, false);
     CMU_ClockEnable(cmuClock_LESENSE, false);
 
     CMU_ClockDivSet(cmuClock_LESENSE, cmuClkDiv_1);

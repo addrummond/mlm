@@ -67,7 +67,6 @@ void wake_timer_rtc_count_callback()
     SEGGER_RTT_printf(0, "Entering EM4 (unless in debug mode)\n");
 
 #ifndef DEBUG
-    write_state_to_flash();
     sleep_awaiting_button_press();
 #endif
 }
@@ -80,13 +79,17 @@ void handle_MODE_JUST_WOKEN()
     RTC->CNT = 0;
     RTC->CTRL |= RTC_CTRL_EN;
     int v = 1;
+    SEGGER_RTT_printf(0, "Start loop\n");
     while (((v = GPIO_PinInGet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN)) == 0) && RTC->CNT < (RTC_FREQ * LONG_BUTTON_PRESS_MS)/1000)
         ;
+    SEGGER_RTT_printf(0, "End loop %u\n", RTC->CNT);
     RTC->CTRL &= ~RTC_CTRL_EN;
     if (v == 0) {
+        SEGGER_RTT_printf(0, "Holding\n");
         // They're holding the button down.
         g_state.mode = MODE_DOING_READING;
     } else {
+        SEGGER_RTT_printf(0, "Tap\n");
         // It was just a tap.
         g_state.last_reading_flags |= LAST_READING_FLAGS_FRESH;
         g_state.mode = MODE_AWAKE_AT_REST;
@@ -331,15 +334,26 @@ void common_init()
     CMU_ClockEnable(cmuClock_GPIO, true);
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
     CMU_OscillatorEnable(cmuOsc_LFRCO, true, true);
-
+    CMU_ClockEnable(cmuClock_CORELE, true);
     CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFRCO);
     CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
     CMU_ClockEnable(cmuClock_RTC, true);
+
+    RTC_Init_TypeDef init = {
+        false, // Start counting when initialization is done
+        false, // Enable updating during debug halt.
+        false  // Restart counting from 0 when reaching COMP0.
+    };
+    RTC_Init(&init);
 
     rtt_init();
     SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
 
     gpio_pins_to_initial_states();
+
+    setup_capsense();
+    calibrate_capsense();
+    disable_capsense();
 }
 
 int test_led_change_main()
@@ -403,8 +417,21 @@ int test_capsense_main()
         get_touch_count(&count, &chan);
         touch_counts[chan] = count;
 
+        touch_position tp = get_touch_position(touch_counts[0], touch_counts[1]);
+        const char *tps = "UNKNOWN";
+        switch (tp) {
+            case INVALID_TOUCH_POSITION:
+                tps = "INVALID"; break;
+            case NO_TOUCH_DETECTED:
+                tps = "NOTOUCH"; break;
+            case LEFT_BUTTON:
+                tps = "LEFT"; break;
+            case RIGHT_BUTTON:
+                tps = "RIGHT"; break;
+        }
+
         if (i % (4*6) == 0)
-            SEGGER_RTT_printf(0, "count %u %u\n", touch_counts[1], touch_counts[0]);
+            SEGGER_RTT_printf(0, "count %u %u pos = %s\n", touch_counts[1], touch_counts[0], tps);
         
         cycle_capsense();
 
@@ -531,8 +558,8 @@ int main()
     //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
-    //return test_capsense_main();
-    return test_le_capsense_main();
+    return test_capsense_main();
+    //return test_le_capsense_main();
     //return test_led_change_main();
     //return reset_state_main();
 }

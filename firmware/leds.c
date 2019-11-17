@@ -248,7 +248,7 @@ void leds_all_off()
         NVIC_DisableIRQ(RTC_IRQn);
 
         RTC_Init_TypeDef init = {
-            true,  // Start counting when initialization is done
+            false, // Start counting when initialization is done
             false, // Enable updating during debug halt.
             false  // Restart counting from 0 when reaching COMP0.
         };
