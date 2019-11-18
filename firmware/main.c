@@ -115,8 +115,11 @@ void handle_MODE_AWAKE_AT_REST()
 
 void handle_MODE_SNOOZE()
 {
-    // Set up button press interrupt for when we're in EM2.
+    // Set up button press interrupt for when we're in EM3.
     setup_button_press_interrupt();
+
+    // Make sure LDO is off
+    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 0);
 
     SEGGER_RTT_printf(0, "Entering EM2 for snooze\n");
     EMU_EnterEM3(true); // true = restore oscillators, clocks and voltage scaling
