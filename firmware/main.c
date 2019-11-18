@@ -159,7 +159,7 @@ void handle_MODE_DISPLAY_READING()
 {
     int ap_index, ss_index, third;
     ev_iso_aperture_to_shutter(g_state.last_reading_ev, g_state.iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
-    SEGGER_RTT_printf(0, "ISO %u ss %s%u ap %s%u\n", g_state.iso, sign_of(ap_index), iabs(ap_index), sign_of(ss_index), iabs(ss_index));
+    SEGGER_RTT_printf(0, "ISO=%s, ss=%s, ap=%s\n", iso_strings[g_state.iso], ap_index == -1 ? "OOR" : ap_strings[ap_index], ss_index == -1 ? "OOR" : ss_strings[ss_index]);
 
     leds_all_off();
 
@@ -266,6 +266,8 @@ void handle_MODE_SETTING_ISO()
                             g_state.iso = ISO_MAX + g_state.iso + 1;
                         if (g_state.iso > ISO_MAX)
                             g_state.iso = 0;
+
+                        SEGGER_RTT_printf(0, "ISO set to %s\n", iso_strings[g_state.iso]);
                         
                         leds_on(1 << ((LED_ISO6_N + g_state.iso) % LED_N_IN_WHEEL));
                     }
