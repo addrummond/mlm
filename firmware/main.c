@@ -163,11 +163,10 @@ void handle_MODE_DISPLAY_READING()
 
     leds_all_off();
 
-    if (ap_index == -1) {
-        leds_on(0b100000000000000000000011);
-    } else {
+    if (ap_index == -1)
+        leds_on(LED_OUT_OF_RANGE_MASK);
+    else
         leds_on_for_reading(ap_index, ss_index, third);
-    }
 
     setup_capsense();
 
@@ -382,6 +381,22 @@ void handle_MODE_DOING_READING()
 
     leds_all_off();
     clear_rtc_interrupt_handlers();
+
+    // If they're still holding down the button, display the reading
+    // indefinitely until the button is released, then go into the
+    // regular display reading mode.
+    if (button_pressed()) {
+        int ap_index, ss_index, third;
+        ev_iso_aperture_to_shutter(g_state.last_reading_ev, g_state.iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
+
+        if (ap_index == -1)
+            leds_on(LED_OUT_OF_RANGE_MASK);
+        else
+            leds_on_for_reading(ap_index, ss_index, third);
+
+        while (button_pressed())
+            ;
+    }
 
     g_state.mode = MODE_DISPLAY_READING;
 }

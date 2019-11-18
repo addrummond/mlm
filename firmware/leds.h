@@ -142,6 +142,8 @@
 #define LED_MINUS_1_3_N 24
 #define LED_PLUS_1_3_N  25
 
+#define LED_OUT_OF_RANGE_MASK 0b100000000000000000000011
+
 void led_on(unsigned n);
 void leds_on(uint32_t mask);
 void leds_change_mask(uint32_t mask);
