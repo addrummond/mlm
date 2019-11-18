@@ -16,7 +16,6 @@ void set_state_to_default()
     g_state.last_reading_gain = 0;
     g_state.last_reading_ev = 0;
 #ifdef DEBUG
-    //g_state.iso = 22; // ISO 1.2k (better for testing indoors)
     g_state.iso = 12;
 #else
     g_state.iso = 12; // ISO 100
