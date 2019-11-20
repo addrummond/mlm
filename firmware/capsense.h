@@ -18,8 +18,6 @@ void disable_capsense(void);
 void cycle_capsense(void);
 void get_touch_count(uint32_t *chan1, uint32_t *chan2);
 void calibrate_capsense();
-void setup_le_capsense();
-void disable_le_capsense();
 touch_position get_touch_position(uint32_t chan1, uint32_t chan2);
 
 #define PAD_COUNT_MS 10 // we count alternations on each touch pad for this number of ms
