@@ -92,10 +92,7 @@ void handle_MODE_AWAKE_AT_REST()
         g_state.mode = MODE_DISPLAY_READING;
         g_state.last_reading_flags &= ~(int32_t)LAST_READING_FLAGS_FRESH;
     } else {
-        SEGGER_RTT_printf(0, "No fresh reading saved\n");
-        EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
-        SEGGER_RTT_printf(0, "AFTER EM2\n");
-        g_state.mode = MODE_JUST_WOKEN;
+        g_state.mode = MODE_SNOOZE;
     }
 }
 
@@ -108,7 +105,7 @@ void handle_MODE_SNOOZE()
     // Make sure LDO is off
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 0);
 
-    SEGGER_RTT_printf(0, "Entering EM2 for snooze\n");
+    SEGGER_RTT_printf(0, "Entering EM3 for snooze\n");
     EMU_EnterEM3(true); // true = restore oscillators, clocks and voltage scaling
     SEGGER_RTT_printf(0, "Woken up WTF?!\n");
     g_state.mode = MODE_JUST_WOKEN;
