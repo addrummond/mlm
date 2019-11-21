@@ -484,6 +484,14 @@ void common_init()
 
     gpio_pins_to_initial_states();
 
+    // Give a grace period before calibrating capsense, so that
+    // the programming headerœ can be disconnected first.
+#ifndef DEBUG
+    leds_on(1);
+    delay_ms(5 * 1000);
+    leds_all_off();
+#endif
+
     setup_capsense();
     calibrate_capsense();
     disable_capsense();
