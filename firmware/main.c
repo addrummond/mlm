@@ -59,19 +59,6 @@ void setup_button_press_interrupt()
     GPIO_IntConfig(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN, false, true, true);
 }
 
-void wake_timer_rtc_count_callback()
-{
-    RTC_Enable(false);
-
-    leds_all_off();
-
-    SEGGER_RTT_printf(0, "Entering EM4 (unless in debug mode)\n");
-
-#ifndef DEBUG
-    sleep_awaiting_button_press();
-#endif
-}
-
 void handle_MODE_JUST_WOKEN()
 {
     // If it was a brief tap on the button, go to AWAKE_AT_REST.
