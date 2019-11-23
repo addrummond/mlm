@@ -13,6 +13,7 @@
 #include <em_prs.h>
 #include <em_rtc.h>
 #include <em_timer.h>
+#include <em_wdog.h>
 #include <leds.h>
 #include <rtc.h>
 #include <rtt.h>
@@ -674,6 +675,37 @@ int test_sensor_main()
     }
 }
 
+int test_watchdog_wakeup_main()
+{
+    SEGGER_RTT_printf(0, "In test_watchdog_wakeup_main...\n");
+
+    delay_ms(1000);
+
+    leds_all_off();
+    leds_on(1);
+
+    CMU_ClockEnable(cmuClock_CORELE, true);
+
+    EMU_EM23Init_TypeDef dcdcInit = EMU_EM23INIT_DEFAULT;
+    EMU_EM23Init(&dcdcInit);
+
+    WDOG_Init_TypeDef wInit = WDOG_INIT_DEFAULT;
+    wInit.debugRun = true; // Run in debug
+    wInit.clkSel = wdogClkSelULFRCO;
+    wInit.em2Run = true;
+    wInit.em3Run = true;
+    wInit.perSel = wdogPeriod_4k; // 4k 1kHz periods should give ~4 seconds in EM3
+    wInit.enable = true;
+
+    WDOGn_Init(WDOG, &wInit);
+    WDOGn_Feed(WDOG);
+
+    SEGGER_RTT_printf(0, "Sleepy sleepy\n");
+    EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
+
+    return 0;
+}
+
 int test_le_capsense_main()
 {
     for (;;) {
@@ -697,7 +729,7 @@ int main()
 {
     common_init();
 
-    return real_main();
+    //return real_main();
     //return test_led_interrupt_cycle();
     //return test_show_reading();
     //return test_sensor_main();
@@ -706,6 +738,7 @@ int main()
     //return test_batsense_main();
     //return test_capsense_main();
     //return test_le_capsense_main();
+    return test_watchdog_wakeup_main();
     //return test_led_change_main();
     //return reset_state_main();
 }
