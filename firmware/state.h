@@ -32,6 +32,7 @@ typedef struct state {
     int32_t last_reading_flags;
     int32_t iso; // 0 = ISO 6, 1 = ISO 8, and so on (increments of 1/3 stop).
     int32_t compensation; // in units of 1/3 stop
+    int32_t led_brightness_ev_ref;
 } state;
 
 // Don't trust sizeof here because of possible padding.
@@ -43,6 +44,7 @@ typedef struct state {
                       4 /* last_reading_flags */ + \
                       4 /* last_reading_iso */ + \
                       4 /* compensation */ \
+                      4 /* led_brightness_ev_ref */ \
                      )
 
 extern state g_state;

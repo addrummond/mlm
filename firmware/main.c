@@ -371,6 +371,8 @@ void handle_MODE_DOING_READING()
     g_state.last_reading_ev = ev;
     SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS);
 
+    g_state.led_brightness_ev_ref = ev >> EV_BPS;
+
     // Turn the LDO off to power down the sensor.
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 0);
 
@@ -488,7 +490,9 @@ void common_init()
     // the programming headerœ can be disconnected first.
 #ifndef DEBUG
     leds_on(1);
-    delay_ms(5 * 1000);
+    uint32_t base = leds_on_for_cycles;
+    while (leds_on_for_cycles < base + RTC_RAW_FREQ * 4)
+        ;
     leds_all_off();
 #endif
 

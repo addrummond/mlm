@@ -8,7 +8,7 @@ EFM32 := efm32
 LD := efm32/load.ld
 STARTUP := $(EFM32)/EFM32TG/Source/GCC/startup_efm32tg
 
-override ARMCFLAGS += -std=gnu99 -g -Wall -Os -mcpu=cortex-m3 \
+override ARMCFLAGS += -std=gnu99 -g -Wall -mcpu=cortex-m3 \
                       -ffunction-sections -fdata-sections -mthumb \
                       -D$(DEVICE) \
                       -I./ -I$(EFM32)/emlib/inc -I$(EFM32)/CMSIS/Include -I$(EFM32)/EFM32TG/Include \
@@ -22,6 +22,8 @@ ifdef DEBUG
     # Override seems to be necessary here too because it's used in the original
     # definition.
     override ARMCFLAGS += -DDEBUG
+else
+    override ARMCFLAGS += -O2
 endif
 
 ifdef NO_RTT

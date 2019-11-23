@@ -7,6 +7,7 @@
 #include <macroutils.h>
 #include <rtc.h>
 #include <rtt.h>
+#include <state.h>
 #include <stdint.h>
 #include <time.h>
 #include <util.h>
@@ -66,7 +67,7 @@ static const CMU_Clock_TypeDef led_cat_clock[] = {
 #undef M
 
 static const uint32_t COUNT = 50;
-static const uint32_t ONE_LED_DUTY_CYCLE = 1;
+static const uint32_t DUTY_CYCLE_MAX = 42;
 
 static unsigned normalize_led_number(unsigned n)
 {
@@ -79,6 +80,28 @@ static unsigned normalize_led_number(unsigned n)
     n %= LED_N;
 
     return n;
+}
+
+static uint32_t duty_cycle_for_ev(int32_t ev)
+{
+    // dc = (37/5)ev - 32
+
+    int32_t dc = (37 * ev)/5 - 32;
+    if (dc < 1)
+        return 1;
+    if (dc > DUTY_CYCLE_MAX)
+        return DUTY_CYCLE_MAX;
+    return (uint32_t)dc;
+}
+
+static uint32_t get_duty_cycle()
+{
+    uint32_t duty_cycle = duty_cycle_for_ev(g_state.led_brightness_ev_ref);
+    if (duty_cycle < 1)
+        duty_cycle = 1;
+    else if (duty_cycle > DUTY_CYCLE_MAX)
+        duty_cycle = DUTY_CYCLE_MAX;
+    return COUNT - duty_cycle;
 }
 
 static void led_on_with_dc(unsigned n, uint32_t duty_cycle)
@@ -127,7 +150,8 @@ static void led_off(unsigned n)
 void led_on(unsigned n)
 {
     //SEGGER_RTT_printf(0, "Turning on LED %u (= %u)\n", n, normalize_led_number(n));
-    led_on_with_dc(normalize_led_number(n), COUNT - ONE_LED_DUTY_CYCLE);
+    uint32_t duty_cycle = get_duty_cycle();
+    led_on_with_dc(normalize_led_number(n), duty_cycle);
 }
 
 static void turnoff()
@@ -143,7 +167,6 @@ static void turnoff()
 static uint32_t orig_mask;
 static uint32_t current_mask;
 static uint32_t current_mask_n;
-static uint32_t led_duty_cycle;
 
 volatile uint32_t leds_on_for_cycles;
 
@@ -168,7 +191,7 @@ static void led_rtc_count_callback()
     led_off(last_on);
 
     //SEGGER_RTT_printf(0, "Turn on %u\n", current_mask_n);
-    led_on_with_dc(current_mask_n, led_duty_cycle);
+    led_on_with_dc(current_mask_n, get_duty_cycle());
 
     last_on = current_mask_n;
 
@@ -190,9 +213,6 @@ void leds_on(uint32_t mask)
     turnoff();
 
     CMU_ClockDivSet(cmuClock_RTC, cmuClkDiv_1);
-
-    uint32_t leds_on = popcount(mask);
-    led_duty_cycle = COUNT - (ONE_LED_DUTY_CYCLE * (uint32_t)leds_on);
 
     orig_mask = mask;
     current_mask = mask;

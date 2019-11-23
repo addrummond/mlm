@@ -121,10 +121,10 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1)
     if (chan0 > NOTOUCH_THRESHOLD0 && chan1 > NOTOUCH_THRESHOLD1)
         return NO_TOUCH_DETECTED;
     
-    if (chan0 < chan1 * 13 / 20)
+    if (chan0 < chan1 * 15 / 20)
         return LEFT_BUTTON;
     
-    if (chan1 < chan0 * 13 / 20)
+    if (chan1 < chan0 * 15 / 20)
         return RIGHT_BUTTON;
     
     return NO_TOUCH_DETECTED;

@@ -3,6 +3,7 @@
 #include <state.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <units.h>
 
 state g_state;
 
@@ -15,6 +16,7 @@ void set_state_to_default()
     g_state.last_reading_itime = 0;
     g_state.last_reading_gain = 0;
     g_state.last_reading_ev = 0;
+    g_state.led_brightness_ev_ref = 5;
 #ifdef DEBUG
     g_state.iso = 12;
 #else
