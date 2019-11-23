@@ -736,8 +736,6 @@ Wire Wire Line
 	9700 950  10000 950 
 Text GLabel 10000 950  2    50   Input ~ 0
 SWDIO
-Text GLabel 5750 4100 0    50   Input ~ 0
-S1
 Wire Wire Line
 	8600 3900 9200 3900
 $Comp
@@ -1002,8 +1000,6 @@ F 3 "" H 6350 6100 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	6350 6100 6500 6100
-Wire Wire Line
-	5750 4100 6400 4100
 $Comp
 L Device:R R11
 U 1 1 5C8F5143
@@ -1361,10 +1357,6 @@ Text GLabel 10150 2150 2    50   Input ~ 0
 S2
 Text Label 10050 2550 0    50   ~ 0
 pads
-Text GLabel 5750 3900 0    50   Input ~ 0
-S2
-Wire Wire Line
-	5750 3900 6400 3900
 $Comp
 L Connector:Conn_01x01_Female J2
 U 1 1 5D7AC38F
@@ -1765,9 +1757,7 @@ F 4 "EFM32TG108F32" H 7500 4000 50  0001 C CNN "MPN"
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8600 3500 8800 3500
-Text GLabel 8800 3500 2    50   Input ~ 0
-S3
+	8600 3500 8750 3500
 Wire Wire Line
 	7000 5200 6350 5200
 Connection ~ 7000 5200
@@ -1784,4 +1774,62 @@ F 3 "~" H 6550 5200 50  0001 C CNN
 	1    6350 5200
 	0    -1   -1   0   
 $EndComp
+$Comp
+L Device:R R?
+U 1 1 5DFE2C0B
+P 8900 3500
+F 0 "R?" V 8693 3500 50  0000 C CNN
+F 1 "1k" V 8784 3500 50  0000 C CNN
+F 2 "mlm:0603" V 8830 3500 50  0001 C CNN
+F 3 "~" H 8900 3500 50  0001 C CNN
+F 4 "RNCP0603FTD10K0" H 500 1400 50  0001 C CNN "MPN"
+	1    8900 3500
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	9050 3500 9200 3500
+Text GLabel 9200 3500 2    50   Input ~ 0
+S3
+$Comp
+L Device:R R?
+U 1 1 5DFEE822
+P 5100 4300
+F 0 "R?" V 4893 4300 50  0000 C CNN
+F 1 "1k" V 4984 4300 50  0000 C CNN
+F 2 "mlm:0603" V 5030 4300 50  0001 C CNN
+F 3 "~" H 5100 4300 50  0001 C CNN
+F 4 "RNCP0603FTD10K0" H -3300 2200 50  0001 C CNN "MPN"
+	1    5100 4300
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5DFF0D5E
+P 4600 4300
+F 0 "R?" V 4393 4300 50  0000 C CNN
+F 1 "1k" V 4484 4300 50  0000 C CNN
+F 2 "mlm:0603" V 4530 4300 50  0001 C CNN
+F 3 "~" H 4600 4300 50  0001 C CNN
+F 4 "RNCP0603FTD10K0" H -3800 2200 50  0001 C CNN "MPN"
+	1    4600 4300
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	6400 3900 4600 3900
+Wire Wire Line
+	4600 3900 4600 4150
+Wire Wire Line
+	5100 4150 5100 4050
+Wire Wire Line
+	5100 4050 6400 4050
+Wire Wire Line
+	6400 4050 6400 4100
+Wire Wire Line
+	4600 4450 4600 4550
+Wire Wire Line
+	5100 4450 5100 4550
+Text GLabel 4600 4550 3    50   Input ~ 0
+S2
+Text GLabel 5100 4550 3    50   Input ~ 0
+S1
 $EndSCHEMATC
