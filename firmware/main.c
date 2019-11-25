@@ -163,11 +163,7 @@ void handle_MODE_DISPLAY_READING()
 
     leds_all_off();
 
-    if (ap_index == -1) {
-        leds_on(0b100000000000000000000011);
-    } else {
-        leds_on_for_reading(ap_index, ss_index, third);
-    }
+    leds_on_for_reading(ap_index, ss_index, third);
 
     setup_capsense();
 

@@ -269,6 +269,12 @@ void leds_all_off()
 
 void leds_on_for_reading(int ap_index, int ss_index, int third)
 {
+    // out of range case
+    if (ap_index < 0 || ss_index < 0) {
+        leds_on(0b100000000000000000000011);
+        return;
+    }
+
     // calculated as if leds were numbered clockwise
     unsigned ss_led_n = (LED_1S_N + ss_index) % LED_N_IN_WHEEL;
     unsigned ap_led_n = (LED_F1_N + ap_index) % LED_N_IN_WHEEL;
