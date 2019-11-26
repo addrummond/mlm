@@ -695,7 +695,7 @@ Wire Wire Line
 Wire Wire Line
 	9700 1050 10000 1050
 Text GLabel 10000 850  2    50   Input ~ 0
-VREG
+RESET
 Wire Wire Line
 	8600 3100 8800 3100
 $Comp
@@ -721,9 +721,9 @@ F 3 "" H 10000 1250 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 Text GLabel 10000 1050 2    50   Input ~ 0
-SWCLK
+SWDIO
 Text GLabel 10000 1150 2    50   Input ~ 0
-RESET
+SWCLK
 Text GLabel 8000 2650 1    50   Input ~ 0
 SWCLK
 Text GLabel 7800 2650 1    50   Input ~ 0
@@ -735,7 +735,7 @@ RESET
 Wire Wire Line
 	9700 950  10000 950 
 Text GLabel 10000 950  2    50   Input ~ 0
-SWDIO
+VREG
 Wire Wire Line
 	8600 3900 9350 3900
 $Comp
