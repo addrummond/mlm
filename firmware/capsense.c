@@ -6,8 +6,10 @@
 #include <em_wdog.h>
 #include <em_pcnt.h>
 #include <em_prs.h>
+#include <em_rtc.h>
 #include <rtt.h>
 #include <stdbool.h>
+#include <time.h>
 
 // https://www.silabs.com/content/usergenerated/asi/cloud/attachments/siliconlabs/en/community/mcu/32-bit/knowledge-base/jcr:content/content/primary/blog/low_power_capacitive-SbaF/capsense_rtc.c
 
@@ -15,7 +17,8 @@ uint32_t touch_chan;
 
 static uint32_t old_count;
 
-uint32_t calibration_values[2];
+static uint32_t calibration_values[2];
+static uint32_t le_calibration_values[2];
 
 // Capsense pins are PC0 (S2), PC1 (S1)
 void setup_capsense()
@@ -103,11 +106,45 @@ void calibrate_capsense()
         }
         
         cycle_capsense();
+        get_touch_count(&count, &chan);
 
         delay_ms(PAD_COUNT_MS);
     } while (chans_done != 0b11);
 
-    SEGGER_RTT_printf(0, "Capsense calibration values: %u %u\n", calibration_values[0], calibration_values[1]);
+    chans_done = 0;
+
+    RTC_Enable(false);
+    CMU_ClockDivSet(cmuClock_RTC, cmuClkDiv_1);
+    RTC_Enable(true);
+
+    cycle_capsense();
+    get_touch_count(&count, &chan);
+    uint32_t start = RTC->CNT;
+    uint32_t end = RTC->CNT + LE_PAD_CLOCK_COUNT;
+    while (RTC->CNT < end)
+        ;
+
+    do {
+        get_touch_count(&count, &chan);
+        if (! (chans_done & (1 << chan))) {
+            le_calibration_values[chan] = count;
+            chans_done |= (1 << chan);
+        }
+
+        cycle_capsense();
+        get_touch_count(&count, &chan);
+
+        start = RTC->CNT;
+        end = start + LE_PAD_CLOCK_COUNT;
+        while (RTC->CNT < end)
+            ;
+    } while (chans_done != 0b11);
+
+    RTC_Enable(false);
+    CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
+    RTC_Enable(true);
+
+    SEGGER_RTT_printf(0, "Capsense calibration values: %u %u (le: %u %u)\n", calibration_values[0], calibration_values[1], le_calibration_values[0], le_calibration_values[1]);
 }
 
 touch_position get_touch_position(uint32_t chan0, uint32_t chan1)
@@ -148,27 +185,27 @@ void get_touch_count(uint32_t *chan_value, uint32_t *chan)
 
 #define LESENSE_ACMP_VDD_SCALE    0x37U
 
-#define LESENSE_CAPSENSE_CH_CONF_SLEEP                                                                   \
-  {                                                                                                      \
-    true,                     /* Enable scan channel. */                                                 \
-    true,                     /* Enable the assigned pin on scan channel. */                             \
-    true,                     /* Enable interrupts on channel. */                                        \
-    lesenseChPinExDis,        /* GPIO pin is disabled during the excitation period. */                   \
-    lesenseChPinIdleDis,      /* GPIO pin is disabled during the idle period. */                         \
-    false,                    /* Don't use alternate excitation pins for excitation. */                  \
-    false,                    /* Disabled to shift results from this channel to the decoder register. */ \
-    false,                    /* Disabled to invert the scan result bit. */                              \
-    true,                     /* Enabled to store counter value in the result buffer. */                 \
-    lesenseClkLF,             /* Use the LF clock for excitation timing. */                              \
-    lesenseClkLF,             /* Use the LF clock for sample timing. */                                  \
-    0x00U,                    /* Excitation time is set to 0 excitation clock cycles. */                 \
-    0x05U,                    /* Sample delay is set to 1(+1) sample clock cycles. */                    \
-    0x01U,                    /* Measure delay is set to 0 excitation clock cycles.*/                    \
-    LESENSE_ACMP_VDD_SCALE,   /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */               \
-    lesenseSampleModeCounter, /* Counter will be used in comparison. */                                  \
-    lesenseSetIntLevel,       /* Interrupt is generated if the sensor triggers. */                       \
-    0x0EU,                    /* Counter threshold has been set to 0x0E. */                              \
-    lesenseCompModeLess       /* Compare mode has been set to trigger interrupt on "less". */            \
+#define LESENSE_CAPSENSE_CH_CONF_SLEEP                                                                             \
+  {                                                                                                                \
+    true,                               /* Enable scan channel. */                                                 \
+    true,                               /* Enable the assigned pin on scan channel. */                             \
+    true,                               /* Enable interrupts on channel. */                                        \
+    lesenseChPinExDis,                  /* GPIO pin is disabled during the excitation period. */                   \
+    lesenseChPinIdleDis,                /* GPIO pin is disabled during the idle period. */                         \
+    false,                              /* Don't use alternate excitation pins for excitation. */                  \
+    false,                              /* Disabled to shift results from this channel to the decoder register. */ \
+    false,                              /* Disabled to invert the scan result bit. */                              \
+    true,                               /* Enabled to store counter value in the result buffer. */                 \
+    lesenseClkLF,                       /* Use the LF clock for excitation timing. */                              \
+    lesenseClkLF,                       /* Use the LF clock for sample timing. */                                  \
+    0,                                  /* Excitation time is set to 0 excitation clock cycles. */                 \
+    LE_PAD_CLOCK_COUNT,                 /* Sample delay */                                                         \
+    0,                                  /* Measure delay */                                                        \
+    LESENSE_ACMP_VDD_SCALE,             /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */               \
+    LESENSE_CH_INTERACT_SAMPLE_COUNTER, /* Counter will be used in comparison. */                                  \
+    LESENSE_CH_INTERACT_SETIF_NONE,     /* Interrupt is generated if the sensor triggers. */                       \
+    0x0,                                /* Counter threshold has been set to 0x0. */                               \
+    LESENSE_CH_EVAL_COMP_GE             /* Compare mode has been set to trigger interrupt on >= */                 \
   }
 
 static const LESENSE_ChDesc_TypeDef chanConfig = LESENSE_CAPSENSE_CH_CONF_SLEEP;
@@ -241,7 +278,6 @@ void setup_le_capsense()
     GPIO_PinModeSet(gpioPortC, 0, gpioModeDisabled, 0);
     GPIO_PinModeSet(gpioPortC, 1, gpioModeDisabled, 0);
 
-    //ACMP_CapsenseInit_TypeDef initACMP = ACMP_CAPSENSE_INIT_DEFAULT;
     static const ACMP_CapsenseInit_TypeDef initACMP = {
         .fullBias                 = false,
         .halfBias                 = false,
@@ -267,54 +303,23 @@ void setup_le_capsense()
     while (LESENSE_STATUS_SCANACTIVE & LESENSE_StatusGet())
         ;
     LESENSE_ResultBufferClear();
-    LESENSE_ScanFreqSet(0U, 4U); // 4 Hz
+    LESENSE_ScanFreqSet(0, 0); // N/A as we're using one shot mode
     LESENSE_ClkDivSet(lesenseClkLF, lesenseClkDiv_1);
     LESENSE_ChannelConfig(&chanConfig, 0);
     LESENSE_ChannelConfig(&chanConfig, 1);
-    LESENSE_IntDisable(LESENSE_IEN_SCANCOMPLETE);
+    LESENSE_IntEnable(LESENSE_IEN_SCANCOMPLETE);
 
     NVIC_EnableIRQ(LESENSE_IRQn);
 
-    LESENSE_ScanStart();
-
-    if (init) {
-        SEGGER_RTT_printf(0, "WAITING!\n");
-        while (!(LESENSE->STATUS & LESENSE_STATUS_BUFHALFFULL)) ;
-        SEGGER_RTT_printf(0, "DONE!\n");
-
-        for (uint32_t i = 0U; i < 2; i++)
-        {
-            uint32_t v = LESENSE_ScanResultDataBufferGet(i);
-            SEGGER_RTT_printf(0, "V: %u\n", v);
-        }
-
-        LESENSE_ChannelThresSet(0/*pin 0 */, LESENSE_ACMP_VDD_SCALE, 15/* TODO TODO CONST VAL*/);
-        LESENSE_ChannelThresSet(1/*pin 0 */, LESENSE_ACMP_VDD_SCALE, 15/* TODO TODO CONST VAL*/);
-    }
+    LESENSE_ScanModeSet(lesenseScanStartOneShot, true);
 }
 
 void LESENSE_IRQHandler(void)
 {
-
-    SEGGER_RTT_printf(0, "INT\n");
-    if (LESENSE_IF_CH0 & LESENSE_IntGetEnabled()) {
-        LESENSE_IntClear(LESENSE_IF_CH0);
-
-        /* Clear flags. */
-        uint32_t count = LESENSE_ScanResultDataGet();
-        uint32_t chan0 = LESENSE_ScanResultDataBufferGet(0);
-
-        SEGGER_RTT_printf(0, "Interrupt %u (chan 0 = %u)\n", count, chan0);
-    }
-    if (LESENSE_IF_CH1 & LESENSE_IntGetEnabled()) {
-        LESENSE_IntClear(LESENSE_IF_CH1);
-
-        /* Clear flags. */
-        uint32_t count = LESENSE_ScanResultDataGet();
-        uint32_t chan1 = LESENSE_ScanResultDataBufferGet(1);
-
-        SEGGER_RTT_printf(0, "Interrupt %u (chan 0 = %u)\n", count, chan1);
-    }
+    LESENSE_IntClear(LESENSE_IEN_SCANCOMPLETE);
+    uint32_t chan0 = LESENSE_ScanResultDataBufferGet(0);
+    uint32_t chan1 = LESENSE_ScanResultDataBufferGet(1);
+    SEGGER_RTT_printf(0, "HERE %u %u\n", chan0, chan1);
 }
 
 void disable_le_capsense()

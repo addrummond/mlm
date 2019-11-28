@@ -499,6 +499,7 @@ void common_init()
 
     setup_capsense();
     calibrate_capsense();
+    for (;;) ;
     disable_capsense();
 }
 
@@ -711,7 +712,6 @@ int test_le_capsense_main()
     for (;;) {
         SEGGER_RTT_printf(0, "LOOP\n");
         setup_le_capsense();
-        SEGGER_RTT_printf(0, "Setup complete\n");
         EMU_EnterEM2(true);
     }
 }
@@ -737,8 +737,8 @@ int main()
     //return test_main();
     //return test_batsense_main();
     //return test_capsense_main();
-    //return test_le_capsense_main();
-    return test_watchdog_wakeup_main();
+    return test_le_capsense_main();
+    //return test_watchdog_wakeup_main();
     //return test_led_change_main();
     //return reset_state_main();
 }

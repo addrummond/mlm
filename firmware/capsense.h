@@ -22,7 +22,8 @@ void setup_le_capsense();
 void disable_le_capsense();
 touch_position get_touch_position(uint32_t chan1, uint32_t chan2);
 
-#define PAD_COUNT_MS 10 // we count alternations on each touch pad for this number of ms
+#define PAD_COUNT_MS       10 // we count alternations on each touch pad for this number of ms
+#define LE_PAD_CLOCK_COUNT 2
 
 #define RTC_CYCLES_PER_PAD_TOUCH_COUNT_TIMES_10 \
           ((RTC_RAW_FREQ * PAD_COUNT_MS * 10) / 1000) // * 10 for more precision (so we can then round)
