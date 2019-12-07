@@ -681,8 +681,9 @@ U 1 1 5C3453EA
 P 9500 1050
 F 0 "J1" H 9608 1431 50  0000 C CNN
 F 1 "Conn_01x05_Male" H 9608 1340 50  0000 C CNN
-F 2 "Pin_Headers:Pin_Header_Straight_1x05_Pitch2.54mm" H 9500 1050 50  0001 C CNN
+F 2 "mlm:M20-7910542R" H 9500 1050 50  0001 C CNN
 F 3 "~" H 9500 1050 50  0001 C CNN
+F 4 "M20-7910542R" H 9500 1050 50  0001 C CNN "MPN"
 	1    9500 1050
 	1    0    0    -1  
 $EndComp
@@ -728,8 +729,6 @@ Text GLabel 8000 2650 1    50   Input ~ 0
 SWCLK
 Text GLabel 7800 2650 1    50   Input ~ 0
 SWDIO
-Wire Wire Line
-	7000 5100 7000 5200
 Text GLabel 7000 5300 3    50   Input ~ 0
 RESET
 Wire Wire Line
@@ -1680,22 +1679,6 @@ Wire Wire Line
 	9850 1950 10150 1950
 Text GLabel 10150 1950 2    50   Input ~ 0
 S3
-Wire Wire Line
-	7000 5200 6350 5200
-Connection ~ 7000 5200
-Wire Wire Line
-	7000 5200 7000 5300
-$Comp
-L Connector:TestPoint TP5
-U 1 1 5DF87584
-P 6350 5200
-F 0 "TP5" V 6545 5272 50  0000 C CNN
-F 1 "TestPoint" V 6454 5272 50  0000 C CNN
-F 2 "TestPoint:TestPoint_Pad_D1.5mm" H 6550 5200 50  0001 C CNN
-F 3 "~" H 6550 5200 50  0001 C CNN
-	1    6350 5200
-	0    -1   -1   0   
-$EndComp
 $Comp
 L Device:R R15
 U 1 1 5DFE2C0B
@@ -1786,4 +1769,6 @@ Wire Wire Line
 	8600 3500 8700 3500
 Wire Wire Line
 	8600 3700 8700 3700
+Wire Wire Line
+	7000 5100 7000 5300
 $EndSCHEMATC
