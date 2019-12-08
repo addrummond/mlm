@@ -3,7 +3,7 @@
   (general
     (thickness 1.6)
     (drawings 76)
-    (tracks 1152)
+    (tracks 1153)
     (modules 71)
     (nets 43)
   )
@@ -2402,6 +2402,9 @@
   (gr_line (start 78 141) (end 122 141) (layer "Edge.Cuts") (width 0.05))
   (gr_circle (center 100 100) (end 117.5 100) (layer "B.SilkS") (width 0.5) (tstamp 5D23A15E))
 
+  (segment (start 78.42 69.85) (end 78.03 69.85) (width 0.5) (layer "F.Cu") (net 19))
+  (segment (start 78.03 69.85) (end 75.87 72.01) (width 0.5) (layer "F.Cu") (net 19))
+  (segment (start 75.87 72.01) (end 75.87 73.8) (width 0.5) (layer "F.Cu") (net 19))
   (segment (start 93.36 75.37) (end 93.1 75.11) (width 0.28) (layer "F.Cu") (net 16))
   (segment (start 93.1 75.11) (end 93.1 71.635) (width 0.28) (layer "F.Cu") (net 16))
   (segment (start 93.1 71.635) (end 93 71.535) (width 0.28) (layer "F.Cu") (net 16))
@@ -2570,8 +2573,6 @@
   (segment (start 84.85 67.5) (end 84.41 67.5) (width 0.3) (layer "F.Cu") (net 9))
   (segment (start 84.41 67.5) (end 84.395 67.485) (width 0.3) (layer "F.Cu") (net 9))
   (segment (start 84.395 67.485) (end 83.9 67.485) (width 0.3) (layer "F.Cu") (net 9))
-  (segment (start 75.87 72.4) (end 75.87 73.8) (width 0.5) (layer "F.Cu") (net 19))
-  (segment (start 78.42 69.85) (end 75.87 72.4) (width 0.5) (layer "F.Cu") (net 19))
   (via (at 86.33 70.9) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (net 9))
   (segment (start 86.33 70.9) (end 86.885 71.455) (width 0.2) (layer "F.Cu") (net 9))
   (segment (start 86.885 71.455) (end 86.885 71.525) (width 0.2) (layer "F.Cu") (net 9))
