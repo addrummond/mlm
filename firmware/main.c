@@ -24,13 +24,20 @@
 #include <units.h>
 #include <util.h>
 
+// TEMP TODO HACK
+#define BUTTON_PRESS_TAP 0
+#define BUTTON_PRESS_DOUBLE_TAP 1
+#define BUTTON_PRESS_TAP 2
+#define BUTTON_PRESS_HOLD 3
+
 void handle_MODE_JUST_WOKEN()
 {
     // If it was a brief tap on the button, go to AWAKE_AT_REST.
     // If they've held the button down for a little bit,
     // start doing a reading. If it was a double tap, go to
     // ISO / exposure set mode.
-    button_press bp = check_button_press();
+    // TODO TEMP HACK
+    int /*button_press*/ bp = BUTTON_PRESS_TAP; //check_button_press();
 
     if (bp == BUTTON_PRESS_HOLD) {
         SEGGER_RTT_printf(0, "Holding\n");
@@ -48,8 +55,8 @@ void handle_MODE_JUST_WOKEN()
 
 void handle_MODE_AWAKE_AT_REST()
 {
-    // Set up button press interrupt for when we're in EM2.
-    setup_button_press_interrupt();
+    // TODO TEMP HACK
+    //setup_button_press_interrupt();
 
     // Display the current reading, if any.
     if (fresh_reading_is_saved()) {
@@ -64,8 +71,8 @@ void handle_MODE_AWAKE_AT_REST()
 
 void handle_MODE_SNOOZE()
 {
-    // Set up button press interrupt for when we're in EM3.
-    setup_button_press_interrupt();
+    // TODO TEMP HACK
+    //setup_button_press_interrupt();
 
     // Make sure LDO is off
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 0);
@@ -154,7 +161,8 @@ void handle_MODE_DISPLAY_READING()
         cycle_capsense();
 
         for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;) {
-            if (i != 0 && button_pressed())
+            // TODO TEMP HACK
+            if (i != 0 && 0 /*button_pressed()*/)
                 goto handle_button_press;
         }
 
@@ -176,7 +184,8 @@ void handle_MODE_DISPLAY_READING()
 handle_button_press:
     leds_all_off();
     disable_capsense();
-    button_press bp = check_button_press();
+    // TODO TEMP HACK
+    int /*button_press*/ bp = BUTTON_PRESS_TAP; //check_button_press();
     if (bp == BUTTON_PRESS_HOLD)
         g_state.mode = MODE_DOING_READING;
     else if (bp == BUTTON_PRESS_DOUBLE_TAP)
@@ -239,7 +248,8 @@ void handle_MODE_SETTING_ISO()
         cycle_capsense();
 
         for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;) {
-            if (i != 0 && button_pressed())
+            // TODO TEMP HACK
+            if (i != 0 && 0 /*button_pressed()*/)
                 goto handle_button_press;
         }
 
@@ -262,7 +272,8 @@ handle_button_press:
     SEGGER_RTT_printf(0, "ISO button press\n");
     leds_all_off();
     disable_capsense();
-    button_press bp = check_button_press();
+    // TODO TEMP HACK
+    int /*button_press*/ bp = BUTTON_PRESS_TAP;//check_button_press();
     if (bp == BUTTON_PRESS_HOLD)
         g_state.mode = MODE_DOING_READING;
     else if (bp == BUTTON_PRESS_DOUBLE_TAP)
@@ -347,7 +358,8 @@ void handle_MODE_DOING_READING()
     // If they're still holding down the button, display the reading
     // indefinitely until the button is released, then go into the
     // regular display reading mode.
-    if (button_pressed()) {
+    // TODO TEMP HACK
+    if (0/*button_pressed()*/) {
         int ap_index, ss_index, third;
         ev_iso_aperture_to_shutter(g_state.last_reading_ev, g_state.iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
 
@@ -356,8 +368,9 @@ void handle_MODE_DOING_READING()
         else
             leds_on_for_reading(ap_index, ss_index, third);
 
-        while (button_pressed())
-            ;
+        // TODO TEMP HACK
+        //while (button_pressed())
+        //    ;
     }
 
     g_state.mode = MODE_DISPLAY_READING;
