@@ -157,7 +157,7 @@ void calibrate_capsense()
         end = start + LE_PAD_CLOCK_COUNT;
         while (RTC->CNT < end)
             ;
-    } while (chans_done != 0b11);
+    } while (chans_done != 0b111);
 
     RTC_Enable(false);
     CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);

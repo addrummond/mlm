@@ -708,11 +708,11 @@ int main()
     //return real_main();
     //return test_led_interrupt_cycle();
     //return test_show_reading();
-    return test_sensor_main();
+    //return test_sensor_main();
     //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
-    //return test_capsense_main();
+    return test_capsense_main();
     //return test_le_capsense_main();
     //return test_watchdog_wakeup_main();
     //return test_led_change_main();
