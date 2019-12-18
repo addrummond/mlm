@@ -1,7 +1,6 @@
 #include <config.h>
 
 #include <batsense.h>
-#include <button.h>
 #include <capsense.h>
 #include <em_acmp.h>
 #include <em_chip.h>
@@ -24,41 +23,6 @@
 #include <time.h>
 #include <units.h>
 #include <util.h>
-
-void GPIO_EVEN_IRQHandler()
-{
-    GPIO_IntClear(GPIO_IntGet());
-
-    //int v = GPIO_PinInGet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN);
-
-    SEGGER_RTT_printf(0, "Button press interrupt\n");
-}
-
-void sleep_awaiting_button_press()
-{
-    // Set pin PF2 mode to input with pull-up resistor
-    GPIO_PinModeSet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN, gpioModeInputPullFilter, 1);
-    GPIO->CTRL = 1;
-    GPIO->EM4WUEN = BUTTON_GPIO_EM4WUEN ;
-    GPIO->EM4WUPOL = 0; // Low signal is button pushed state
-
-    GPIO->CMD = 1; // EM4WUCLR = 1, to clear all previous events
-
-    EMU_EnterEM4();
-}
-
-void setup_button_press_interrupt()
-{
-    // Enable GPIO_ODD interrupt vector in NVIC
-    NVIC_ClearPendingIRQ(GPIO_EVEN_IRQn);
-    NVIC_EnableIRQ(GPIO_EVEN_IRQn);
-
-    // Configure PF2 as input with pullup
-    GPIO_PinModeSet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN, gpioModeInputPullFilter, 1);
-
-    // Configure PF2 (AMR CLK) interrupt on rising or falling edge
-    GPIO_IntConfig(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN, false, true, true);
-}
 
 void handle_MODE_JUST_WOKEN()
 {
@@ -439,11 +403,10 @@ void state_loop()
 
 void gpio_pins_to_initial_states()
 {
-    GPIO_PinModeSet(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN, gpioModeInputPullFilter, 1);
-
     // Setting pins to input with a pulldown as the default should minimize power consumption.
     GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortF, 1, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortF, 2, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortC, 15, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortC, 14, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortD, 7, gpioModeInputPull, 0);
@@ -499,7 +462,6 @@ void common_init()
 
     setup_capsense();
     calibrate_capsense();
-    for (;;) ;
     disable_capsense();
 }
 
@@ -732,12 +694,12 @@ int main()
     //return real_main();
     //return test_led_interrupt_cycle();
     //return test_show_reading();
-    //return test_sensor_main();
+    return test_sensor_main();
     //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
     //return test_capsense_main();
-    return test_le_capsense_main();
+    //return test_le_capsense_main();
     //return test_watchdog_wakeup_main();
     //return test_led_change_main();
     //return reset_state_main();
