@@ -27,8 +27,7 @@
 // TEMP TODO HACK
 #define BUTTON_PRESS_TAP 0
 #define BUTTON_PRESS_DOUBLE_TAP 1
-#define BUTTON_PRESS_TAP 2
-#define BUTTON_PRESS_HOLD 3
+#define BUTTON_PRESS_HOLD 2
 
 void handle_MODE_JUST_WOKEN()
 {
@@ -131,14 +130,14 @@ void handle_MODE_DISPLAY_READING()
 
     uint32_t base_cycles = leds_on_for_cycles;
     int zero_touch_position = INVALID_TOUCH_POSITION;
-    uint32_t touch_counts[] = { 0, 0 };
+    uint32_t touch_counts[] = { 0, 0, 0 };
     for (unsigned i = 0;; ++i) {
         uint32_t count, chan;
         get_touch_count(&count, &chan);
         touch_counts[chan] = count;
 
         if (i != 0 && i % 2 == 0) {
-            int tp = get_touch_position(touch_counts[0], touch_counts[1]);
+            int tp = get_touch_position(touch_counts[0], touch_counts[1], touch_counts[2]);
             
             if (tp == NO_TOUCH_DETECTED) {
                 zero_touch_position = INVALID_TOUCH_POSITION;
@@ -210,14 +209,14 @@ void handle_MODE_SETTING_ISO()
 
     uint32_t base_cycles = leds_on_for_cycles;
     int zero_touch_position = INVALID_TOUCH_POSITION;
-    uint32_t touch_counts[] = { 0, 0 };
+    uint32_t touch_counts[] = { 0, 0, 0 };
     for (unsigned i = 0;; ++i) {
         uint32_t count, chan;
         get_touch_count(&count, &chan);
         touch_counts[chan] = count;
 
         if (i != 0 && i % 2 == 0) {
-            int tp = get_touch_position(touch_counts[0], touch_counts[1]);
+            int tp = get_touch_position(touch_counts[0], touch_counts[1], touch_counts[2]);
             
             if (tp == NO_TOUCH_DETECTED) {
                 zero_touch_position = INVALID_TOUCH_POSITION;
@@ -533,13 +532,13 @@ int test_capsense_main()
 
     setup_capsense();
 
-    uint32_t touch_counts[] = { 0, 0 };
+    uint32_t touch_counts[] = { 0, 0, 0 };
     for (unsigned i = 0;; ++i) {
         uint32_t count, chan;
         get_touch_count(&count, &chan);
         touch_counts[chan] = count;
 
-        touch_position tp = get_touch_position(touch_counts[0], touch_counts[1]);
+        touch_position tp = get_touch_position(touch_counts[0], touch_counts[1], touch_counts[2]);
         const char *tps = "UNKNOWN";
         switch (tp) {
             case INVALID_TOUCH_POSITION:
@@ -550,10 +549,12 @@ int test_capsense_main()
                 tps = "LEFT"; break;
             case RIGHT_BUTTON:
                 tps = "RIGHT"; break;
+            case CENTER_BUTTON:
+                tps = "CENTER"; break;
         }
 
         if (i % (4*6) == 0)
-            SEGGER_RTT_printf(0, "count %u %u pos = %s\n", touch_counts[1], touch_counts[0], tps);
+            SEGGER_RTT_printf(0, "count %u %u %u pos = %s\n", touch_counts[1], touch_counts[0], touch_counts[2], tps);
         
         cycle_capsense();
 
@@ -571,13 +572,13 @@ int test_capsense_with_wheel_main()
     setup_capsense();
 
     int zero_touch_position = INVALID_TOUCH_POSITION;
-    uint32_t touch_counts[] = { 0, 0 };
+    uint32_t touch_counts[] = { 0, 0, 0 };
     for (unsigned i = 0;; ++i) {
         if (i != 0 && i % 2 == 0) {
             uint32_t count, chan;
             get_touch_count(&count, &chan);
             touch_counts[chan] = count;
-            int tp = get_touch_position(touch_counts[0], touch_counts[1]);
+            int tp = get_touch_position(touch_counts[0], touch_counts[1], touch_counts[2]);
             //SEGGER_RTT_printf(0,"Pads %u %u (%s%u)\n", touch_counts[1], touch_counts[0], sign_of(tp), tp);
             
             if (tp == NO_TOUCH_DETECTED) {

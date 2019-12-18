@@ -13,14 +13,15 @@
 
 // https://www.silabs.com/content/usergenerated/asi/cloud/attachments/siliconlabs/en/community/mcu/32-bit/knowledge-base/jcr:content/content/primary/blog/low_power_capacitive-SbaF/capsense_rtc.c
 
-uint32_t touch_chan;
+static uint32_t touch_chan;
+static uint32_t touch_acmp;
 
 static uint32_t old_count;
 
-static uint32_t calibration_values[2];
-static uint32_t le_calibration_values[2];
+static uint32_t calibration_values[3];
+static uint32_t le_calibration_values[3];
 
-// Capsense pins are PC0 (S2), PC1 (S1)
+// Capsense pins are PC14 (S3), PC0 (S2), PC1 (S1)
 void setup_capsense()
 {
     GPIO_PinModeSet(gpioPortC, 0, gpioModeInput, 0);
@@ -28,11 +29,13 @@ void setup_capsense()
 
     ACMP_CapsenseInit_TypeDef capsenseInit = ACMP_CAPSENSE_INIT_DEFAULT;
     CMU_ClockEnable(cmuClock_ACMP0, true);
+    CMU_ClockEnable(cmuClock_ACMP1, true);
     CMU_ClockEnable(cmuClock_PRS, true);
     CMU_ClockEnable(cmuClock_PCNT0, true);
     ACMP_CapsenseInit(ACMP0, &capsenseInit);
+    ACMP_CapsenseInit(ACMP1, &capsenseInit);
 
-    while (!(ACMP0->STATUS & ACMP_STATUS_ACMPACT))
+    while (!(ACMP0->STATUS & ACMP_STATUS_ACMPACT) || !(ACMP1->STATUS & ACMP_STATUS_ACMPACT))
         ;
 
     PRS_SourceAsyncSignalSet(0, PRS_CH_CTRL_SOURCESEL_ACMP0, PRS_CH_CTRL_SIGSEL_ACMP0OUT);
@@ -66,14 +69,17 @@ void setup_capsense()
 
     ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
     ACMP_Enable(ACMP0);
+    ACMP_Enable(ACMP1);
 }
 
 void disable_capsense()
 {
     ACMP0->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
+    ACMP1->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
     NVIC_ClearPendingIRQ(ACMP0_IRQn);
     NVIC_DisableIRQ(ACMP0_IRQn);
     CMU_ClockEnable(cmuClock_ACMP0, false);
+    CMU_ClockEnable(cmuClock_ACMP1, false);
     CMU_ClockEnable(cmuClock_PRS, false); // NEW
     CMU_ClockEnable(cmuClock_PCNT0, false); // NEW
     GPIO_PinModeSet(gpioPortC, 0, gpioModeInputPull, 0);
@@ -82,11 +88,24 @@ void disable_capsense()
 
 void cycle_capsense()
 {
-    if (touch_chan == 0) {
-        ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
-        touch_chan = 1;
+    if (touch_acmp == 0) {
+        if (touch_chan == 0) {
+            ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
+            touch_chan = 1;
+        } else {
+            ACMP0->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
+            ACMP1->CTRL |= ACMP_CTRL_IRISE_ENABLED;
+            ACMP_CapsenseChannelSet(ACMP1, acmpChannel6);
+            PRS_SourceAsyncSignalSet(0, PRS_CH_CTRL_SOURCESEL_ACMP1, PRS_CH_CTRL_SIGSEL_ACMP1OUT);
+            touch_acmp = 1;
+            touch_chan = 0;
+        }
     } else {
+        ACMP1->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
+        ACMP0->CTRL |= ACMP_CTRL_IRISE_ENABLED;
         ACMP_CapsenseChannelSet(ACMP0, acmpChannel0);
+        PRS_SourceAsyncSignalSet(0, PRS_CH_CTRL_SOURCESEL_ACMP0, PRS_CH_CTRL_SIGSEL_ACMP0OUT);
+        touch_acmp = 0;
         touch_chan = 0;
     }
 }
@@ -109,7 +128,7 @@ void calibrate_capsense()
         get_touch_count(&count, &chan);
 
         delay_ms(PAD_COUNT_MS);
-    } while (chans_done != 0b11);
+    } while (chans_done != 0b111);
 
     chans_done = 0;
 
@@ -144,32 +163,39 @@ void calibrate_capsense()
     CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
     RTC_Enable(true);
 
-    SEGGER_RTT_printf(0, "Capsense calibration values: %u %u (le: %u %u)\n", calibration_values[0], calibration_values[1], le_calibration_values[0], le_calibration_values[1]);
+    SEGGER_RTT_printf(0, "Capsense calibration values: %u %u %u (le: %u %u %u)\n", calibration_values[0], calibration_values[1], calibration_values[2], le_calibration_values[0], le_calibration_values[1], le_calibration_values[2]);
 }
 
-touch_position get_touch_position(uint32_t chan0, uint32_t chan1)
+touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2)
 {
     uint32_t NOTOUCH_THRESHOLD0 = calibration_values[0] * 5 / 4;
     uint32_t NOTOUCH_THRESHOLD1 = calibration_values[1] * 5 / 4;
+    uint32_t NOTOUCH_THRESHOLD2 = calibration_values[2] * 5 / 4;
 
-    if (chan0 == 0 || chan1 == 0)
+    if (chan0 == 0 || chan1 == 0 || chan2 == 0)
         return NO_TOUCH_DETECTED;
 
-    if (chan0 > NOTOUCH_THRESHOLD0 && chan1 > NOTOUCH_THRESHOLD1)
+    if (chan0 > NOTOUCH_THRESHOLD0 && chan1 > NOTOUCH_THRESHOLD1 && chan2 > NOTOUCH_THRESHOLD2)
         return NO_TOUCH_DETECTED;
     
-    if (chan0 < chan1 * 15 / 20)
+    static const uint32_t ratnum = 15;
+    static const uint32_t ratdenom = 20;
+    
+    if (chan0 < chan1 * ratnum / ratdenom || chan0 < chan2 * ratnum / ratdenom)
         return LEFT_BUTTON;
     
-    if (chan1 < chan0 * 15 / 20)
+    if (chan1 < chan0 * ratnum / ratdenom || chan1 < chan2 * ratnum / ratdenom)
         return RIGHT_BUTTON;
+
+    if (chan2 < chan0 * ratnum / ratdenom || chan2 < chan1 * ratnum / ratdenom)
+        return CENTER_BUTTON;
     
     return NO_TOUCH_DETECTED;
 }
 
 void get_touch_count(uint32_t *chan_value, uint32_t *chan)
 {
-    *chan = touch_chan;
+    *chan = (touch_acmp << 1) | touch_chan;
     uint32_t raw_cnt = PCNT0->CNT;
 
     if (old_count == 0) {
