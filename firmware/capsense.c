@@ -26,6 +26,7 @@ void setup_capsense()
 {
     GPIO_PinModeSet(gpioPortC, 0, gpioModeInput, 0);
     GPIO_PinModeSet(gpioPortC, 1, gpioModeInput, 0);
+    GPIO_PinModeSet(gpioPortC, 14, gpioModeInput, 0);
 
     ACMP_CapsenseInit_TypeDef capsenseInit = ACMP_CAPSENSE_INIT_DEFAULT;
     CMU_ClockEnable(cmuClock_ACMP0, true);
@@ -105,6 +106,7 @@ void cycle_capsense()
         ACMP0->CTRL |= ACMP_CTRL_IRISE_ENABLED;
         ACMP_CapsenseChannelSet(ACMP0, acmpChannel0);
         PRS_SourceAsyncSignalSet(0, PRS_CH_CTRL_SOURCESEL_ACMP0, PRS_CH_CTRL_SIGSEL_ACMP0OUT);
+
         touch_acmp = 0;
         touch_chan = 0;
     }
@@ -180,17 +182,22 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
     
     static const uint32_t ratnum = 15;
     static const uint32_t ratdenom = 20;
+
+#define LT(c1, c2) \
+    ((chan ## c1 * calibration_values[c2] / calibration_values[c1]) < chan ## c2 * ratnum / ratdenom)
     
-    if (chan0 < chan1 * ratnum / ratdenom || chan0 < chan2 * ratnum / ratdenom)
+    if (LT(0, 1) || LT(0,2))
         return LEFT_BUTTON;
     
-    if (chan1 < chan0 * ratnum / ratdenom || chan1 < chan2 * ratnum / ratdenom)
+    if (LT(1, 0) || LT(1,2))
         return RIGHT_BUTTON;
 
-    if (chan2 < chan0 * ratnum / ratdenom || chan2 < chan1 * ratnum / ratdenom)
+    if (LT(2, 0) || LT(2, 1))
         return CENTER_BUTTON;
     
     return NO_TOUCH_DETECTED;
+
+#undef LT
 }
 
 void get_touch_count(uint32_t *chan_value, uint32_t *chan)
