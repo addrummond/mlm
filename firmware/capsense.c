@@ -187,10 +187,10 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
     ((chan ## c1 * calibration_values[c2] / calibration_values[c1]) < chan ## c2 * ratnum / ratdenom)
     
     if (LT(0, 1) || LT(0,2))
-        return LEFT_BUTTON;
+        return RIGHT_BUTTON;
     
     if (LT(1, 0) || LT(1,2))
-        return RIGHT_BUTTON;
+        return LEFT_BUTTON;
 
     if (LT(2, 0) || LT(2, 1))
         return CENTER_BUTTON;
