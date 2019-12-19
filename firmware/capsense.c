@@ -175,7 +175,8 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
     uint32_t NOTOUCH_THRESHOLD2 = calibration_values[2] * 5 / 4;
 
     if (chan0 == 0 || chan1 == 0 || chan2 == 0)
-        return NO_
+        return NO_TOUCH_DETECTED;
+
     if (chan0 > NOTOUCH_THRESHOLD0 && chan1 > NOTOUCH_THRESHOLD1 && chan2 > NOTOUCH_THRESHOLD2)
         return NO_TOUCH_DETECTED;
     
