@@ -175,8 +175,7 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
     uint32_t NOTOUCH_THRESHOLD2 = calibration_values[2] * 5 / 4;
 
     if (chan0 == 0 || chan1 == 0 || chan2 == 0)
-        return NO_TOUCH_DETECTED;
-
+        return NO_
     if (chan0 > NOTOUCH_THRESHOLD0 && chan1 > NOTOUCH_THRESHOLD1 && chan2 > NOTOUCH_THRESHOLD2)
         return NO_TOUCH_DETECTED;
     
@@ -186,10 +185,10 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
 #define LT(c1, c2) \
     ((chan ## c1 * calibration_values[c2] / calibration_values[c1]) < chan ## c2 * ratnum / ratdenom)
     
-    if (LT(0, 1) || LT(0,2))
+    if (LT(0, 1) || LT(0, 2))
         return RIGHT_BUTTON;
     
-    if (LT(1, 0) || LT(1,2))
+    if (LT(1, 0) || LT(1, 2))
         return LEFT_BUTTON;
 
     if (LT(2, 0) || LT(2, 1))
