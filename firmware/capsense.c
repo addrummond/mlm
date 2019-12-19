@@ -276,8 +276,8 @@ static const LESENSE_Init_TypeDef  initLESENSE =
     .dacCh1OutMode  = lesenseDACOutModeDisable,
     .dacPresc       =                        0U,
     .dacRef         = lesenseDACRefBandGap,
-    .acmp0Mode      = lesenseACMPModeMuxThres,
-    .acmp1Mode      = lesenseACMPModeDisable,
+    .acmp0Mode      = lesenseACMPModeDisable,
+    .acmp1Mode      = lesenseACMPModeMuxThres,
     .warmupMode     = lesenseWarmupModeNormal
     },
 
@@ -302,14 +302,13 @@ void setup_le_capsense()
 {
     static bool init = true;
 
-    CMU_ClockEnable(cmuClock_ACMP0, true);
+    CMU_ClockEnable(cmuClock_ACMP1, true);
     CMU_ClockEnable(cmuClock_LESENSE, true);
 
     CMU_ClockDivSet(cmuClock_LESENSE, cmuClkDiv_1);
 
     GPIO_DriveModeSet(gpioPortC, gpioDriveModeStandard);
-    GPIO_PinModeSet(gpioPortC, 0, gpioModeDisabled, 0);
-    GPIO_PinModeSet(gpioPortC, 1, gpioModeDisabled, 0);
+    GPIO_PinModeSet(gpioPortC, 14, gpioModeDisabled, 0);
 
     static const ACMP_CapsenseInit_TypeDef initACMP = {
         .fullBias                 = false,
@@ -323,9 +322,9 @@ void setup_le_capsense()
         .enable                   = false
     };
 
-    ACMP_GPIOSetup(ACMP0, 0, false, false);
+    ACMP_GPIOSetup(ACMP1, 0, false, false);
 
-    ACMP_CapsenseInit(ACMP0, &initACMP);
+    ACMP_CapsenseInit(ACMP1, &initACMP);
 
     if (init)
     {
@@ -338,8 +337,7 @@ void setup_le_capsense()
     LESENSE_ResultBufferClear();
     LESENSE_ScanFreqSet(0, 0); // N/A as we're using one shot mode
     LESENSE_ClkDivSet(lesenseClkLF, lesenseClkDiv_1);
-    LESENSE_ChannelConfig(&chanConfig, 0);
-    LESENSE_ChannelConfig(&chanConfig, 1);
+    LESENSE_ChannelConfig(&chanConfig, 14);
     LESENSE_IntEnable(LESENSE_IEN_SCANCOMPLETE);
 
     NVIC_EnableIRQ(LESENSE_IRQn);
@@ -351,17 +349,15 @@ void LESENSE_IRQHandler(void)
 {
     LESENSE_IntClear(LESENSE_IEN_SCANCOMPLETE);
     uint32_t chan0 = LESENSE_ScanResultDataBufferGet(0);
-    uint32_t chan1 = LESENSE_ScanResultDataBufferGet(1);
-    SEGGER_RTT_printf(0, "HERE %u %u\n", chan0, chan1);
+    SEGGER_RTT_printf(0, "HERE %u\n", chan0);
 }
 
 void disable_le_capsense()
 {
-    CMU_ClockEnable(cmuClock_ACMP0, false);
+    CMU_ClockEnable(cmuClock_ACMP1, false);
     CMU_ClockEnable(cmuClock_LESENSE, false);
 
     CMU_ClockDivSet(cmuClock_LESENSE, cmuClkDiv_1);
 
-    GPIO_PinModeSet(gpioPortC, 0, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortC, 1, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortC, 14, gpioModeInputPull, 0);
 }

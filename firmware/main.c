@@ -712,8 +712,8 @@ int main()
     //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
-    return test_capsense_main();
-    //return test_le_capsense_main();
+    //return test_capsense_main();
+    return test_le_capsense_main();
     //return test_watchdog_wakeup_main();
     //return test_led_change_main();
     //return reset_state_main();
