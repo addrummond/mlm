@@ -687,7 +687,7 @@ int test_le_capsense_main()
 {
     for (;;) {
         SEGGER_RTT_printf(0, "LOOP\n");
-        setup_le_capsense();
+        setup_le_capsense(LE_CAPSENSE_SLEEP);
         EMU_EnterEM2(true);
     }
 }

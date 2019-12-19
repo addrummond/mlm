@@ -241,7 +241,31 @@ void get_touch_count(uint32_t *chan_value, uint32_t *chan)
     LESENSE_CH_EVAL_COMP_GE             /* Compare mode has been set to trigger interrupt on >= */                 \
   }
 
-static const LESENSE_ChDesc_TypeDef chanConfig = LESENSE_CAPSENSE_CH_CONF_SLEEP;
+#define LESENSE_CAPSENSE_CH_CONF_SENSE                                                                   \
+  {                                                                                                      \
+    true,                     /* Enable scan channel. */                                                 \
+    true,                     /* Enable the assigned pin on scan channel. */                             \
+    false,                    /* Disable interrupts on channel. */                                       \
+    lesenseChPinExDis,        /* GPIO pin is disabled during the excitation period. */                   \
+    lesenseChPinIdleDis,      /* GPIO pin is disabled during the idle period. */                         \
+    false,                    /* Don't use alternate excitation pins for excitation. */                  \
+    false,                    /* Disabled to shift results from this channel to the decoder register. */ \
+    false,                    /* Disabled to invert the scan result bit. */                              \
+    true,                     /* Enabled to store counter value in the result buffer. */                 \
+    lesenseClkLF,             /* Use the LF clock for excitation timing. */                              \
+    lesenseClkLF,             /* Use the LF clock for sample timing. */                                  \
+    0x000,                    /* Excitation time is set to ___ excitation clock cycles. */               \
+    LE_PAD_CLOCK_COUNT,       /* Sample delay is set to ___ sample clock cycles. */                      \
+    0x0,                      /* Measure delay is set to ___ excitation clock cycles.*/                  \
+    LESENSE_ACMP_VDD_SCALE,   /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */               \
+    lesenseSampleModeCounter, /* ACMP will be used in comparison. */                                     \
+    lesenseSetIntLevel,       /* Interrupt is generated if the sensor triggers. */                       \
+    0x0,                      /* Counter threshold has been set to 0x00. */                              \
+    lesenseCompModeLess       /* Compare mode has been set to trigger interrupt on "less". */            \
+  }
+
+static const LESENSE_ChDesc_TypeDef chanConfigSense = LESENSE_CAPSENSE_CH_CONF_SENSE;
+static const LESENSE_ChDesc_TypeDef chanConfigSleep = LESENSE_CAPSENSE_CH_CONF_SLEEP;
 
 static const LESENSE_Init_TypeDef  initLESENSE =
 {
@@ -298,7 +322,7 @@ static const LESENSE_Init_TypeDef  initLESENSE =
     }
 };
 
-void setup_le_capsense()
+void setup_le_capsense(le_capsense_mode mode)
 {
     static bool init = true;
 
@@ -337,8 +361,15 @@ void setup_le_capsense()
     LESENSE_ResultBufferClear();
     LESENSE_ScanFreqSet(0, 0); // N/A as we're using one shot mode
     LESENSE_ClkDivSet(lesenseClkLF, lesenseClkDiv_1);
-    LESENSE_ChannelConfig(&chanConfig, 14);
-    LESENSE_IntEnable(LESENSE_IEN_SCANCOMPLETE);
+
+    if (mode == LE_CAPSENSE_SENSE) {
+        LESENSE_ChannelConfig(&chanConfigSense, 14);
+        LESENSE_IntEnable(LESENSE_IEN_SCANCOMPLETE);
+    } else {
+        // TODO pass appropriate config
+        LESENSE_ChannelConfig(&chanConfigSleep, 14);
+        LESENSE_IntDisable(LESENSE_IEN_SCANCOMPLETE);
+    }
 
     NVIC_EnableIRQ(LESENSE_IRQn);
 

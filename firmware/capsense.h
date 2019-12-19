@@ -14,12 +14,17 @@ typedef enum touch_position {
     CENTER_BUTTON = 2
 } touch_position;
 
+typedef enum le_capsense_mode {
+    LE_CAPSENSE_SENSE,
+    LE_CAPSENSE_SLEEP
+} le_capsense_mode;
+
 void setup_capsense(void);
 void disable_capsense(void);
 void cycle_capsense(void);
 void get_touch_count(uint32_t *chan1, uint32_t *chan2);
 void calibrate_capsense();
-void setup_le_capsense();
+void setup_le_capsense(le_capsense_mode mode);
 void disable_le_capsense();
 touch_position get_touch_position(uint32_t chan1, uint32_t chan2, uint32_t chan3);
 
