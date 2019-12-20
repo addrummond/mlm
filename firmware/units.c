@@ -116,29 +116,55 @@ int32_t lux_to_ev(int32_t lux)
     return log_base2(lux);
 }
 
-// Adapted from
-//     https://github.com/alibaba/AliOS-Things/blob/54b3f087150b0a6f18a6ebdf7760e3608547fce9/drivers/sensor/drv/drv_als_liteon_ltr303.c#L509
-// (Apache licensed code)
-// Returns lux value shifted by EV_BPS
+// I finally located the mysterious "Appendix A" referred to on the datasheet here:
+//
+//     https://github.com/automote/LTR303/issues/2
+//
+// The lux formula given is as follows. Note that unit for ALS_INT appears to be
+// 1/100ths of a second.
+//
+// RATIO = CH1/(CH0+CH1)
+// IF (RATIO < 0.45)
+//   ALS_LUX = (1.7743 * CH0 + 1.1059 * CH1) / ALS_GAIN / ALS_INT
+// ELSEIF (RATIO < 0.64 && RATIO >= 0.45)
+//   ALS_LUX = (4.2785 * CH0 – 1.9548 * CH1) / ALS_GAIN / ALS_INT
+// ELSEIF (RATIO < 0.85 && RATIO >= 0.64)
+//   ALS_LUX = (0.5926 * CH0 + 0.1185 * CH1) / ALS_GAIN / ALS_INT
+// ELSE
+//   ALS_LUX = 0
+// END
+//
+//
 int32_t sensor_reading_to_lux(sensor_reading r, int32_t als_gain_val, int32_t als_integ_time_val)
 {
+    static const int64_t shift = 16;
+
+    int32_t rat = ((int32_t)r.chan1 * 100) / ((int32_t)r.chan0 + (int32_t)r.chan1);
     int64_t ch0 = r.chan0;
     int64_t ch1 = r.chan1;
-    int32_t rat = (ch1 * 100) / (ch0 + ch1);
+    ch0 <<= shift;
+    ch1 <<= shift;
+
+#define TOFP(x) ((int64_t)(((double)(1 << 16)) * (x) + 0.5))
+    static const int64_t c1a = TOFP(1.7743);
+    static const int64_t c1b = TOFP(1.1059);
+    static const int64_t c2a = TOFP(4.2785);
+    static const int64_t c2b = TOFP(1.9548);
+    static const int64_t c3a = TOFP(0.5926);
+    static const int64_t c3b = TOFP(0.1185);
+#undef TOFP
 
     int64_t tmp;
     if (rat < 45)
-        tmp = (18166 * ch0 + 11325 * ch1);
+        tmp = (c1a * ch0 + c1b * ch1);
     else if (rat < 64)
-        tmp = (43817 * ch0 - 20019 * ch1);
+        tmp = (c2a * ch0 - c2b * ch1);
     else if (rat < 85)
-        tmp = (5151 * ch0 + 1219 * ch1);
+        tmp = (c3a * ch0 + c3b * ch1);
     else
         tmp = 0;    
 
-    // We multiply by 10 because the code linked above appears to code als_integ_time_val
-    // in 1/100 seconds rather than milliseconds.
-    return (int32_t)((tmp * 10) / (int64_t)als_gain_val / (int64_t)als_integ_time_val);
+    return (int32_t)((tmp / (int64_t)als_gain_val / (int64_t)als_integ_time_val) >> shift);
 }
 
 // Assume that we have an infinite sequence of lights indicating shutter speeds.
