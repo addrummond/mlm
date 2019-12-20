@@ -163,6 +163,8 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t als_gain_val, int32_t al
     if (tmp < 0)
         tmp = 0;
     
+    // We multiply tmp by 100 because als_integ_time_val is in ms, whereas ALS_INT in
+    // the formula above is in 1/10th seconds.
     return (int32_t)((tmp * 100) / (int64_t)als_gain_val / (int64_t)(als_integ_time_val));
 }
 
