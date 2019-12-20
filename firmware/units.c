@@ -120,8 +120,8 @@ int32_t lux_to_ev(int32_t lux)
 //
 //     https://github.com/automote/LTR303/issues/2
 //
-// The lux formula given is as follows. Note that unit for ALS_INT appears to be
-// 1/100ths of a second.
+// The lux formula given is as follows. Note that unit for ALS_INT is in
+// 1/10ths of a second.
 //
 // RATIO = CH1/(CH0+CH1)
 // IF (RATIO < 0.45)
@@ -145,7 +145,7 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t als_gain_val, int32_t al
     ch0 <<= shift;
     ch1 <<= shift;
 
-#define TOFP(x) ((int64_t)(((double)(1 << 16)) * (x) + 0.5))
+#define TOFP(x) ((int64_t)(((double)(1 << shift)) * (x) + 0.5))
     static const int64_t c1a = TOFP(1.7743);
     static const int64_t c1b = TOFP(1.1059);
     static const int64_t c2a = TOFP(4.2785);
@@ -164,7 +164,7 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t als_gain_val, int32_t al
     else
         tmp = 0;    
 
-    return (int32_t)((tmp / (int64_t)als_gain_val / (int64_t)als_integ_time_val) >> shift);
+    return (int32_t)((tmp * 100 / (int64_t)als_gain_val / (int64_t)(als_integ_time_val)) >> shift);
 }
 
 // Assume that we have an infinite sequence of lights indicating shutter speeds.

@@ -159,7 +159,7 @@ void handle_MODE_DISPLAY_READING()
 
         cycle_capsense();
 
-        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;) {
+        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;) {
             // TODO TEMP HACK
             if (i != 0 && 0 /*button_pressed()*/)
                 goto handle_button_press;
@@ -246,7 +246,7 @@ void handle_MODE_SETTING_ISO()
 
         cycle_capsense();
 
-        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;) {
+        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;) {
             // TODO TEMP HACK
             if (i != 0 && 0 /*button_pressed()*/)
                 goto handle_button_press;
@@ -605,7 +605,7 @@ int test_capsense_with_wheel_main()
 
         cycle_capsense();
 
-        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
+        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
             ;
     }
 }
@@ -689,6 +689,18 @@ int test_le_capsense_main()
         SEGGER_RTT_printf(0, "LOOP\n");
         setup_le_capsense(LE_CAPSENSE_SLEEP);
         EMU_EnterEM2(true);
+        disable_le_capsense();
+        press p = get_center_pad_press();
+        switch (p) {
+            case PRESS_TAP:
+                SEGGER_RTT_printf(0, "TAP!\n");
+                break;
+            case PRESS_HOLD:
+                SEGGER_RTT_printf(0, "HOLD!\n");
+                break;
+            default:
+                SEGGER_RTT_printf(0, "Unknown press type\n");
+        }
     }
 }
 
@@ -708,12 +720,12 @@ int main()
     //return real_main();
     //return test_led_interrupt_cycle();
     //return test_show_reading();
-    return test_sensor_main();
+    //return test_sensor_main();
     //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
     //return test_capsense_main();
-    //return test_le_capsense_main();
+    return test_le_capsense_main();
     //return test_watchdog_wakeup_main();
     //return test_led_change_main();
     //return reset_state_main();

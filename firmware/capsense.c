@@ -21,7 +21,22 @@ static uint32_t old_count;
 static uint32_t calibration_values[3];
 static uint32_t le_calibration_values[3];
 
-// Capsense pins are PC14 (S3), PC0 (S2), PC1 (S1)
+static const PCNT_Init_TypeDef initPCNT =
+{
+    .mode        = pcntModeExtSingle,   // External, single mode.
+    .counter     = 0,                   // Counter value has been initialized to 0.
+    .top         = 0xFFFF,              // Counter top value.
+    .negEdge     = false,               // Use positive edge.
+    .countDown   = false,               // Up-counting.
+    .filter      = false,               // Filter disabled.
+    .hyst        = false,               // Hysteresis disabled.
+    .s1CntDir    = false,               // Counter direction is given by S1.
+    .cntEvent    = pcntCntEventBoth,    // Regular counter counts up on upcount events.
+    .auxCntEvent = pcntCntEventNone,    // Auxiliary counter doesn't respond to events.
+    .s0PRS       = pcntPRSCh0,          // PRS channel 0 selected as S0IN.
+    .s1PRS       = pcntPRSCh1           // PRS channel 1 selected as S1IN.
+};
+
 void setup_capsense()
 {
     GPIO_PinModeSet(gpioPortC, 0, gpioModeInput, 0);
@@ -40,22 +55,6 @@ void setup_capsense()
         ;
 
     PRS_SourceAsyncSignalSet(0, PRS_CH_CTRL_SOURCESEL_ACMP0, PRS_CH_CTRL_SIGSEL_ACMP0OUT);
-    
-    static const PCNT_Init_TypeDef initPCNT =
-    {
-        .mode        = pcntModeExtSingle,   // External, single mode.
-        .counter     = 0,                   // Counter value has been initialized to 0.
-        .top         = 0xFFFF,              // Counter top value.
-        .negEdge     = false,               // Use positive edge.
-        .countDown   = false,               // Up-counting.
-        .filter      = false,               // Filter disabled.
-        .hyst        = false,               // Hysteresis disabled.
-        .s1CntDir    = false,               // Counter direction is given by S1.
-        .cntEvent    = pcntCntEventBoth,    // Regular counter counts up on upcount events.
-        .auxCntEvent = pcntCntEventNone,    // Auxiliary counter doesn't respond to events.
-        .s0PRS       = pcntPRSCh0,          // PRS channel 0 selected as S0IN.
-        .s1PRS       = pcntPRSCh1           // PRS channel 1 selected as S1IN.
-    };
 
     PCNT_Init(PCNT0, &initPCNT);
 
@@ -71,12 +70,18 @@ void setup_capsense()
     ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
     ACMP_Enable(ACMP0);
     ACMP_Enable(ACMP1);
+
+    touch_acmp = 0;
+    touch_chan = 0;
+    old_count = 0;
 }
 
 void disable_capsense()
 {
     ACMP0->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
     ACMP1->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
+    ACMP_Disable(ACMP0);
+    ACMP_Disable(ACMP1);
     NVIC_ClearPendingIRQ(ACMP0_IRQn);
     NVIC_DisableIRQ(ACMP0_IRQn);
     CMU_ClockEnable(cmuClock_ACMP0, false);
@@ -85,6 +90,7 @@ void disable_capsense()
     CMU_ClockEnable(cmuClock_PCNT0, false); // NEW
     GPIO_PinModeSet(gpioPortC, 0, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortC, 1, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortC, 14, gpioModeInputPull, 0);
 }
 
 void cycle_capsense()
@@ -200,9 +206,16 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
 #undef LT
 }
 
-void get_touch_count(uint32_t *chan_value, uint32_t *chan)
+static bool center_pad_is_touched(uint32_t chan2)
 {
-    *chan = (touch_acmp << 1) | touch_chan;
+    return chan2 != 0 && chan2 < calibration_values[2] * 2 / 3;
+}
+
+uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)
+{
+    if (chan != 0)
+        *chan = (touch_acmp << 1) | touch_chan;
+
     uint32_t raw_cnt = PCNT0->CNT;
 
     if (old_count == 0) {
@@ -214,9 +227,10 @@ void get_touch_count(uint32_t *chan_value, uint32_t *chan)
     }
 
     old_count = raw_cnt;
+    return raw_cnt;
 }
 
-#define LESENSE_ACMP_VDD_SCALE    0x37U
+#define LESENSE_ACMP_VDD_SCALE 0x37U
 
 #define LESENSE_CAPSENSE_CH_CONF_SLEEP                                                                             \
   {                                                                                                                \
@@ -233,12 +247,12 @@ void get_touch_count(uint32_t *chan_value, uint32_t *chan)
     lesenseClkLF,                       /* Use the LF clock for sample timing. */                                  \
     0,                                  /* Excitation time is set to 0 excitation clock cycles. */                 \
     LE_PAD_CLOCK_COUNT,                 /* Sample delay */                                                         \
-    0,                                  /* Measure delay */                                                        \
+    1,                                  /* Measure delay */                                                        \
     LESENSE_ACMP_VDD_SCALE,             /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */               \
-    LESENSE_CH_INTERACT_SAMPLE_COUNTER, /* Counter will be used in comparison. */                                  \
-    LESENSE_CH_INTERACT_SETIF_NONE,     /* Interrupt is generated if the sensor triggers. */                       \
-    0x0,                                /* Counter threshold has been set to 0x0. */                               \
-    LESENSE_CH_EVAL_COMP_GE             /* Compare mode has been set to trigger interrupt on >= */                 \
+    lesenseSampleModeCounter,           /* Counter will be used in comparison. */                                  \
+    lesenseSetIntLevel,                 /* Interrupt is generated if the sensor triggers. */                       \
+    0x00,                               /* Counter threshold has been set to 0x0. */                               \
+    lesenseCompModeLess                 /* Compare mode has been set to trigger interrupt on >= */                 \
   }
 
 #define LESENSE_CAPSENSE_CH_CONF_SENSE                                                                   \
@@ -267,7 +281,7 @@ void get_touch_count(uint32_t *chan_value, uint32_t *chan)
 static const LESENSE_ChDesc_TypeDef chanConfigSense = LESENSE_CAPSENSE_CH_CONF_SENSE;
 static const LESENSE_ChDesc_TypeDef chanConfigSleep = LESENSE_CAPSENSE_CH_CONF_SLEEP;
 
-static const LESENSE_Init_TypeDef  initLESENSE =
+static const LESENSE_Init_TypeDef initLESENSE =
 {
     .coreCtrl         =
     {
@@ -322,9 +336,11 @@ static const LESENSE_Init_TypeDef  initLESENSE =
     }
 };
 
+static le_capsense_mode le_mode;
+
 void setup_le_capsense(le_capsense_mode mode)
 {
-    static bool init = true;
+    le_mode = mode;
 
     CMU_ClockEnable(cmuClock_ACMP1, true);
     CMU_ClockEnable(cmuClock_LESENSE, true);
@@ -350,45 +366,120 @@ void setup_le_capsense(le_capsense_mode mode)
 
     ACMP_CapsenseInit(ACMP1, &initACMP);
 
-    if (init)
-    {
-        LESENSE_Init(&initLESENSE, true);
-    }
+    LESENSE_Init(&initLESENSE, true);
 
     LESENSE_ScanStop();
     while (LESENSE_STATUS_SCANACTIVE & LESENSE_StatusGet())
         ;
     LESENSE_ResultBufferClear();
-    LESENSE_ScanFreqSet(0, 0); // N/A as we're using one shot mode
+    LESENSE_ScanFreqSet(mode == LE_CAPSENSE_SENSE ? 0 : 8, 0);
     LESENSE_ClkDivSet(lesenseClkLF, lesenseClkDiv_1);
 
     if (mode == LE_CAPSENSE_SENSE) {
         LESENSE_ChannelConfig(&chanConfigSense, 14);
         LESENSE_IntEnable(LESENSE_IEN_SCANCOMPLETE);
     } else {
-        // TODO pass appropriate config
         LESENSE_ChannelConfig(&chanConfigSleep, 14);
         LESENSE_IntDisable(LESENSE_IEN_SCANCOMPLETE);
     }
 
     NVIC_EnableIRQ(LESENSE_IRQn);
 
-    LESENSE_ScanModeSet(lesenseScanStartOneShot, true);
+    LESENSE_ScanModeSet(mode == LE_CAPSENSE_SLEEP ? lesenseScanStartPeriodic : lesenseScanStartOneShot, true);
+
+    if (mode == LE_CAPSENSE_SLEEP) {
+        while (!(LESENSE->STATUS & LESENSE_STATUS_BUFHALFFULL))
+            ;
+        LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_calibration_values[2]);
+    }
 }
 
 void LESENSE_IRQHandler(void)
 {
     LESENSE_IntClear(LESENSE_IEN_SCANCOMPLETE);
-    uint32_t chan0 = LESENSE_ScanResultDataBufferGet(0);
-    SEGGER_RTT_printf(0, "HERE %u\n", chan0);
+    LESENSE_IntClear(LESENSE_IF_CH14);
+
+    // Stop additional interrupts screwing things up by setting threshold to zero.
+    if (le_mode == LE_CAPSENSE_SLEEP)
+        LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, 0);
+
+    uint32_t chan = LESENSE_ScanResultDataBufferGet(0);
 }
 
 void disable_le_capsense()
 {
+    if (le_mode == LE_CAPSENSE_SLEEP)
+        LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, 0);
+
+    LESENSE_ScanStop();
+
+    while (LESENSE_STATUS_SCANACTIVE & LESENSE_StatusGet())
+        ;
+
+    ACMP_Disable(ACMP1);
+
     CMU_ClockEnable(cmuClock_ACMP1, false);
     CMU_ClockEnable(cmuClock_LESENSE, false);
 
     CMU_ClockDivSet(cmuClock_LESENSE, cmuClkDiv_1);
 
     GPIO_PinModeSet(gpioPortC, 14, gpioModeInputPull, 0);
+
+    LESENSE_Reset();
+
+    NVIC_DisableIRQ(LESENSE_IRQn);
+}
+
+// To be called after LESENSE wakeup to detect press kind
+press get_center_pad_press()
+{
+    // We should define a setup function that just turns on ACM1,
+    // but when I tried that I got weird issues. This works ok.
+    // The extra power consumption of having both comparators on
+    // shouldn't be significant, as we're doing all this in EM1.
+    setup_capsense();
+    cycle_capsense();
+    cycle_capsense();
+
+    const int long_press_ticks = LONG_PRESS_MS * RTC_FREQ / 1000;
+    const int touch_count_ticks = PAD_COUNT_MS * RTC_FREQ / 1000;
+
+    int next_touch_count = touch_count_ticks;
+    press p;
+
+    RTC->CNT = 0;
+    RTC->CTRL |= RTC_CTRL_EN;
+
+    uint32_t count;
+    get_touch_count(&count, 0);
+
+    int miss_count = 0;
+    for (;;) {
+        while (RTC->CNT < next_touch_count)
+            ;
+        
+        next_touch_count = RTC->CNT + touch_count_ticks;
+        uint32_t raw = get_touch_count(&count, 0);
+
+        //SEGGER_RTT_printf(0, "COUNT %u\n", count);
+        //next_touch_count = RTC->CNT + touch_count_ticks;
+        //continue;
+
+        if (! center_pad_is_touched(count)) {
+            ++miss_count;
+            if (miss_count > 1) {
+                p = PRESS_TAP;
+                break;
+            }
+        }
+
+        if (RTC->CNT >= long_press_ticks) {
+            p = PRESS_HOLD;
+            break;
+        }
+    }
+
+    RTC->CTRL &= ~RTC_CTRL_EN;
+    disable_capsense();
+    return p;
 }
