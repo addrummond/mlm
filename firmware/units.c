@@ -137,15 +137,11 @@ int32_t lux_to_ev(int32_t lux)
 //
 int32_t sensor_reading_to_lux(sensor_reading r, int32_t als_gain_val, int32_t als_integ_time_val)
 {
-    static const int64_t shift = 16;
-
     int32_t rat = ((int32_t)r.chan1 * 100) / ((int32_t)r.chan0 + (int32_t)r.chan1);
     int64_t ch0 = r.chan0;
     int64_t ch1 = r.chan1;
-    ch0 <<= shift;
-    ch1 <<= shift;
 
-#define TOFP(x) ((int64_t)(((double)(1 << shift)) * (x) + 0.5))
+#define TOFP(x) ((int64_t)(((double)(1 << EV_BPS)) * (x) + 0.5))
     static const int64_t c1a = TOFP(1.7743);
     static const int64_t c1b = TOFP(1.1059);
     static const int64_t c2a = TOFP(4.2785);
@@ -162,9 +158,12 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t als_gain_val, int32_t al
     else if (rat < 85)
         tmp = (c3a * ch0 + c3b * ch1);
     else
-        tmp = 0;    
-
-    return (int32_t)((tmp * 100 / (int64_t)als_gain_val / (int64_t)(als_integ_time_val)) >> shift);
+        tmp = 0;
+    
+    if (tmp < 0)
+        tmp = 0;
+    
+    return (int32_t)((tmp * 100) / (int64_t)als_gain_val / (int64_t)(als_integ_time_val));
 }
 
 // Assume that we have an infinite sequence of lights indicating shutter speeds.
