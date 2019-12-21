@@ -23,7 +23,7 @@ ifdef DEBUG
     # definition.
     override ARMCFLAGS += -DDEBUG
 else
-    override ARMCFLAGS += -O2
+    override ARMCFLAGS += -Os
 endif
 
 ifdef NO_RTT
