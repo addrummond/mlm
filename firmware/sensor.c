@@ -141,51 +141,58 @@ static inline int32_t subtract_margin(int32_t max_lux)
     return (int32_t)((int64_t)max_lux * 85LL / 100LL);
 }
 
-// def f(c1,c2,a,b,gain,itime):
-//     return (a * c1 + a * c2) / gain / itime
-//
-// print("static const int LUX_VAL_DOWN_SHFIT = 5")
-// rati = 1
-// for rat in [(1.7743, 1.1059), (4.2785, -1.9548), (0.5926, 0.1185)]:
-//     print("static const uint16_t RAT_%i_MAX_LUX_VALS[8][6] = {" % rati)
-//     for itime in reversed([50.0, 100.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0]):
-//         print("    {", end='')
-//         for gain in reversed([1.0, 2.0, 4.0, 8.0, 48.0, 96.0]):
-//             maxlux = f(65535.0, 65535.0, rat[0], rat[1], gain, itime/100.0)
-//             print("%i," % (int(round(maxlux)) >> 5), end='')
-//         print("},")
-//     rati += 1
-//     print("};")
+// def output_tables():
+//     def f(c0,c1,a,b,gain,itime):
+//         return (a * c0 + b * c1) / gain / itime
+//     print("static const int LUX_VAL_DOWN_SHFIT = 5;")
+//     rati = 1
+//     for rat in [(1.7743, 1.1059, 0.44), (4.2785, -1.9548, 0.45), (0.5926, 0.1185, 0.84)]:
+//         print("static const uint16_t RAT_%i_MAX_LUX_VALS[8][6] = {" % rati)
+//         for itime in reversed([50.0, 100.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0]):
+//             print("    {", end='')
+//             for gain in reversed([1.0, 2.0, 4.0, 8.0, 48.0, 96.0]):
+//                 c0, c1 = 0.0, 0.0
+//                 if rat[2] < 0.5:
+//                     c0 = 65535.0
+//                     c1 = -((65535.0 * rat[2])/(rat[2] - 1.0))
+//                 else:
+//                     c1 = 65535.0
+//                     c0 = c1 * (1.0/rat[2] - 1.0)
+//                 maxlux = f(c0, c1, rat[0], rat[1], gain, itime/100.0)
+//                 print("%i," % (int(round(maxlux)) >> 5), end='')
+//             print("},")
+//         rati += 1
+//         print("};")
 static const int LUX_VAL_DOWN_SHFIT = 5;
 static const uint16_t RAT_1_MAX_LUX_VALS[8][6] = {
-    {18,37,227,454,908,1816,},
-    {21,43,259,519,1038,2076,},
-    {25,50,302,605,1211,2422,},
-    {30,60,363,726,1453,2906,},
-    {37,75,454,908,1816,3633,},
-    {50,100,605,1211,2422,4844,},
-    {75,151,908,1816,3633,7267,},
-    {151,302,1816,3633,7267,14534,},
+    {14,28,169,338,676,1353,},
+    {16,32,193,386,773,1546,},
+    {18,37,225,451,902,1804,},
+    {22,45,270,541,1082,2165,},
+    {28,56,338,676,1353,2706,},
+    {37,75,451,902,1804,3608,},
+    {56,112,676,1353,2706,5413,},
+    {112,225,1353,2706,5413,10826,},
 };
 static const uint16_t RAT_2_MAX_LUX_VALS[8][6] = {
-    {45,91,547,1095,2190,4381,},
-    {52,104,625,1251,2503,5007,},
-    {60,121,730,1460,2920,5841,},
-    {73,146,876,1752,3504,7009,},
-    {91,182,1095,2190,4381,8762,},
-    {121,243,1460,2920,5841,11682,},
-    {182,365,2190,4381,8762,17524,},
-    {365,730,4381,8762,17524,35048,},
+    {14,28,171,342,685,1371,},
+    {16,32,195,391,783,1567,},
+    {19,38,228,457,914,1828,},
+    {22,45,274,548,1097,2194,},
+    {28,57,342,685,1371,2743,},
+    {38,76,457,914,1828,3657,},
+    {57,114,685,1371,2743,5486,},
+    {114,228,1371,2743,5486,10973,},
 };
 static const uint16_t RAT_3_MAX_LUX_VALS[8][6] = {
-    {6,12,75,151,303,606,},
-    {7,14,86,173,346,693,},
-    {8,16,101,202,404,809,},
-    {10,20,121,242,485,970,},
-    {12,25,151,303,606,1213,},
-    {16,33,202,404,809,1618,},
-    {25,50,303,606,1213,2427,},
-    {50,101,606,1213,2427,4854,},
+    {1,2,14,29,59,118,},
+    {1,2,16,33,67,135,},
+    {1,3,19,39,78,157,},
+    {1,3,23,47,94,189,},
+    {2,4,29,59,118,236,},
+    {3,6,39,78,157,315,},
+    {4,9,59,118,236,473,},
+    {9,19,118,236,473,947,},
 };
 
 static void get_mode(sensor_reading r, int32_t *itime, int *itime_key, int32_t *gain, int *gain_key)
@@ -203,17 +210,15 @@ static void get_mode(sensor_reading r, int32_t *itime, int *itime_key, int32_t *
         tab = RAT_3_MAX_LUX_VALS;
     
     // use longest integration time possible.
-    SEGGER_RTT_printf(0, "START LOOP\n");
+    // could use binary search here, but performance of linear search is fine
     int i, j;
     for (i = 0; i < 8; ++i) {
         for (j = 0; j < 6; ++j) {
-            SEGGER_RTT_printf(0, "TAB %u\n", tab[i*8+j]);
             uint32_t maxlux = tab[i*8+j] << LUX_VAL_DOWN_SHFIT << EV_BPS;
             if (lux50 < maxlux / 2)
                 goto breakout;
         }
     }
-    SEGGER_RTT_printf(0, "END LOOP\n");
 
 breakout:
     switch (i) {
@@ -241,6 +246,9 @@ breakout:
         case 0:
             *itime = 400, *itime_key = ITIME_400;
             break;
+        default:
+            *itime = 50, *itime_key = ITIME_50;
+            break;
     }
 
     switch (j) {
@@ -261,6 +269,9 @@ breakout:
             break;
         case 0:
             *gain = 96, *gain_key = GAIN_96X;
+            break;
+        default:
+            *gain = 1, *gain_key = GAIN_1X;
             break;
     }
 }
