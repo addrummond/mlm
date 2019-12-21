@@ -291,7 +291,7 @@ void leds_on_for_reading(int ap_index, int ss_index, int third)
 {
     // out of range case
     if (ap_index < 0 || ss_index < 0) {
-        leds_on(0b100000000000000000000011);
+        leds_on(LED_OUT_OF_RANGE_MASK);
         return;
     }
 

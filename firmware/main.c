@@ -80,24 +80,20 @@ static void shift_exposure_wheel(int n, int *ap_index, int *ss_index)
     int ss = *ss_index;
     while (n != 0) {
         if (n > 0) {
-            if (ap < AP_INDEX_MAX)
-                ++ap;
-            if (ss > SS_INDEX_MIN)
-                --ss;
             if (ap == AP_INDEX_MAX)
                 break;
             if (ss == SS_INDEX_MIN)
                 break;
+            ++ap;
+            --ss;
             --n;
         } else {
-            if (ss < SS_INDEX_MAX)
-                ++ss;
-            if (ap > AP_INDEX_MIN)
-                --ap;
             if (ss == SS_INDEX_MAX)
                 break;
             if (ap == AP_INDEX_MIN)
                 break;
+            ++ss;
+            --ap;
             ++n;
         }
         *ap_index = ap;
@@ -725,10 +721,10 @@ int main()
 {
     common_init();
 
-    //return real_main();
+    return real_main();
     //return test_led_interrupt_cycle();
     //return test_show_reading();
-    return test_sensor_main();
+    //return test_sensor_main();
     //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
