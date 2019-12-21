@@ -176,34 +176,18 @@ void calibrate_capsense()
 
 touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2)
 {
-    uint32_t NOTOUCH_THRESHOLD0 = calibration_values[0] * 5 / 4;
-    uint32_t NOTOUCH_THRESHOLD1 = calibration_values[1] * 5 / 4;
-    uint32_t NOTOUCH_THRESHOLD2 = calibration_values[2] * 5 / 4;
+    uint32_t NOTOUCH_THRESHOLD0 = calibration_values[0] * 2 / 3;
+    uint32_t NOTOUCH_THRESHOLD1 = calibration_values[1] * 2 / 3;
+    uint32_t NOTOUCH_THRESHOLD2 = calibration_values[2] * 2 / 3;
 
-    if (chan0 == 0 || chan1 == 0 || chan2 == 0)
-        return NO_TOUCH_DETECTED;
-
-    if (chan0 > NOTOUCH_THRESHOLD0 && chan1 > NOTOUCH_THRESHOLD1 && chan2 > NOTOUCH_THRESHOLD2)
-        return NO_TOUCH_DETECTED;
-    
-    static const uint32_t ratnum = 15;
-    static const uint32_t ratdenom = 20;
-
-#define LT(c1, c2) \
-    ((chan ## c1 * calibration_values[c2] / calibration_values[c1]) < chan ## c2 * ratnum / ratdenom)
-    
-    if (LT(0, 1) || LT(0, 2))
+    if (chan0 < NOTOUCH_THRESHOLD0)
         return RIGHT_BUTTON;
-    
-    if (LT(1, 0) || LT(1, 2))
+    if (chan1 < NOTOUCH_THRESHOLD1)
         return LEFT_BUTTON;
-
-    if (LT(2, 0) || LT(2, 1))
+    if (chan2 < NOTOUCH_THRESHOLD2)
         return CENTER_BUTTON;
-    
-    return NO_TOUCH_DETECTED;
 
-#undef LT
+    return NO_TOUCH_DETECTED;
 }
 
 bool center_pad_is_touched(uint32_t chan2)

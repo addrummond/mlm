@@ -643,7 +643,14 @@ int test_sensor_main()
         sensor_reading sr = sensor_get_reading_auto(delay_ms, &gain, &itime);
         int32_t lux = sensor_reading_to_lux(sr, gain, itime);
         int32_t ev = lux_to_ev(lux);
-        SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u%s)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS, (ev % (1<<EV_BPS) >= (2<<EV_BPS/3)) ? "+2/3" : (ev % (1<<EV_BPS) >= (1<<EV_BPS/3) ? "+1/3" : ""));
+        int32_t evthird = ev & ((1<<EV_BPS)-1);
+        int32_t thirdval = 0;
+        if (evthird > (2<<EV_BPS)/3) {
+            thirdval = 2;
+        } else if (evthird > (1 << EV_BPS)/3) {
+            thirdval = 1;
+        }
+        SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u+%u/3)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS, thirdval);
         int ss_index, third;
         ev_to_shutter_iso100_f8(ev, &ss_index, &third);
         SEGGER_RTT_printf(0, "SSINDEX %s%u\n", sign_of(ss_index), iabs(ss_index));
@@ -721,10 +728,10 @@ int main()
 {
     common_init();
 
-    return real_main();
+    //return real_main();
     //return test_led_interrupt_cycle();
     //return test_show_reading();
-    //return test_sensor_main();
+    return test_sensor_main();
     //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
