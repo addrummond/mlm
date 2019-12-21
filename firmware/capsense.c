@@ -176,15 +176,17 @@ void calibrate_capsense()
 
 touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2)
 {
-    uint32_t NOTOUCH_THRESHOLD0 = calibration_values[0] * 2 / 3;
-    uint32_t NOTOUCH_THRESHOLD1 = calibration_values[1] * 2 / 3;
-    uint32_t NOTOUCH_THRESHOLD2 = calibration_values[2] * 2 / 3;
+    uint32_t NOTOUCH_THRESHOLD0 = calibration_values[0] * 7 / 10;
+    uint32_t NOTOUCH_THRESHOLD1 = calibration_values[1] * 7 / 10;
+    uint32_t NOTOUCH_THRESHOLD2 = calibration_values[2] * 7 / 10;
 
-    if (chan0 < NOTOUCH_THRESHOLD0)
+    if (chan0 != 0 && chan0 < NOTOUCH_THRESHOLD0 && chan1 != 0 && chan1 < NOTOUCH_THRESHOLD1)
+        return LEFT_AND_RIGHT_BUTTONS;
+    if (chan0 != 0 && chan0 < NOTOUCH_THRESHOLD0)
         return RIGHT_BUTTON;
-    if (chan1 < NOTOUCH_THRESHOLD1)
+    if (chan1 != 0 && chan1 < NOTOUCH_THRESHOLD1)
         return LEFT_BUTTON;
-    if (chan2 < NOTOUCH_THRESHOLD2)
+    if (chan2 != 0 && chan2 < NOTOUCH_THRESHOLD2)
         return CENTER_BUTTON;
 
     return NO_TOUCH_DETECTED;
@@ -192,7 +194,7 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
 
 bool center_pad_is_touched(uint32_t chan2)
 {
-    return chan2 != 0 && chan2 < calibration_values[2] * 2 / 3;
+    return chan2 != 0 && chan2 < calibration_values[2] * 7 / 10;
 }
 
 uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)

@@ -133,10 +133,52 @@ void handle_MODE_DISPLAY_READING()
                 base_cycles = leds_on_for_cycles;
 
                 if (zero_touch_position == INVALID_TOUCH_POSITION) {
-                    if (tp == LEFT_BUTTON || tp == RIGHT_BUTTON) {
-                        leds_all_off();
-                        shift_exposure_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index);
-                        leds_on_for_reading(ap_index, ss_index, third);
+                    if (tp == LEFT_BUTTON || tp == RIGHT_BUTTON || tp == LEFT_AND_RIGHT_BUTTONS) {
+                        // If we just have one of the left/right buttons, wait to see if the situation
+                        // changes in the next split second.
+                        if (tp != LEFT_AND_RIGHT_BUTTONS) {
+                            uint32_t over = leds_on_for_cycles + (DOUBLE_BUTTON_SLOP_MS * RTC_RAW_FREQ / 1000);
+                            get_touch_count(&count, 0);
+                            int misses = 0;
+                            for (unsigned j = 0;; ++j) {
+                                for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
+                                    ;
+
+                                get_touch_count(&count, &chan);
+                                touch_counts[chan] = count;
+
+                                if (j != 0 && j % 3 == 0) {
+                                    int tp2 = get_touch_position(touch_counts[0], touch_counts[1], touch_counts[2]);
+                                    if (tp2 == LEFT_AND_RIGHT_BUTTONS) {
+                                        tp = tp2;
+                                        break;
+                                    }
+                                    if (tp2 == NO_TOUCH_DETECTED) {
+                                        ++misses;
+                                        if (misses >= MISSES_REQUIRED_TO_BREAK_HOLD)
+                                            break;
+                                    } else {
+                                        misses = 0;
+                                    }
+                                }
+
+                                if (leds_on_for_cycles >= over)
+                                    break;
+
+                                cycle_capsense();
+                                get_touch_count(&count, 0);
+                            }
+                        }
+
+                        if (tp == LEFT_AND_RIGHT_BUTTONS) {
+                            SEGGER_RTT_printf(0, "Both left and right buttons pressed.\n");
+                            goto handle_double_button_press;
+                        }
+                        else {
+                            leds_all_off();
+                            shift_exposure_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index);
+                            leds_on_for_reading(ap_index, ss_index, third);
+                        }
                     } else if (tp == CENTER_BUTTON) {
                         goto handle_center_press;
                     }
@@ -175,6 +217,11 @@ handle_center_press:
         g_state.mode = MODE_DOING_READING;
     else if (p == PRESS_TAP)
         g_state.mode = MODE_SNOOZE;
+    return;
+
+handle_double_button_press:
+    leds_all_off();
+    g_state.mode = MODE_SETTING_ISO;
 }
 
 static int iso_to_led_n(int iso)
@@ -549,6 +596,8 @@ int test_capsense_main()
                 tps = "LEFT"; break;
             case RIGHT_BUTTON:
                 tps = "RIGHT"; break;
+            case LEFT_AND_RIGHT_BUTTONS:
+                tps = "LEFT+RIGHT"; break;
             case CENTER_BUTTON:
                 tps = "CENTER"; break;
         }

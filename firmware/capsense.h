@@ -11,7 +11,8 @@ typedef enum touch_position {
     NO_TOUCH_DETECTED = 0,
     LEFT_BUTTON = -1,
     RIGHT_BUTTON = 1,
-    CENTER_BUTTON = 2
+    CENTER_BUTTON = 2,
+    LEFT_AND_RIGHT_BUTTONS = 3
 } touch_position;
 
 typedef enum le_capsense_mode {
