@@ -471,7 +471,7 @@ void common_init()
 #ifndef DEBUG
     leds_on(1);
     uint32_t base = leds_on_for_cycles;
-    while (leds_on_for_cycles < base + RTC_RAW_FREQ * 4)
+    while (leds_on_for_cycles < base + RTC_RAW_FREQ * 8)
         ;
     leds_all_off();
 #endif
