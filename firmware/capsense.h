@@ -33,6 +33,7 @@ void calibrate_capsense();
 void setup_le_capsense(le_capsense_mode mode);
 void disable_le_capsense();
 touch_position get_touch_position(uint32_t chan1, uint32_t chan2, uint32_t chan3);
+bool center_pad_is_touched(uint32_t chan2);
 press get_center_pad_press(void);
 
 #define PAD_COUNT_MS       10 // we count alternations on each touch pad for this number of ms

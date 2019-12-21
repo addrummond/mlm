@@ -206,7 +206,7 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
 #undef LT
 }
 
-static bool center_pad_is_touched(uint32_t chan2)
+bool center_pad_is_touched(uint32_t chan2)
 {
     return chan2 != 0 && chan2 < calibration_values[2] * 2 / 3;
 }
@@ -402,8 +402,6 @@ void LESENSE_IRQHandler(void)
     // Stop additional interrupts screwing things up by setting threshold to zero.
     if (le_mode == LE_CAPSENSE_SLEEP)
         LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, 0);
-
-    uint32_t chan = LESENSE_ScanResultDataBufferGet(0);
 }
 
 void disable_le_capsense()
@@ -459,8 +457,8 @@ press get_center_pad_press()
             ;
         
         next_touch_count = RTC->CNT + touch_count_ticks;
-        uint32_t raw = get_touch_count(&count, 0);
-
+        
+        get_touch_count(&count, 0);
         //SEGGER_RTT_printf(0, "COUNT %u\n", count);
         //next_touch_count = RTC->CNT + touch_count_ticks;
         //continue;

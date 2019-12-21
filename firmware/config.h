@@ -9,6 +9,8 @@
 
 #define LONG_PRESS_MS                          300
 
+#define MISSES_REQUIRED_TO_BREAK_HOLD          1
+
 #define IDLE_TIME_BEFORE_DEEPEST_SLEEP_SECONDS 30
 
 #define DISPLAY_READING_TIME_SECONDS           10
