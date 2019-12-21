@@ -40,6 +40,9 @@ void handle_MODE_JUST_WOKEN()
         // It was just a tap.
         g_state.last_reading_flags |= LAST_READING_FLAGS_FRESH;
         g_state.mode = MODE_AWAKE_AT_REST;
+    } else if (p == PRESS_DOUBLE_TAP) {
+        SEGGER_RTT_printf(0, "Double tap\n");
+        g_state.mode = MODE_SETTING_ISO;
     } else {
         SEGGER_RTT_printf(0, "Warning: unknown press\n");
     }
@@ -179,6 +182,8 @@ handle_center_press:
         g_state.mode = MODE_DOING_READING;
     else if (p == PRESS_TAP)
         g_state.mode = MODE_SNOOZE;
+    else if (p == PRESS_DOUBLE_TAP)
+        g_state.mode = MODE_SETTING_ISO;
 }
 
 static int iso_to_led_n(int iso)
@@ -263,6 +268,8 @@ handle_center_press:
         g_state.mode = MODE_DOING_READING;
     else if (p == PRESS_TAP)
         g_state.mode = MODE_SNOOZE;
+    else if (p == PRESS_DOUBLE_TAP)
+        g_state.mode = MODE_SETTING_ISO;
 }
 
 static uint32_t display_reading_interrupt_cycle_mask1;
@@ -699,6 +706,9 @@ int test_le_capsense_main()
             case PRESS_TAP:
                 SEGGER_RTT_printf(0, "TAP!\n");
                 break;
+            case PRESS_DOUBLE_TAP:
+                SEGGER_RTT_printf(0, "DOUBLE TAP!\n");
+                break;
             case PRESS_HOLD:
                 SEGGER_RTT_printf(0, "HOLD!\n");
                 break;
@@ -721,7 +731,7 @@ int main()
 {
     common_init();
 
-    return real_main();
+    //return real_main();
     //return test_led_interrupt_cycle();
     //return test_show_reading();
     //return test_sensor_main();
@@ -729,7 +739,7 @@ int main()
     //return test_main();
     //return test_batsense_main();
     //return test_capsense_main();
-    //return test_le_capsense_main();
+    return test_le_capsense_main();
     //return test_watchdog_wakeup_main();
     //return test_led_change_main();
     //return reset_state_main();

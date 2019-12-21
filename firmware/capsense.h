@@ -21,6 +21,7 @@ typedef enum le_capsense_mode {
 
 typedef enum press {
     PRESS_TAP,
+    PRESS_DOUBLE_TAP,
     PRESS_HOLD
 } press;
 
