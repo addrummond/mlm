@@ -8,9 +8,8 @@
 #define BATSENSE_PIN                           15
 
 #define LONG_PRESS_MS                          300
-#define DOUBLE_TAP_INTERVAL_MS                 400
 
-#define MISSES_REQUIRED_TO_BREAK_HOLD          2
+#define MISSES_REQUIRED_TO_BREAK_HOLD          1
 
 #define IDLE_TIME_BEFORE_DEEPEST_SLEEP_SECONDS 30
 

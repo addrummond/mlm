@@ -208,7 +208,7 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
 
 bool center_pad_is_touched(uint32_t chan2)
 {
-    return chan2 != 0 && chan2 < calibration_values[2] * 1 / 4;
+    return chan2 != 0 && chan2 < calibration_values[2] * 2 / 3;
 }
 
 uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)
@@ -431,13 +431,16 @@ void disable_le_capsense()
 // To be called after LESENSE wakeup to detect press kind
 press get_center_pad_press()
 {
+    // We should define a setup function that just turns on ACM1,
+    // but when I tried that I got weird issues. This works ok.
+    // The extra power consumption of having both comparators on
+    // shouldn't be significant, as we're doing all this in EM1.
     setup_capsense();
     cycle_capsense();
     cycle_capsense();
 
     const int long_press_ticks = LONG_PRESS_MS * RTC_FREQ / 1000;
     const int touch_count_ticks = PAD_COUNT_MS * RTC_FREQ / 1000;
-    const int double_tap_gap_ticks = DOUBLE_TAP_INTERVAL_MS * RTC_FREQ / 1000;
 
     int next_touch_count = touch_count_ticks;
     press p;
@@ -452,6 +455,7 @@ press get_center_pad_press()
     for (;;) {
         while (RTC->CNT < next_touch_count)
             ;
+        
         next_touch_count = RTC->CNT + touch_count_ticks;
         
         get_touch_count(&count, 0);
@@ -461,12 +465,10 @@ press get_center_pad_press()
 
         if (! center_pad_is_touched(count)) {
             ++miss_count;
-            if (miss_count >= MISSES_REQUIRED_TO_BREAK_HOLD) {
+            if (miss_count > 1) {
                 p = PRESS_TAP;
                 break;
             }
-        } else {
-            miss_count = 0;
         }
 
         if (RTC->CNT >= long_press_ticks) {
@@ -474,54 +476,6 @@ press get_center_pad_press()
             break;
         }
     }
-
-    if (p == PRESS_TAP) {
-        RTC->CNT = 0;
-
-        next_touch_count = touch_count_ticks;
-
-        for (;;) {
-            get_touch_count(&count, 0);
-            while (RTC->CNT < next_touch_count)
-                ;
-            next_touch_count = RTC->CNT + touch_count_ticks;
-
-            get_touch_count(&count, 0);
-            if (center_pad_is_touched(count)) {
-                // A potential double tap. But what if they continue to press
-                // down? Then we register it as a hold rather than as a double tap
-                // if they press down for the required amount of time.
-
-                p = PRESS_HOLD;
-                miss_count = 0;
-                for (;;) {
-                    while (RTC->CNT < next_touch_count)
-                        ;
-                    next_touch_count = RTC->CNT + touch_count_ticks;
-
-                    get_touch_count(&count, 0);
-                    if (! center_pad_is_touched(count)) {
-                        ++miss_count;
-                        if (miss_count >= MISSES_REQUIRED_TO_BREAK_HOLD) {
-                            p = PRESS_DOUBLE_TAP;
-                            goto breakout;
-                        }
-                    } else {
-                        miss_count = 0;
-                    }
-
-                    if (RTC->CNT >= long_press_ticks) {
-                        SEGGER_RTT_printf(0, "HOLD2\n");
-                        goto breakout;
-                    }
-                }
-            }
-
-            if (RTC->CNT >= double_tap_gap_ticks)
-                break;
-        }
-    }
-breakout:
 
     RTC->CTRL &= ~RTC_CTRL_EN;
     disable_capsense();
