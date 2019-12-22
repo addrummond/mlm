@@ -4430,17 +4430,6 @@
       )
     )
   )
-  (zone (net 0) (net_name "") (layer "F.Cu") (tstamp 5DEECA09) (hatch edge 0.508)
-    (connect_pads (clearance 0))
-    (min_thickness 0.254)
-    (keepout (tracks allowed) (vias allowed) (copperpour not_allowed))
-    (fill (thermal_gap 0.508) (thermal_bridge_width 0.508))
-    (polygon
-      (pts
-        (xy 99.35 84.85) (xy 99.85 84.85) (xy 99.667073 84.968902)
-      )
-    )
-  )
   (zone (net 10) (net_name "VREG") (layer "F.Cu") (tstamp 0) (hatch edge 0.508)
     (connect_pads (clearance 0))
     (min_thickness 0.1)
