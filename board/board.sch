@@ -638,7 +638,6 @@ Text Notes 3350 3150 0    50   ~ 0
 +1/3 stop\n
 Text Notes 3900 1100 0    50   ~ 0
 -1/3 stop
-Connection ~ 3400 2500
 Text GLabel 7200 5600 3    50   Input ~ 0
 DPIN1
 Text GLabel 9050 4500 2    50   Input ~ 0
@@ -1251,18 +1250,6 @@ Wire Wire Line
 	8050 1200 8050 1050
 Wire Wire Line
 	7800 2650 7800 2900
-$Comp
-L Device:D_Schottky D27
-U 1 1 5D84534C
-P 3900 2250
-F 0 "D27" V 3946 2171 50  0000 R CNN
-F 1 "D_Schottky" V 3855 2171 50  0000 R CNN
-F 2 "Diode_SMD:D_SOD-523" H 3900 2250 50  0001 C CNN
-F 3 "~" H 3900 2250 50  0001 C CNN
-F 4 "RB751S40T1G" V 3900 2250 50  0001 C CNN "MPN"
-	1    3900 2250
-	0    -1   -1   0   
-$EndComp
 Wire Wire Line
 	3750 2100 3900 2100
 Connection ~ 3750 2100
@@ -1276,26 +1263,6 @@ Wire Wire Line
 	3750 2100 3750 3750
 Wire Wire Line
 	3400 3000 4250 3000
-Wire Wire Line
-	3900 2400 4450 2400
-$Comp
-L Switch:SW_SPST SW2
-U 1 1 5D8941EF
-P 4650 2400
-F 0 "SW2" H 4650 2635 50  0000 C CNN
-F 1 "SW_SPST" H 4650 2544 50  0000 C CNN
-F 2 "mlm:CSS-1210TB" H 4650 2400 50  0001 C CNN
-F 3 "~" H 4650 2400 50  0001 C CNN
-F 4 "CSS-1210TB" H 4650 2400 50  0001 C CNN "MPN"
-	1    4650 2400
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4850 2400 4900 2400
-Wire Wire Line
-	4900 2400 4900 2500
-Wire Wire Line
-	3400 2500 4900 2500
 Text Notes 3950 2150 0    50   ~ 0
 ISO fixed / exposure fixed switch
 Wire Wire Line
@@ -1996,10 +1963,10 @@ F 4 "RMCF0603FG1K00" H -3800 2200 50  0001 C CNN "MPN"
 	-1   0    0    1   
 $EndComp
 $Comp
-L Timer:TPL5010 U?
+L Timer:TPL5010 U1
 U 1 1 5E0CB552
 P 10150 2400
-F 0 "U?" H 10100 2981 50  0000 C CNN
+F 0 "U1" H 10100 2981 50  0000 C CNN
 F 1 "TPL5010" H 10100 2890 50  0000 C CNN
 F 2 "Package_TO_SOT_SMD:SOT-23-6" H 10150 2400 50  0001 C CNN
 F 3 "http://www.ti.com/lit/ds/symlink/tpl5010.pdf" H 9950 2100 50  0001 C CNN
@@ -2009,10 +1976,10 @@ $EndComp
 Wire Wire Line
 	10150 2800 10150 2900
 $Comp
-L power:GND #PWR?
+L power:GND #PWR0107
 U 1 1 5E0DCEFD
 P 10150 2900
-F 0 "#PWR?" H 10150 2650 50  0001 C CNN
+F 0 "#PWR0107" H 10150 2650 50  0001 C CNN
 F 1 "GND" V 10155 2772 50  0000 R CNN
 F 2 "" H 10150 2900 50  0001 C CNN
 F 3 "" H 10150 2900 50  0001 C CNN
@@ -2027,4 +1994,23 @@ Wire Wire Line
 	7600 2900 7600 2650
 Text GLabel 7600 2650 1    50   Input ~ 0
 REGMODE
+Connection ~ 3400 2500
+Wire Wire Line
+	3400 2500 4250 2500
+Wire Wire Line
+	7600 5100 7600 5350
+Wire Wire Line
+	7800 5100 7800 5350
+Text GLabel 7600 5350 3    50   Input ~ 0
+TPLDONE
+Text GLabel 7800 5350 3    50   Input ~ 0
+TPLWAKE
+Wire Wire Line
+	10650 2400 10700 2400
+Wire Wire Line
+	10650 2500 10700 2500
+Text GLabel 10700 2400 2    50   Input ~ 0
+TPLDONE
+Text GLabel 10700 2500 2    50   Input ~ 0
+TPLWAKE
 $EndSCHEMATC
