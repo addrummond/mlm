@@ -67,7 +67,12 @@ static const CMU_Clock_TypeDef led_cat_clock[] = {
 #undef M
 
 static const uint32_t COUNT = 50;
-static const uint32_t DUTY_CYCLE_MAX = 42;
+static const int32_t DUTY_CYCLE_MIN = 3;
+static const int32_t DUTY_CYCLE_MAX = 42;
+
+static const int CYCLES_PER_THROB_STEP = RTC_RAW_FREQ / 60;
+// [round(sin(x/30*2*pi)*20) for x in range(0, 30)]
+static const int8_t throb_progression[] = { 0, 4, 8, 12, 15, 17, 19, 20, 20, 19, 17, 15, 12, 8, 4, 0, -4, -8, -12, -15, -17, -19, -20, -20, -19, -17, -15, -12, -8, -4 };
 
 static unsigned normalize_led_number(unsigned n)
 {
@@ -87,8 +92,8 @@ static uint32_t duty_cycle_for_ev(int32_t ev)
     // dc = (37/5)ev - 32
 
     int32_t dc = (37 * ev)/5 - 32;
-    if (dc < 1)
-        return 1;
+    if (dc < DUTY_CYCLE_MIN)
+        return DUTY_CYCLE_MIN;
     if (dc > DUTY_CYCLE_MAX)
         return DUTY_CYCLE_MAX;
     return (uint32_t)dc;
@@ -164,9 +169,18 @@ static void turnoff()
     CMU_ClockEnable(cmuClock_TIMER1, false);
 }
 
-static uint32_t orig_mask;
-static uint32_t current_mask;
-static uint32_t current_mask_n;
+static volatile uint32_t orig_mask;
+static volatile uint32_t current_mask;
+static volatile uint32_t current_mask_n;
+static volatile uint32_t throb_mask;
+static volatile int current_throb_index;
+static volatile int current_throb_cycles;
+static volatile int next_throb_cycles;
+
+void set_led_throb_mask(uint32_t mask)
+{
+    throb_mask = mask;
+}
 
 volatile uint32_t leds_on_for_cycles;
 
@@ -188,10 +202,24 @@ static void led_rtc_count_callback()
         current_mask_n = 0;
     }
 
+    if (leds_on_for_cycles >= next_throb_cycles) {
+        current_throb_index = (current_throb_index + 1) % (sizeof(throb_progression)/sizeof(throb_progression[0]));
+        next_throb_cycles = leds_on_for_cycles + CYCLES_PER_THROB_STEP;
+    }
+
+    int32_t dc = 20; //get_duty_cycle();
+    if (throb_mask & (1 << current_mask_n))
+        dc += throb_progression[current_throb_index];
+
+    if (dc < DUTY_CYCLE_MIN)
+        dc = DUTY_CYCLE_MIN;
+    else if (dc > DUTY_CYCLE_MAX)
+        dc = DUTY_CYCLE_MAX;
+
     led_off(last_on);
 
     //SEGGER_RTT_printf(0, "Turn on %u\n", current_mask_n);
-    led_on_with_dc(current_mask_n, get_duty_cycle());
+    led_on_with_dc(current_mask_n, (uint32_t)dc);
 
     last_on = current_mask_n;
 
@@ -217,6 +245,7 @@ void leds_on(uint32_t mask)
     orig_mask = mask;
     current_mask = mask;
     current_mask_n = 0;
+    current_throb_index = 0;
 
     add_rtc_interrupt_handler(led_rtc_count_callback);
 
@@ -232,6 +261,7 @@ void leds_on(uint32_t mask)
     NVIC_EnableIRQ(RTC_IRQn);
 
     leds_on_for_cycles = 0;
+    next_throb_cycles = CYCLES_PER_THROB_STEP;
 
     RTC_Init(&init);
 

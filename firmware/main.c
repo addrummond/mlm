@@ -562,6 +562,15 @@ int test_led_change_main()
     }
 }
 
+int test_led_throb_main()
+{
+    leds_all_off();
+    set_led_throb_mask(0b1);
+    leds_on(0b11);
+    for (;;)
+        ;
+}
+
 int test_show_reading()
 {
     leds_all_off();
@@ -727,7 +736,6 @@ int test_watchdog_wakeup_main()
         wInit.em3Run = true;
         wInit.perSel = wdogPeriod_4k; // 4k 1kHz periods should give ~4 seconds in EM3
         wInit.enable = true;
-        wInit.resetDisable = true;
 
         WDOGn_Init(WDOG, &wInit);
         WDOGn_Feed(WDOG);
@@ -789,7 +797,8 @@ int main()
     //return test_batsense_main();
     //return test_capsense_main();
     //return test_le_capsense_main();
-    return test_watchdog_wakeup_main();
+    //return test_watchdog_wakeup_main();
     //return test_led_change_main();
     //return reset_state_main();
+    return test_led_throb_main();
 }
