@@ -73,6 +73,7 @@ static const int32_t DUTY_CYCLE_MAX = 42;
 static const int CYCLES_PER_THROB_STEP = RTC_RAW_FREQ / 60;
 // [round(sin(x/30*2*pi)*20) for x in range(0, 30)]
 static const int8_t throb_progression[] = { 0, 4, 8, 12, 15, 17, 19, 20, 20, 19, 17, 15, 12, 8, 4, 0, -4, -8, -12, -15, -17, -19, -20, -20, -19, -17, -15, -12, -8, -4 };
+static const int THROB_MAG = 20;
 
 static unsigned normalize_led_number(unsigned n)
 {
@@ -207,9 +208,14 @@ static void led_rtc_count_callback()
         next_throb_cycles = leds_on_for_cycles + CYCLES_PER_THROB_STEP;
     }
 
-    int32_t dc = 20; //get_duty_cycle();
-    if (throb_mask & (1 << current_mask_n))
+    int32_t dc = get_duty_cycle();
+    if (throb_mask & (1 << current_mask_n)) {
+        if (dc - THROB_MAG < DUTY_CYCLE_MIN)
+            dc = THROB_MAG + DUTY_CYCLE_MIN;
+        else if (dc + THROB_MAG > DUTY_CYCLE_MAX)
+            dc = DUTY_CYCLE_MAX - THROB_MAG;
         dc += throb_progression[current_throb_index];
+    }
 
     if (dc < DUTY_CYCLE_MIN)
         dc = DUTY_CYCLE_MIN;
