@@ -266,7 +266,9 @@ void handle_MODE_SETTING_ISO()
 
                         SEGGER_RTT_printf(0, "ISO set to %s\n", iso_strings[g_state.iso]);
                         
-                        leds_on(1 << iso_to_led_n(g_state.iso));
+                        uint32_t leds = 1 << iso_to_led_n(g_state.iso);
+                        set_led_throb_mask(leds);
+                        leds_on(leds);
                     } else if (tp == CENTER_BUTTON) {
                         goto handle_center_press;
                     }
@@ -394,6 +396,7 @@ void handle_MODE_DOING_READING()
     if (center_pad_is_touched(chan)) {
         int ap_index, ss_index, third;
         ev_iso_aperture_to_shutter(g_state.last_reading_ev, g_state.iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
+        SEGGER_RTT_printf(0, "Third: %s%u\n", sign_of(third), iabs(third));
         if (ap_index == -1)
             leds_on(LED_OUT_OF_RANGE_MASK);
         else
@@ -524,6 +527,25 @@ void common_init()
     disable_capsense();
 }
 
+int test_debug_led_throb_main()
+{
+    leds_all_off();
+    int l1 = 0;
+    int l2 = 4;
+    int l3 = 7;
+    for (;;) {
+        set_led_throb_mask(1 << l1);
+        leds_on((1 << l1) | (1 << l2) | (1 << l3));
+        uint32_t offat = leds_on_for_cycles + RTC_RAW_FREQ;
+        while (leds_on_for_cycles < offat)
+            ;
+        leds_all_off();
+        l1 = (l1 + 1) % 24;
+        l2 = (l2 + 1) % 24;
+        l3 = (l3 + 1) % 24;
+    }
+}
+
 int test_led_change_main()
 {
     leds_all_off();
@@ -560,15 +582,6 @@ int test_led_change_main()
         //while (leds_on_for_cycles < base_cycles + RTC_RAW_FREQ)
         //    ;
     }
-}
-
-int test_led_throb_main()
-{
-    leds_all_off();
-    set_led_throb_mask(0b1);
-    leds_on(0b11);
-    for (;;)
-        ;
 }
 
 int test_show_reading()
@@ -789,6 +802,7 @@ int main()
     common_init();
 
     //return real_main();
+    return test_debug_led_throb_main();
     //return test_led_interrupt_cycle();
     //return test_show_reading();
     //return test_sensor_main();
@@ -800,5 +814,4 @@ int main()
     //return test_watchdog_wakeup_main();
     //return test_led_change_main();
     //return reset_state_main();
-    return test_led_throb_main();
 }

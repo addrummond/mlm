@@ -17,6 +17,6 @@
 #define DISPLAY_READING_TIME_SECONDS           20
 
 // Maximum of 12 LEDs being displayed at once.
-#define LED_REFRESH_RATE_HZ                    (80*12)
+#define LED_REFRESH_RATE_HZ                    (600)
 
 #endif

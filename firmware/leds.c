@@ -60,19 +60,15 @@ static const uint32_t led_cat_location[] = {
 };
 #undef M
 
-#define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _CAT_DPIN, _CLOCK) ,
-static const CMU_Clock_TypeDef led_cat_clock[] = {
-    LED_FOR_EACH(M)
-};
-#undef M
-
 static const uint32_t COUNT = 50;
 static const int32_t DUTY_CYCLE_MIN = 3;
 static const int32_t DUTY_CYCLE_MAX = 42;
 
 static const int CYCLES_PER_THROB_STEP = RTC_RAW_FREQ / 60;
+
+// from math import *
 // [round(sin(x/30*2*pi)*20) for x in range(0, 30)]
-static const int8_t throb_progression[] = { 0, 4, 8, 12, 15, 17, 19, 20, 20, 19, 17, 15, 12, 8, 4, 0, -4, -8, -12, -15, -17, -19, -20, -20, -19, -17, -15, -12, -8, -4 };
+static const int8_t throb_progression[] = { 0, 2, 5, 7, 9, 10, 11, 12, 12, 11, 10, 9, 7, 5, 2, 0, -2, -5, -7, -9, -10, -11, -12, -12, -11, -10, -9, -7, -5, -2 };
 static const int THROB_MAG = 20;
 
 static unsigned normalize_led_number(unsigned n)
@@ -110,47 +106,34 @@ static uint32_t get_duty_cycle()
     return COUNT - duty_cycle;
 }
 
+
 static void led_on_with_dc(unsigned n, uint32_t duty_cycle)
 {
     GPIO_Port_TypeDef cat_port = led_cat_ports[n];
     int cat_pin = led_cat_pins[n];
-    int an_port = led_an_ports[n];
+    GPIO_Port_TypeDef an_port = led_an_ports[n];
     int an_pin = led_an_pins[n];
     TIMER_TypeDef *cat_timer = led_cat_timer[n];
     int cat_chan = led_cat_chan[n];
     uint32_t cat_route = led_cat_route[n];
     uint32_t cat_location = led_cat_location[n];
-    CMU_Clock_TypeDef cat_clock = led_cat_clock[n];
-
     GPIO_PinModeSet(cat_port, cat_pin, gpioModePushPull, 1);
     GPIO_PinModeSet(an_port, an_pin, gpioModePushPull, 1);
-    CMU_ClockEnable(cat_clock, true);
-    TIMER_InitCC_TypeDef timerCCInit = TIMER_INITCC_DEFAULT;
-    timerCCInit.mode = timerCCModePWM;
-    timerCCInit.cmoa = timerOutputActionToggle;
-    TIMER_InitCC(cat_timer, cat_chan, &timerCCInit);
     cat_timer->ROUTE = (cat_route | cat_location);
-    TIMER_TopSet(cat_timer, COUNT);
     TIMER_CompareBufSet(cat_timer, cat_chan, duty_cycle); // duty cycle
-    TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
-    timerInit.prescale = timerPrescale256;
-    TIMER_Init(cat_timer, &timerInit);
 }
 
 static void led_off(unsigned n)
 {
-    n = normalize_led_number(n);
-
     GPIO_Port_TypeDef cat_port = led_cat_ports[n];
     int cat_pin = led_cat_pins[n];
-    int an_port = led_an_ports[n];
+    GPIO_Port_TypeDef an_port = led_an_ports[n];
     int an_pin = led_an_pins[n];
-    CMU_Clock_TypeDef cat_clock = led_cat_clock[n];
+    TIMER_TypeDef *cat_timer = led_cat_timer[n];
 
+    cat_timer->ROUTE = 0;
     GPIO_PinModeSet(cat_port, cat_pin, gpioModeInput, 1);
     GPIO_PinModeSet(an_port, an_pin, gpioModeInput, 1);
-
-    CMU_ClockEnable(cat_clock, false);
 }
 
 void led_on(unsigned n)
@@ -166,14 +149,16 @@ static void turnoff()
     DPIN_FOR_EACH(M)
 #undef M
 
+    TIMER_Enable(TIMER0, false);
+    TIMER_Enable(TIMER1, false);
     CMU_ClockEnable(cmuClock_TIMER0, false);
     CMU_ClockEnable(cmuClock_TIMER1, false);
 }
 
 static volatile uint32_t orig_mask;
 static volatile uint32_t current_mask;
-static volatile uint32_t current_mask_n;
 static volatile uint32_t throb_mask;
+static volatile uint32_t current_mask_n;
 static volatile int current_throb_index;
 static volatile int current_throb_cycles;
 static volatile int next_throb_cycles;
@@ -187,20 +172,21 @@ volatile uint32_t leds_on_for_cycles;
 
 static void led_rtc_count_callback()
 {
-    static unsigned last_on;
+    static int last_on = -1;
 
     leds_on_for_cycles += RTC_RAW_FREQ / LED_REFRESH_RATE_HZ;
 
-    // Find first set bit.
     for (;;) {
-        for (; current_mask != 0 && (current_mask & 1) == 0; current_mask >>= 1, ++current_mask_n)
-            ;
-
-        if (current_mask != 0)
+        current_mask >>= 1;
+        ++current_mask_n;
+        if (current_mask & 1)
             break;
-
-        current_mask = orig_mask;
-        current_mask_n = 0;
+        if (current_mask == 0) {
+            current_mask = orig_mask;
+            current_mask_n = 0;
+            if (current_mask & 1)
+                break;
+        }
     }
 
     if (leds_on_for_cycles >= next_throb_cycles) {
@@ -222,15 +208,46 @@ static void led_rtc_count_callback()
     else if (dc > DUTY_CYCLE_MAX)
         dc = DUTY_CYCLE_MAX;
 
-    led_off(last_on);
+    if (last_on != -1)
+        led_off(last_on);
 
-    //SEGGER_RTT_printf(0, "Turn on %u\n", current_mask_n);
     led_on_with_dc(current_mask_n, (uint32_t)dc);
 
-    last_on = current_mask_n;
+    last_on = (int)current_mask_n;
+}
 
-    current_mask >>= 1;
-    ++current_mask_n;
+static void init_timers()
+{
+    static TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
+    timerInit.prescale = timerPrescale256;
+
+    CMU_ClockEnable(cmuClock_TIMER0, true);
+    CMU_ClockEnable(cmuClock_TIMER1, true);
+    TIMER_Init(TIMER0, &timerInit);
+    TIMER_Init(TIMER1, &timerInit);
+    TIMER_TopSet(TIMER0, COUNT);
+    TIMER_TopSet(TIMER1, COUNT);
+
+    static TIMER_InitCC_TypeDef timerCCInit = {
+        timerEventEveryEdge,      /* Event on every capture. */
+        timerEdgeRising,          /* Input capture edge on rising edge. */
+        timerPRSSELCh0,           /* Not used by default, select PRS channel 0. */
+        timerOutputActionNone,    /* No action on underflow. */
+        timerOutputActionNone,    /* No action on overflow. */
+        timerOutputActionToggle,  /* Action on match. */
+        timerCCModePWM,           /* Disable compare/capture channel. */
+        false,                    /* Disable filter. */
+        false,                    /* Select TIMERnCCx input. */
+        false,                    /* Clear output when counter disabled. */
+        false                     /* Do not invert output. */
+    };
+
+    for (int i = 0; i < 3; ++i) {
+        TIMER_InitCC(TIMER0, i, &timerCCInit);
+        TIMER_InitCC(TIMER1, i, &timerCCInit);
+        TIMER0->ROUTE = 0;
+        TIMER1->ROUTE = 0;
+    }
 }
 
 static bool rtc_has_been_borked_for_led_cycling;
@@ -271,6 +288,8 @@ void leds_on(uint32_t mask)
 
     RTC_Init(&init);
 
+    init_timers();
+
     rtc_has_been_borked_for_led_cycling = true;
 }
 
@@ -289,7 +308,7 @@ void led_fully_on(unsigned n)
 
     GPIO_Port_TypeDef cat_port = led_cat_ports[nn];
     int cat_pin = led_cat_pins[nn];
-    int an_port = led_an_ports[nn];
+    GPIO_Port_TypeDef an_port = led_an_ports[nn];
     int an_pin = led_an_pins[nn];
 
     GPIO_PinModeSet(cat_port, cat_pin, gpioModePushPull, 0);
@@ -321,6 +340,12 @@ void leds_all_off()
     }
 
     clear_rtc_interrupt_handlers();
+    set_led_throb_mask(0);
+
+    TIMER_Enable(TIMER0, false);
+    TIMER_Enable(TIMER1, false);
+    CMU_ClockEnable(cmuClock_TIMER0, true);
+    CMU_ClockEnable(cmuClock_TIMER1, true);
 }
 
 void leds_on_for_reading(int ap_index, int ss_index, int third)
@@ -340,10 +365,13 @@ void leds_on_for_reading(int ap_index, int ss_index, int third)
     ap_led_n = (LED_N_IN_WHEEL - ap_led_n) % LED_N_IN_WHEEL;
 
     uint32_t mask = (1 << ap_led_n) | (1 << ss_led_n);
+    uint32_t throb_mask = 0;
     if (third == 1)
-        mask |= (1 << LED_PLUS_1_3_N);
+        throb_mask |= (1 << ap_led_n);
     else if (third == -1)
-        mask |= (1 << LED_MINUS_1_3_N);
+        throb_mask |= (1 << ss_led_n);
+
+    set_led_throb_mask(throb_mask);
     leds_on(mask);
 }
 
