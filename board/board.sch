@@ -417,8 +417,6 @@ Wire Wire Line
 Wire Wire Line
 	3250 1500 3250 1600
 Wire Wire Line
-	3750 1000 3750 1100
-Wire Wire Line
 	1750 3100 1900 3100
 Connection ~ 1750 3100
 Wire Wire Line
@@ -529,8 +527,6 @@ Wire Wire Line
 	2900 3400 2900 3500
 Connection ~ 2900 3500
 Wire Wire Line
-	2900 3500 3400 3500
-Wire Wire Line
 	3250 500  3400 500 
 Wire Wire Line
 	3400 500  3400 600 
@@ -584,60 +580,12 @@ Wire Wire Line
 	3250 2600 3400 2600
 Connection ~ 3250 2600
 Wire Wire Line
-	3250 2600 3250 3150
-Wire Wire Line
 	3400 2900 3400 3000
 Connection ~ 3400 3000
-$Comp
-L Device:LED_ALT D25
-U 1 1 5C16CC0C
-P 3400 3300
-F 0 "D25" V 3439 3182 50  0000 R CNN
-F 1 "LED" V 3348 3182 50  0000 R CNN
-F 2 "mlm:dual0402" H 3400 3300 50  0001 C CNN
-F 3 "~" H 3400 3300 50  0001 C CNN
-F 4 "VLMB1500-GS08" V 3400 3300 50  0001 C CNN "MPN"
-	1    3400 3300
-	0    -1   -1   0   
-$EndComp
-Wire Wire Line
-	3250 3150 3400 3150
-Connection ~ 3250 3150
-Wire Wire Line
-	3250 3150 3250 3750
-Wire Wire Line
-	3400 3450 3400 3500
-Connection ~ 3400 3500
-Wire Wire Line
-	3250 1500 3900 1500
 Wire Wire Line
 	3750 500  3750 1000
 Wire Wire Line
-	3750 1100 3900 1100
-Connection ~ 3750 1100
-Wire Wire Line
-	3900 1400 3900 1500
-Connection ~ 3900 1500
-Wire Wire Line
-	3900 1500 4250 1500
-Wire Wire Line
 	3750 1000 4250 1000
-$Comp
-L Device:LED_ALT D26
-U 1 1 5C19F75D
-P 3900 1250
-F 0 "D26" V 3939 1132 50  0000 R CNN
-F 1 "LED" V 3848 1132 50  0000 R CNN
-F 2 "mlm:dual0402" H 3900 1250 50  0001 C CNN
-F 3 "~" H 3900 1250 50  0001 C CNN
-F 4 "VLMB1500-GS08" V 3900 1250 50  0001 C CNN "MPN"
-	1    3900 1250
-	0    -1   -1   0   
-$EndComp
-Text Notes 3350 3150 0    50   ~ 0
-+1/3 stop\n
-Text Notes 3900 1100 0    50   ~ 0
--1/3 stop
 Text GLabel 7200 5600 3    50   Input ~ 0
 DPIN1
 Text GLabel 9050 4500 2    50   Input ~ 0
@@ -1251,20 +1199,9 @@ Wire Wire Line
 Wire Wire Line
 	7800 2650 7800 2900
 Wire Wire Line
-	3750 2100 3900 2100
-Connection ~ 3750 2100
-Wire Wire Line
 	3400 2000 4250 2000
-Text Notes 3950 1650 0    50   ~ 0
-Meter / set switch
-Wire Wire Line
-	3400 3500 4250 3500
-Wire Wire Line
-	3750 2100 3750 3750
 Wire Wire Line
 	3400 3000 4250 3000
-Text Notes 3950 2150 0    50   ~ 0
-ISO fixed / exposure fixed switch
 Wire Wire Line
 	10700 1200 11000 1200
 Wire Wire Line
@@ -1299,8 +1236,6 @@ F 3 "~" H 10500 1200 50  0001 C CNN
 $EndComp
 Text Notes 7500 1300 0    50   ~ 0
 Protects against reverse insertion of battery
-Wire Wire Line
-	3750 1100 3750 2100
 $Comp
 L power:GND #PWR0102
 U 1 1 5D6750A1
@@ -2013,4 +1948,12 @@ Text GLabel 10700 2400 2    50   Input ~ 0
 TPLDONE
 Text GLabel 10700 2500 2    50   Input ~ 0
 TPLWAKE
+Wire Wire Line
+	3750 1000 3750 3750
+Wire Wire Line
+	3250 1500 4250 1500
+Wire Wire Line
+	3250 2600 3250 3750
+Wire Wire Line
+	2900 3500 4250 3500
 $EndSCHEMATC
