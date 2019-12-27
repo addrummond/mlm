@@ -315,26 +315,20 @@ static uint32_t display_reading_interrupt_cycle_mask2;
 static uint32_t display_reading_interrupt_cycle_mask3;
 static void display_reading_interrupt_cycle_interrupt_handler()
 {
-    if (leds_on_for_cycles % 32 != 0)
+    if (leds_on_for_cycles % 16 != 0)
         return;
 
-    if (leds_on_for_cycles % 96 != 0) {
-        display_reading_interrupt_cycle_mask1 <<= 1;
-        if (display_reading_interrupt_cycle_mask1 > (1 << (LED_N_IN_WHEEL - 1)))
-            display_reading_interrupt_cycle_mask1 = 1;
-    }
-
     if (leds_on_for_cycles % 64 != 0) {
-        display_reading_interrupt_cycle_mask2 >>= 1;
-        if (display_reading_interrupt_cycle_mask2 == 0)
-            display_reading_interrupt_cycle_mask2 = (1 << (LED_N_IN_WHEEL - 1));
+        display_reading_interrupt_cycle_mask1 = (display_reading_interrupt_cycle_mask1 + 1) % LED_N_IN_WHEEL;
     }
 
-    display_reading_interrupt_cycle_mask3 <<= 1;
-    if (display_reading_interrupt_cycle_mask3 > (1 << (LED_N_IN_WHEEL - 1)))
-        display_reading_interrupt_cycle_mask3 = 1;
+    if (leds_on_for_cycles % 32 != 0) {
+        display_reading_interrupt_cycle_mask2 = (display_reading_interrupt_cycle_mask2 + 1) % LED_N_IN_WHEEL;
+    }
 
-    leds_change_mask(display_reading_interrupt_cycle_mask1 | display_reading_interrupt_cycle_mask2 | display_reading_interrupt_cycle_mask3);
+    display_reading_interrupt_cycle_mask3 = (display_reading_interrupt_cycle_mask3 + 1) % LED_N_IN_WHEEL;
+
+    leds_change_mask((1 << display_reading_interrupt_cycle_mask1) | (1 << (LED_N_IN_WHEEL - display_reading_interrupt_cycle_mask2 - 1)) | (1 << display_reading_interrupt_cycle_mask3));
 }
 
 void handle_MODE_DOING_READING()
@@ -345,7 +339,7 @@ void handle_MODE_DOING_READING()
     display_reading_interrupt_cycle_mask1 = 0;
     display_reading_interrupt_cycle_mask2 = 8;
     display_reading_interrupt_cycle_mask3 = 16;
-    leds_on(display_reading_interrupt_cycle_mask1 | display_reading_interrupt_cycle_mask2 | display_reading_interrupt_cycle_mask3);
+    leds_on((1 << display_reading_interrupt_cycle_mask1) | (1 << display_reading_interrupt_cycle_mask2) | (1 << display_reading_interrupt_cycle_mask3));
 
     // Turn on the LDO to power up the sensor.
     SEGGER_RTT_printf(0, "Turning on LDO.\n");
@@ -533,6 +527,7 @@ int test_debug_led_throb_main()
     int l1 = 0;
     int l2 = 4;
     int l3 = 7;
+
     for (;;) {
         set_led_throb_mask(1 << l1);
         leds_on((1 << l1) | (1 << l2) | (1 << l3));
@@ -801,8 +796,8 @@ int main()
 {
     common_init();
 
-    //return real_main();
-    return test_debug_led_throb_main();
+    return real_main();
+    //return test_debug_led_throb_main();
     //return test_led_interrupt_cycle();
     //return test_show_reading();
     //return test_sensor_main();
