@@ -142,7 +142,7 @@ void handle_MODE_DISPLAY_READING()
                             int misses = 0;
                             for (unsigned j = 0;; ++j) {
                                 for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
-                                    ;
+                                    __NOP(), __NOP(), __NOP(), __NOP();
 
                                 get_touch_count(&count, &chan);
                                 touch_counts[chan] = count;
@@ -192,7 +192,7 @@ void handle_MODE_DISPLAY_READING()
         cycle_capsense();
 
         for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
-            ;
+            __NOP(), __NOP(), __NOP(), __NOP();
 
         if (leds_on_for_cycles >= base_cycles + DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
             SEGGER_RTT_printf(0, "Reading display timeout\n");

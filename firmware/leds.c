@@ -170,10 +170,9 @@ void set_led_throb_mask(uint32_t mask)
 
 volatile uint32_t leds_on_for_cycles;
 
+static int last_led_on;
 static void led_rtc_count_callback()
 {
-    static int last_on = -1;
-
     leds_on_for_cycles += RTC_RAW_FREQ / LED_REFRESH_RATE_HZ;
 
     for (;;) {
@@ -208,12 +207,12 @@ static void led_rtc_count_callback()
     else if (dc > DUTY_CYCLE_MAX)
         dc = DUTY_CYCLE_MAX;
 
-    if (last_on != -1)
-        led_off(last_on);
+    if (last_led_on != -1)
+        led_off(last_led_on);
 
     led_on_with_dc(current_mask_n, (uint32_t)dc);
 
-    last_on = (int)current_mask_n;
+    last_led_on = (int)current_mask_n;
 }
 
 static void init_timers()
@@ -260,6 +259,8 @@ void leds_on(uint32_t mask)
 
     if (mask == 0)
         return;
+    
+    last_led_on = -1;
 
     turnoff();
 
