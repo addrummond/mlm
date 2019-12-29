@@ -1579,18 +1579,18 @@ S3
 $Comp
 L Device:R R15
 U 1 1 5DFE2C0B
-P 8850 3700
-F 0 "R15" V 8643 3700 50  0000 C CNN
-F 1 "100" V 8734 3700 50  0000 C CNN
-F 2 "mlm:0603" V 8780 3700 50  0001 C CNN
-F 3 "~" H 8850 3700 50  0001 C CNN
-F 4 "RC0603FR-07100RL" H 450 1600 50  0001 C CNN "MPN"
-	1    8850 3700
+P 9050 3700
+F 0 "R15" V 8843 3700 50  0000 C CNN
+F 1 "100" V 8934 3700 50  0000 C CNN
+F 2 "mlm:0603" V 8980 3700 50  0001 C CNN
+F 3 "~" H 9050 3700 50  0001 C CNN
+F 4 "RC0603FR-07100RL" H 650 1600 50  0001 C CNN "MPN"
+	1    9050 3700
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	9000 3700 9100 3700
-Text GLabel 9100 3700 2    50   Input ~ 0
+	9200 3700 9300 3700
+Text GLabel 9300 3700 2    50   Input ~ 0
 S3
 $Comp
 L Device:R R14
@@ -1634,26 +1634,12 @@ F 4 "EFM32TG108F32" H 7500 4000 50  0001 C CNN "MPN"
 	1    7500 4000
 	1    0    0    -1  
 $EndComp
-Text GLabel 9100 3500 2    50   Input ~ 0
+Text GLabel 9250 3500 2    50   Input ~ 0
 VBAT
-Wire Wire Line
-	9000 3500 9100 3500
-$Comp
-L Device:D_Zener D29
-U 1 1 5DC7B09C
-P 8850 3500
-F 0 "D29" V 8896 3421 50  0000 R CNN
-F 1 "D_Zener" V 8805 3421 50  0000 R CNN
-F 2 "mlm:D_SOD-323F" H 8850 3500 50  0001 C CNN
-F 3 "~" H 8850 3500 50  0001 C CNN
-F 4 "DDZ2V4ASF-7" V 8850 3500 50  0001 C CNN "MPN"
-	1    8850 3500
-	-1   0    0    1   
-$EndComp
 Wire Wire Line
 	8600 3500 8700 3500
 Wire Wire Line
-	8600 3700 8700 3700
+	8600 3700 8650 3700
 Wire Wire Line
 	7000 5100 7000 5300
 $Comp
@@ -1760,9 +1746,9 @@ Wire Wire Line
 Wire Wire Line
 	6450 7100 6450 7250
 Text GLabel 4000 7250 3    50   Input ~ 0
-S1
+S1P
 Text GLabel 6450 7250 3    50   Input ~ 0
-S3
+S3P
 Wire Wire Line
 	3650 6950 3550 6950
 $Comp
@@ -1792,7 +1778,7 @@ F 3 "" H 4850 6950 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Text GLabel 5300 7250 3    50   Input ~ 0
-S2
+S2P
 Wire Wire Line
 	5300 7100 5300 7250
 Wire Wire Line
@@ -2052,4 +2038,35 @@ F 3 "" H 5700 1700 50  0001 C CNN
 	1    5700 1700
 	0    -1   -1   0   
 $EndComp
+$Comp
+L Device:R R16
+U 1 1 5E2913F0
+P 8850 3500
+F 0 "R16" V 8643 3500 50  0000 C CNN
+F 1 "100" V 8734 3500 50  0000 C CNN
+F 2 "mlm:0603" V 8780 3500 50  0001 C CNN
+F 3 "~" H 8850 3500 50  0001 C CNN
+F 4 "RC0603FR-07100RL" H 450 1400 50  0001 C CNN "MPN"
+	1    8850 3500
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	9000 3500 9250 3500
+Wire Wire Line
+	5100 4050 5000 4050
+Connection ~ 5100 4050
+Wire Wire Line
+	4500 3900 4600 3900
+Connection ~ 4600 3900
+Text GLabel 4500 3900 0    50   Input ~ 0
+S2P
+Text GLabel 5000 4050 0    50   Input ~ 0
+S1P
+Wire Wire Line
+	8650 3700 8650 2850
+Connection ~ 8650 3700
+Wire Wire Line
+	8650 3700 8900 3700
+Text GLabel 8650 2850 1    50   Input ~ 0
+S3P
 $EndSCHEMATC
