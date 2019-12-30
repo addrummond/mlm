@@ -366,13 +366,12 @@ void leds_on_for_reading(int ap_index, int ss_index, int third)
     ap_led_n = (LED_N_IN_WHEEL - ap_led_n) % LED_N_IN_WHEEL;
 
     uint32_t mask = (1 << ap_led_n) | (1 << ss_led_n);
-    uint32_t throb_mask = 0;
     if (third == 1)
-        throb_mask |= (1 << ap_led_n);
+        mask |= (1 << LED_PLUS_1_3_N);
     else if (third == -1)
-        throb_mask |= (1 << ss_led_n);
+        mask |= (1 << LED_MINUS_1_3_N);
 
-    set_led_throb_mask(throb_mask);
+    set_led_throb_mask(0);
     leds_on(mask);
 }
 
