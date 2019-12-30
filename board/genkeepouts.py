@@ -17,14 +17,16 @@ RAD = 17.5
 N = 24
 KEEPOUT_DIAM = 3.7
 KEEPOUT_FACES = 64
+YSQUASH = 0.61
 LAYER = "B.Cu"
 
-def pts_for(x, y):
+def pts_for(angle):
     pts = []
     for j in range(KEEPOUT_FACES):
-        angle = (j/KEEPOUT_FACES) * math.pi * 2.0 
-        kx = x + math.cos(angle) * KEEPOUT_DIAM * 0.5
-        ky = y + math.sin(angle) * KEEPOUT_DIAM * 0.5
+        a = (j/KEEPOUT_FACES) * math.pi * 2.0
+        kx = math.cos(a) * KEEPOUT_DIAM * 0.5 * YSQUASH
+        ky = math.sin(a) * KEEPOUT_DIAM * 0.5
+        kx, ky = math.cos(angle) * kx - math.sin(angle) * ky, math.sin(angle) * kx + math.cos(angle) * ky
 
         pts.append((kx, ky))
     return pts
@@ -35,12 +37,12 @@ for i in range(N):
     x = CENTER[0] + math.cos(angle) * RAD
     y = CENTER[1] + math.sin(angle) * RAD
 
-    pts = pts_for(x, y)
+    pts = [(xx + x, yy + y) for (xx, yy) in pts_for(angle)]
     zones.append(pts_to_zone(LAYER, pts))
 
 # +/- 1/3 leds
-zones.append(pts_to_zone(LAYER, pts_for(92.5, 91)))
-zones.append(pts_to_zone(LAYER, pts_for(107.5, 91)))
+zones.append(pts_to_zone(LAYER, [(x + 92.5, y + 91) for (x, y) in pts_for((3/N) * math.pi * 2.0)]))
+zones.append(pts_to_zone(LAYER, [(x + 107.5, y + 91) for (x, y) in pts_for((-3/N) * math.pi * 2.0)]))
 
 for z in zones:
     print(z)
