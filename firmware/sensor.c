@@ -13,9 +13,6 @@
 
 #define SENSOR_I2C_ADDR       (0x29 << 1)
 
-#define SENSOR_INT_PORT       gpioPortF
-#define SENSOR_INT_PIN        1
-
 // https://github.com/alibaba/AliOS-Things/blob/8cae6d447d331989ede14d28c0ec189f2aa2b3c7/device/sensor/drv/drv_als_liteon_ltr303.c
 
 void sensor_init()
@@ -298,7 +295,6 @@ sensor_reading sensor_get_reading_auto(delay_func delayf, int32_t *gain, int32_t
     sensor_turn_on(GAIN_1X);
     delayf(65); // don't poll the sensor until it's likely to be ready (saves i2c current)
     sensor_wait_till_ready(delayf);
-    SEGGER_RTT_printf(0, "GETTING READING\n");
     sensor_reading r = sensor_get_reading();
 
     int itime_key, gain_key;
