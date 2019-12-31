@@ -119,10 +119,14 @@ void handle_MODE_DISPLAY_READING()
     uint32_t base_cycles = leds_on_for_cycles;
     int zero_touch_position = INVALID_TOUCH_POSITION;
     uint32_t touch_counts[] = { 0, 0, 0 };
+    bool in_center_button_dead_zone = true;
     for (unsigned i = 0;; ++i) {
         uint32_t count, chan;
         get_touch_count(&count, &chan);
         touch_counts[chan] = count;
+
+        if (leds_on_for_cycles - base_cycles > (CENTER_BUTTON_DEAD_ZONE_MS * RTC_RAW_FREQ) / 1000)
+            in_center_button_dead_zone = false;
 
         if (i != 0 && i % 3 == 0) {
             int tp = get_touch_position(touch_counts[0], touch_counts[1], touch_counts[2]);
@@ -179,7 +183,7 @@ void handle_MODE_DISPLAY_READING()
                             shift_exposure_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index);
                             leds_on_for_reading(ap_index, ss_index, third);
                         }
-                    } else if (tp == CENTER_BUTTON) {
+                    } else if (tp == CENTER_BUTTON && ! in_center_button_dead_zone) {
                         goto handle_center_press;
                     }
                     zero_touch_position = tp;
@@ -220,6 +224,7 @@ handle_center_press:
     return;
 
 handle_double_button_press:
+    SEGGER_RTT_printf(0, "SETTING ISO MODE\n");
     leds_all_off();
     g_state.mode = MODE_SETTING_ISO;
 }
@@ -234,7 +239,9 @@ void handle_MODE_SETTING_ISO()
 {
     leds_all_off();
 
-    leds_on(1 << iso_to_led_n(g_state.iso));
+    uint32_t leds = 1 << iso_to_led_n(g_state.iso);
+    set_led_throb_mask(leds);
+    leds_on(leds);
 
     setup_capsense();
 
@@ -266,7 +273,7 @@ void handle_MODE_SETTING_ISO()
 
                         SEGGER_RTT_printf(0, "ISO set to %s\n", iso_strings[g_state.iso]);
                         
-                        uint32_t leds = 1 << iso_to_led_n(g_state.iso);
+                        leds = 1 << iso_to_led_n(g_state.iso);
                         set_led_throb_mask(leds);
                         leds_on(leds);
                     } else if (tp == CENTER_BUTTON) {
