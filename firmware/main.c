@@ -224,7 +224,6 @@ handle_center_press:
     return;
 
 handle_double_button_press:
-    SEGGER_RTT_printf(0, "SETTING ISO MODE\n");
     leds_all_off();
     g_state.mode = MODE_SETTING_ISO;
 }
