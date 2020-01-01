@@ -1917,9 +1917,9 @@ Wire Wire Line
 Wire Wire Line
 	7800 5100 7800 5350
 Text GLabel 7600 5350 3    50   Input ~ 0
-TPLDONE
-Text GLabel 7800 5350 3    50   Input ~ 0
 TPLWAKE
+Text GLabel 7800 5350 3    50   Input ~ 0
+TPLDONE
 Wire Wire Line
 	10650 2400 10700 2400
 Wire Wire Line
