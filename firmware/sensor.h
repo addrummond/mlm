@@ -45,14 +45,14 @@ typedef struct sensor_reading {
 typedef void (*delay_func)(int ms);
 
 void sensor_init();
-void sensor_write_reg(uint8_t reg, uint8_t val);
+void sensor_write_reg(uint16_t addr, uint8_t reg, uint8_t val);
 void sensor_turn_on(uint8_t gain);
 void sensor_standby(void);
-uint8_t sensor_read_reg(uint8_t reg);
-uint16_t sensor_read_reg16(uint8_t reg);
-void sensor_write_reg(uint8_t reg, uint8_t val);
+uint8_t sensor_read_reg(uint16_t addr, uint8_t reg);
+uint16_t sensor_read_reg16(uint16_t addr, uint8_t reg);
 sensor_reading sensor_get_reading();
 sensor_reading sensor_get_reading_auto(delay_func delayf, int32_t *gain, int32_t *itime);
 void sensor_wait_till_ready(delay_func delayf);
+int32_t tempsensor_get_reading(delay_func delayf);
 
 #endif

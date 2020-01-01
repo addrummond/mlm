@@ -728,6 +728,24 @@ int test_sensor_main()
     }
 }
 
+int test_tempsensor_main()
+{
+    // Turn on the LDO to power up the sensor.
+    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
+    SEGGER_RTT_printf(0, "LDO turned on\n");
+    delay_ms(100); // make sure LDO has time to start up and sensor has time to
+                   // power up
+    sensor_init();
+    delay_ms(100);
+
+    for (;;) {
+        tempsensor_get_reading(delay_ms);
+        delay_ms(500);
+    }
+
+    return 0;
+}
+
 int test_watchdog_wakeup_main()
 {
     SEGGER_RTT_printf(0, "In test_watchdog_wakeup_main...\n");
@@ -802,11 +820,12 @@ int main()
 {
     common_init();
 
-    return real_main();
+    //return real_main();
     //return test_debug_led_throb_main();
     //return test_led_interrupt_cycle();
     //return test_show_reading();
     //return test_sensor_main();
+    return test_tempsensor_main();
     //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();

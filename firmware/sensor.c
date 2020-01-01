@@ -76,11 +76,11 @@ __attribute__((unused)) static void print_stat(int status)
         SEGGER_RTT_printf(0, "S: UNKNOWN %u\n", status);
 }
 
-void sensor_write_reg(uint8_t reg, uint8_t val)
+void sensor_write_reg(uint16_t addr, uint8_t reg, uint8_t val)
 {
     uint8_t wbuf[] = { reg, val };
     I2C_TransferSeq_TypeDef i2c_transfer = {
-        .addr = SENSOR_I2C_ADDR,
+        .addr = addr,
         .flags = I2C_FLAG_WRITE,
         .buf[0].data = wbuf,
         .buf[0].len = 2
@@ -91,18 +91,18 @@ void sensor_write_reg(uint8_t reg, uint8_t val)
     }
 }
 
-uint8_t sensor_read_reg(uint8_t reg)
+uint8_t sensor_read_reg(uint16_t addr, uint8_t reg)
 {
-    return (uint8_t)(sensor_read_reg16(reg) & 0xFF);
+    return (uint8_t)(sensor_read_reg16(addr, reg) & 0xFF);
 }
 
-uint16_t sensor_read_reg16(uint8_t reg)
+uint16_t sensor_read_reg16(uint16_t addr, uint8_t reg)
 {
     uint8_t wbuf[1];
     wbuf[0] = reg;
     uint8_t rbuf[2];
     I2C_TransferSeq_TypeDef i2c_transfer = {
-        .addr = SENSOR_I2C_ADDR,
+        .addr = addr,
         .flags = I2C_FLAG_WRITE_READ,
         .buf[0].data = wbuf,
         .buf[0].len = sizeof(wbuf)/sizeof(wbuf[0]),
@@ -121,15 +121,15 @@ sensor_reading sensor_get_reading()
     // The datasheet says that chan1 is to be read before chan0. This is
     // important for ensuring that the various status flags are correctly
     // reset following a read.
-    r.chan1 = sensor_read_reg16(REG_ALS_DATA_CH1_0);
-    r.chan0 = sensor_read_reg16(REG_ALS_DATA_CH0_0);
+    r.chan1 = sensor_read_reg16(SENSOR_I2C_ADDR, REG_ALS_DATA_CH1_0);
+    r.chan0 = sensor_read_reg16(SENSOR_I2C_ADDR, REG_ALS_DATA_CH0_0);
 
     return r;
 }
 
 bool sensor_has_valid_data()
 {
-    uint8_t status = sensor_read_reg(REG_ALS_STATUS);
+    uint8_t status = sensor_read_reg(SENSOR_I2C_ADDR, REG_ALS_STATUS);
     return !(status & 0b10000000);
 }
 
@@ -290,8 +290,8 @@ sensor_reading sensor_get_reading_auto(delay_func delayf, int32_t *gain, int32_t
     // would be bogus.
 
     sensor_standby();
-    uint8_t measrate = sensor_read_reg(REG_ALS_MEAS_RATE);
-    sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_50);
+    uint8_t measrate = sensor_read_reg(SENSOR_I2C_ADDR, REG_ALS_MEAS_RATE);
+    sensor_write_reg(SENSOR_I2C_ADDR, REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_50);
     sensor_turn_on(GAIN_1X);
     delayf(65); // don't poll the sensor until it's likely to be ready (saves i2c current)
     sensor_wait_till_ready(delayf);
@@ -301,7 +301,7 @@ sensor_reading sensor_get_reading_auto(delay_func delayf, int32_t *gain, int32_t
     get_mode(r, itime, &itime_key, gain, &gain_key);
 
     sensor_standby();
-    sensor_write_reg(REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | itime_key);
+    sensor_write_reg(SENSOR_I2C_ADDR, REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | itime_key);
     sensor_turn_on(gain_key);
     delayf((*itime) * 6 / 5);
 
@@ -312,19 +312,57 @@ sensor_reading sensor_get_reading_auto(delay_func delayf, int32_t *gain, int32_t
 void sensor_turn_on(uint8_t gain)
 {
     gain &= 0b011100;
-    sensor_write_reg(REG_ALS_CONTR, 1 | gain);
+    sensor_write_reg(SENSOR_I2C_ADDR, REG_ALS_CONTR, 1 | gain);
 }
 
 void sensor_standby()
 {
-    sensor_write_reg(REG_ALS_CONTR, 0);
+    sensor_write_reg(SENSOR_I2C_ADDR, REG_ALS_CONTR, 0);
 }
 
 void sensor_wait_till_ready(delay_func delayf)
 {
     uint8_t status;
     do {
-        status = sensor_read_reg(REG_ALS_STATUS);
+        status = sensor_read_reg(SENSOR_I2C_ADDR, REG_ALS_STATUS);
         delayf(10); // save some current (less i2c communication)
     } while (!(status & 0b100));
+}
+
+#define TEMPSENSOR_I2C_ADDR (0b1001000 << 1)
+
+static uint16_t tempsensor_read_reg16(uint16_t addr)
+{
+    uint8_t rbuf[2];
+    I2C_TransferSeq_TypeDef i2c_transfer = {
+        .addr = addr,
+        .flags = I2C_FLAG_READ,
+        .buf[1].data = rbuf,
+        .buf[1].len = sizeof(rbuf)/sizeof(rbuf[0])
+    };
+    int status = I2C_TransferInit(I2C0, &i2c_transfer);
+    while (status == i2cTransferInProgress)
+        status = I2C_Transfer(I2C0);
+    SEGGER_RTT_printf(0, "B1 %u B2 %u\n", rbuf[0], rbuf[1]);
+    return ((uint16_t)(rbuf[0]) << 8) | ((uint16_t)rbuf[1]);
+}
+
+#define C_PER_COUNT 0.00390625
+
+int32_t tempsensor_get_reading(delay_func delayf)
+{
+    //sensor_write_reg(TEMPSENSOR_I2C_ADDR, 0x01, 0b00000000);
+    int16_t reading = 0;
+    do {
+        delayf(25);
+        reading = tempsensor_read_reg16(TEMPSENSOR_I2C_ADDR);
+    } while (reading == 0);
+
+    int32_t reading32 = (int32_t)reading;
+    reading32 <<= 16;
+    reading32 /= (int32_t)((1 << 16) * C_PER_COUNT + 0.5);
+    reading32 >>= 16;
+    SEGGER_RTT_printf(0, "TEMP READING %s%u\n", sign_of(reading32), iabs(reading32));
+
+    return reading;
 }
