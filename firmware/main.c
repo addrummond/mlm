@@ -485,11 +485,32 @@ void gpio_pins_to_initial_states()
     GPIO_PinModeSet(gpioPortE, 12, gpioModeInputPull, 0);
 }
 
+void TIMER1_IRQHandler(void)
+{ 
+  TIMER_IntClear(TIMER1, TIMER_IF_OF);
+}
+
 void common_init()
 {
     // https://www.silabs.com/community/mcu/32-bit/forum.topic.html/happy_gecko_em4_conf-Y9Bw
 
+    // Leave a generous ~200ms for the boost converter to stabilize in EM1.
+    // Drawing too much current immediately can cause the converter to shut down
+    // with batteries that aren't shiny and new.
     CHIP_Init();
+    CMU_ClockEnable(cmuClock_TIMER1, true);
+    TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
+    timerInit.prescale = timerPrescale1024;
+    TIMER_IntEnable(TIMER1, TIMER_IF_OF);
+    NVIC_EnableIRQ(TIMER1_IRQn);
+    TIMER_TopSet(TIMER1, TIMER_COUNT);
+    TIMER_TopSet(TIMER1, 15625);
+    TIMER_Init(TIMER1, &timerInit);
+
+    EMU_EnterEM1();
+
+    TIMER_Enable(TIMER1, false);
+    CMU_ClockEnable(cmuClock_TIMER1, false);
 
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
@@ -820,12 +841,12 @@ int main()
 {
     common_init();
 
-    //return real_main();
+    return real_main();
     //return test_debug_led_throb_main();
     //return test_led_interrupt_cycle();
     //return test_show_reading();
     //return test_sensor_main();
-    return test_tempsensor_main();
+    //return test_tempsensor_main();
     //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
