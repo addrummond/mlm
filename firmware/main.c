@@ -490,24 +490,38 @@ void TIMER1_IRQHandler(void)
   TIMER_IntClear(TIMER1, TIMER_IF_OF);
 }
 
+static void low_power_init_wait()
+{
+    // Leave a generous ~200ms for the boost converter to stabilize in EM2.
+    // Drawing too much current immediately can cause the converter to shut down
+    // upon insertion of a battery than isn't fully charged.
+
+    RTC_Init_TypeDef rtc_init = {
+        true, // Start counting when initialization is done
+        false, // Enable updating during debug halt.
+        false  // Restart counting from 0 when reaching COMP0.
+    };
+
+    CMU_ClockEnable(cmuClock_CORELE, true);
+    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
+    CMU_ClockDivSet(cmuClock_RTC, cmuClkDiv_2048);
+    CMU_ClockEnable(cmuClock_RTC, true);
+    RTC_Init(&rtc_init);
+    RTC_IntEnable(RTC_IEN_COMP0);
+    NVIC_EnableIRQ(RTC_IRQn);
+    NVIC_EnableIRQ(RTC_IRQn);
+    RTC_CompareSet(0, RTC->CNT + RTC_RAW_FREQ/5/2048);
+    RTC_IntClear(RTC_IFC_COMP0);
+
+    EMU_EnterEM2(false);
+}
+
 void common_init()
 {
     // https://www.silabs.com/community/mcu/32-bit/forum.topic.html/happy_gecko_em4_conf-Y9Bw
 
-    // Leave a generous ~200ms for the boost converter to stabilize in EM1.
-    // Drawing too much current immediately can cause the converter to shut down
-    // with batteries that aren't shiny and new.
-    CHIP_Init();
-    CMU_ClockEnable(cmuClock_TIMER1, true);
-    TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
-    timerInit.prescale = timerPrescale1024;
-    TIMER_IntEnable(TIMER1, TIMER_IF_OF);
-    NVIC_EnableIRQ(TIMER1_IRQn);
-    TIMER_TopSet(TIMER1, TIMER_COUNT);
-    TIMER_TopSet(TIMER1, 15625);
-    TIMER_Init(TIMER1, &timerInit);
-
-    EMU_EnterEM1();
+    // necessary to ensure boost converter stability
+    low_power_init_wait();
 
     TIMER_Enable(TIMER1, false);
     CMU_ClockEnable(cmuClock_TIMER1, false);
@@ -521,12 +535,12 @@ void common_init()
     CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
     CMU_ClockEnable(cmuClock_RTC, true);
 
-    RTC_Init_TypeDef init = {
+    RTC_Init_TypeDef rtc_init = {
         false, // Start counting when initialization is done
         false, // Enable updating during debug halt.
         false  // Restart counting from 0 when reaching COMP0.
     };
-    RTC_Init(&init);
+    RTC_Init(&rtc_init);
 
     rtt_init();
     SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
