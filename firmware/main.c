@@ -509,7 +509,6 @@ static void low_power_init_wait()
     RTC_Init(&rtc_init);
     RTC_IntEnable(RTC_IEN_COMP0);
     NVIC_EnableIRQ(RTC_IRQn);
-    NVIC_EnableIRQ(RTC_IRQn);
     RTC_CompareSet(0, RTC->CNT + RTC_RAW_FREQ/5/2048);
     RTC_IntClear(RTC_IFC_COMP0);
 
