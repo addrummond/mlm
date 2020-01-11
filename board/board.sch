@@ -1271,8 +1271,6 @@ F 4 "ERJ3RQF1R0V" H -5650 4600 50  0001 C CNN "MPN"
 $EndComp
 Text GLabel 750  6600 0    50   Input ~ 0
 VBAT
-Text GLabel 2550 7200 2    50   Input ~ 0
-REGMODE
 $Comp
 L power:GND #PWR01
 U 1 1 5C5CF325
@@ -1386,17 +1384,11 @@ Wire Wire Line
 Wire Wire Line
 	2750 6550 2750 6600
 Wire Wire Line
-	2450 6550 2750 6550
-Wire Wire Line
 	2750 6950 2850 6950
 Wire Wire Line
 	950  5550 950  5650
 Wire Wire Line
 	2450 6050 2750 6050
-Wire Wire Line
-	2450 7200 2450 6550
-Wire Wire Line
-	2550 7200 2450 7200
 Wire Wire Line
 	2750 6500 2750 6550
 $Comp
@@ -2091,4 +2083,12 @@ Wire Wire Line
 	950  7300 1500 7300
 Wire Wire Line
 	750  6600 950  6600
+Text GLabel 2550 7200 2    50   Input ~ 0
+REGMODE
+Wire Wire Line
+	2550 7200 2500 7200
+Wire Wire Line
+	2500 7200 2500 6550
+Wire Wire Line
+	2500 6550 2750 6550
 $EndSCHEMATC
