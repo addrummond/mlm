@@ -72,10 +72,11 @@ int32_t tempsensor_get_reading(delay_func delayf)
     // so we don't change it.
 
     int16_t reading = 0;
+    int tries = 0;
     do {
         delayf(25);
         reading = read_reg16(TEMPSENSOR_I2C_ADDR);
-    } while (reading == 0);
+    } while (reading == 0 && ++tries < 11);
 
     int32_t reading32 = (int32_t)reading;
 
