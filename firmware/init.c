@@ -1,5 +1,38 @@
+#include <capsense.h>
 #include <config.h>
+#include <em_cmu.h>
+#include <em_emu.h>
+#include <em_gpio.h>
 #include <em_rtc.h>
+#include <em_timer.h>
+#include <leds.h>
+#include <rtt.h>
+#include <time.h>
+
+static void gpio_pins_to_initial_states()
+{
+    // Setting pins to input with a pulldown as the default should minimize power consumption.
+    GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortF, 1, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortC, 15, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortC, 14, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortD, 7, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortD, 6, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortB, 14, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortB, 13, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortB, 11, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortB, 8, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortB, 7, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortC, 0, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortC, 1, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortA, 0, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortE, 13, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortE, 12, gpioModeInputPull, 0);
+
+    // The regmode pin has external pulldown. Activating the internal
+    // pulldown too could cause a small current to flow.
+    GPIO_PinModeSet(gpioPortF, 2, gpioModeInput, 0);
+}
 
 static void low_power_init_wait()
 {

@@ -13,6 +13,7 @@
 #include <em_rtc.h>
 #include <em_timer.h>
 #include <em_wdog.h>
+#include <init.h>
 #include <leds.h>
 #include <rtc.h>
 #include <rtt.h>
@@ -61,7 +62,7 @@ void handle_MODE_AWAKE_AT_REST()
 void handle_MODE_SNOOZE()
 {
     // Make sure LDO is off
-    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 0);
+    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModeInput, 0);
 
     setup_le_capsense(LE_CAPSENSE_SLEEP);
 
@@ -378,7 +379,7 @@ void handle_MODE_DOING_READING()
     g_state.led_brightness_ev_ref = ev >> EV_BPS;
 
     // Turn the LDO off to power down the sensor.
-    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 0);
+    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModeInput, 0);
 
     leds_all_off();
     clear_rtc_interrupt_handlers();
@@ -461,104 +462,6 @@ void state_loop()
             } break;
         }
     }
-}
-
-void gpio_pins_to_initial_states()
-{
-    // Setting pins to input with a pulldown as the default should minimize power consumption.
-    GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortF, 1, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortF, 2, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortC, 15, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortC, 14, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortD, 7, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortD, 6, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortB, 14, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortB, 13, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortB, 11, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortB, 8, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortB, 7, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortC, 0, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortC, 1, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortA, 0, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortE, 13, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortE, 12, gpioModeInputPull, 0);
-}
-
-void TIMER1_IRQHandler(void)
-{ 
-  TIMER_IntClear(TIMER1, TIMER_IF_OF);
-}
-
-static void low_power_init_wait()
-{
-    // Leave a generous ~200ms for the boost converter to stabilize in EM2.
-    // Drawing too much current immediately can cause the converter to shut down
-    // upon insertion of a battery than isn't fully charged.
-
-    RTC_Init_TypeDef rtc_init = {
-        true, // Start counting when initialization is done
-        false, // Enable updating during debug halt.
-        false  // Restart counting from 0 when reaching COMP0.
-    };
-
-    CMU_ClockEnable(cmuClock_CORELE, true);
-    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
-    CMU_ClockDivSet(cmuClock_RTC, cmuClkDiv_2048);
-    CMU_ClockEnable(cmuClock_RTC, true);
-    RTC_Init(&rtc_init);
-    RTC_IntEnable(RTC_IEN_COMP0);
-    NVIC_EnableIRQ(RTC_IRQn);
-    RTC_CompareSet(0, RTC->CNT + RTC_RAW_FREQ/5/2048);
-    RTC_IntClear(RTC_IFC_COMP0);
-
-    EMU_EnterEM2(false);
-}
-
-void common_init()
-{
-    // https://www.silabs.com/community/mcu/32-bit/forum.topic.html/happy_gecko_em4_conf-Y9Bw
-
-    // necessary to ensure boost converter stability
-    low_power_init_wait();
-
-    TIMER_Enable(TIMER1, false);
-    CMU_ClockEnable(cmuClock_TIMER1, false);
-
-    CMU_ClockEnable(cmuClock_HFPER, true);
-    CMU_ClockEnable(cmuClock_GPIO, true);
-    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
-    CMU_OscillatorEnable(cmuOsc_LFRCO, true, true);
-    CMU_ClockEnable(cmuClock_CORELE, true);
-    CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFRCO);
-    CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
-    CMU_ClockEnable(cmuClock_RTC, true);
-
-    RTC_Init_TypeDef rtc_init = {
-        false, // Start counting when initialization is done
-        false, // Enable updating during debug halt.
-        false  // Restart counting from 0 when reaching COMP0.
-    };
-    RTC_Init(&rtc_init);
-
-    rtt_init();
-    SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
-
-    gpio_pins_to_initial_states();
-
-    // Give a grace period before calibrating capsense, so that
-    // the programming headerœ can be disconnected first.
-#ifndef DEBUG
-    leds_on(1);
-    uint32_t base = leds_on_for_cycles;
-    while (leds_on_for_cycles < base + RTC_RAW_FREQ * 8)
-        ;
-    leds_all_off();
-#endif
-
-    setup_capsense();
-    calibrate_capsense();
-    disable_capsense();
 }
 
 int test_debug_led_throb_main()
