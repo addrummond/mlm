@@ -62,7 +62,6 @@ static uint16_t read_reg16(uint16_t addr)
     int status = I2C_TransferInit(I2C0, &i2c_transfer);
     while (status == i2cTransferInProgress)
         status = I2C_Transfer(I2C0);
-    SEGGER_RTT_printf(0, "B1 %u B2 %u\n", rbuf[0], rbuf[1]);
     return ((uint16_t)(rbuf[0]) << 8) | ((uint16_t)rbuf[1]);
 }
 
