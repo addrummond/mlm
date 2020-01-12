@@ -30,7 +30,8 @@ static void gpio_pins_to_initial_states()
     GPIO_PinModeSet(gpioPortE, 12, gpioModeInputPull, 0);
 
     // The regmode pin has external pulldown. Activating the internal
-    // pulldown too could cause a small current to flow.
+    // pulldown too could cause a small current to flow (if the EFM32
+    // ground isn't at exactly the level of the regulator ground).
     GPIO_PinModeSet(gpioPortF, 2, gpioModeInput, 0);
 }
 
