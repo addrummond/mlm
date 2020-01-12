@@ -337,8 +337,8 @@ static uint16_t tempsensor_read_reg16(uint16_t addr)
     I2C_TransferSeq_TypeDef i2c_transfer = {
         .addr = addr,
         .flags = I2C_FLAG_READ,
-        .buf[1].data = rbuf,
-        .buf[1].len = sizeof(rbuf)/sizeof(rbuf[0])
+        .buf[0].data = rbuf,
+        .buf[0].len = sizeof(rbuf)/sizeof(rbuf[0])
     };
     int status = I2C_TransferInit(I2C0, &i2c_transfer);
     while (status == i2cTransferInProgress)
@@ -347,7 +347,6 @@ static uint16_t tempsensor_read_reg16(uint16_t addr)
     return ((uint16_t)(rbuf[0]) << 8) | ((uint16_t)rbuf[1]);
 }
 
-#define C_PER_COUNT 0.00390625
 
 int32_t tempsensor_get_reading(delay_func delayf)
 {
@@ -359,10 +358,7 @@ int32_t tempsensor_get_reading(delay_func delayf)
     } while (reading == 0);
 
     int32_t reading32 = (int32_t)reading;
-    reading32 <<= 16;
-    reading32 /= (int32_t)((1 << 16) * C_PER_COUNT + 0.5);
-    reading32 >>= 16;
-    SEGGER_RTT_printf(0, "TEMP READING %s%u\n", sign_of(reading32), iabs(reading32));
+    SEGGER_RTT_printf(0, "TEMP READING %s%u, %s%uC\n", sign_of(reading32), iabs(reading32), sign_of(reading32), iabs(reading32 >> 8));
 
     return reading;
 }

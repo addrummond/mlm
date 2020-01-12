@@ -757,12 +757,12 @@ int main()
 {
     common_init();
 
-    return real_main();
+    //return real_main();
     //return test_debug_led_throb_main();
     //return test_led_interrupt_cycle();
     //return test_show_reading();
     //return test_sensor_main();
-    //return test_tempsensor_main();
+    return test_tempsensor_main();
     //return test_capsense_with_wheel_main();
     //return test_main();
     //return test_batsense_main();
