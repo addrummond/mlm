@@ -17,7 +17,7 @@
 
 void sensor_init()
 {
-    SEGGER_RTT_printf(0, "Starting sensor initialization..\n");
+    SEGGER_RTT_printf(0, "Starting light sensor initialization..\n");
 
     CMU_ClockEnable(cmuClock_I2C0, true);
 
@@ -53,7 +53,7 @@ void sensor_init()
     NVIC_ClearPendingIRQ(I2C0_IRQn);
     NVIC_DisableIRQ(I2C0_IRQn);
 
-    SEGGER_RTT_printf(0, "Sensor initialization complete.\n");
+    SEGGER_RTT_printf(0, "Light sensor initialization complete.\n");
 }
 
 __attribute__((unused)) static void print_stat(int status)
@@ -329,36 +329,3 @@ void sensor_wait_till_ready(delay_func delayf)
     } while (!(status & 0b100));
 }
 
-#define TEMPSENSOR_I2C_ADDR (0b1001000 << 1)
-
-static uint16_t tempsensor_read_reg16(uint16_t addr)
-{
-    uint8_t rbuf[2];
-    I2C_TransferSeq_TypeDef i2c_transfer = {
-        .addr = addr,
-        .flags = I2C_FLAG_READ,
-        .buf[0].data = rbuf,
-        .buf[0].len = sizeof(rbuf)/sizeof(rbuf[0])
-    };
-    int status = I2C_TransferInit(I2C0, &i2c_transfer);
-    while (status == i2cTransferInProgress)
-        status = I2C_Transfer(I2C0);
-    SEGGER_RTT_printf(0, "B1 %u B2 %u\n", rbuf[0], rbuf[1]);
-    return ((uint16_t)(rbuf[0]) << 8) | ((uint16_t)rbuf[1]);
-}
-
-
-int32_t tempsensor_get_reading(delay_func delayf)
-{
-    //sensor_write_reg(TEMPSENSOR_I2C_ADDR, 0x01, 0b00000000);
-    int16_t reading = 0;
-    do {
-        delayf(25);
-        reading = tempsensor_read_reg16(TEMPSENSOR_I2C_ADDR);
-    } while (reading == 0);
-
-    int32_t reading32 = (int32_t)reading;
-    SEGGER_RTT_printf(0, "TEMP READING %s%u, %s%uC\n", sign_of(reading32), iabs(reading32), sign_of(reading32), iabs(reading32 >> 8));
-
-    return reading;
-}

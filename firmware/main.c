@@ -21,6 +21,7 @@
 #include <state.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <tempsensor.h>
 #include <time.h>
 #include <units.h>
 #include <util.h>
@@ -672,11 +673,12 @@ int test_tempsensor_main()
     SEGGER_RTT_printf(0, "LDO turned on\n");
     delay_ms(100); // make sure LDO has time to start up and sensor has time to
                    // power up
-    sensor_init();
+    tempsensor_init();
     delay_ms(100);
 
     for (;;) {
-        tempsensor_get_reading(delay_ms);
+        int32_t reading = tempsensor_get_reading(delay_ms);
+        SEGGER_RTT_printf(0, "TEMP READING %s%u, %s%uC\n", sign_of(reading), iabs(reading), sign_of(reading), iabs(reading >> 8));
         delay_ms(500);
     }
 
