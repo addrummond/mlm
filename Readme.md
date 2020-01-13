@@ -10,8 +10,8 @@ This works best with a standard 1.6mm PCB thickness.
 The inside of the case should be lined with a reflective material (e.g. aluminum foil) to refelct light from the LEDs back up through the neighboring drill holes and surrounding copper cutouts.
 
 By default, the device functions as a reflective light meter.
-The same design could be used to contruct a spot meter or incident light meter,
-if a lens or diffuser were placed over the sensor.
+The same design could be used for a spot meter or incident light meter by
+placing a lens or diffuser over the sensor.
 
 The LTR-303ALS maxes out at a little below the level of bright daylight, so it would usually be best to place an ND filter of around 3 stops over the sensor.
 (The LTR-303ALS is very sensititive, so you won't lose any useful low-light sensitivity by doing this.)
