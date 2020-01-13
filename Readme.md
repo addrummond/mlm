@@ -17,4 +17,4 @@ The LTR-303ALS maxes out at a little below the level of bright daylight, so it w
 (The LTR-303ALS is very sensititive, so you won't lose any useful low-light sensitivity by doing this.)
 
 The LTR-303ALS integrates over a period of 50-400ms, which is far too long for effective flash metering.
-A different design (probably using a discrete photodiode) would therefore be required for this purpose.
+A different design would therefore be required for this purpose (probably using a discrete photodiode).
