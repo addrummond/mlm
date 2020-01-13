@@ -7,7 +7,7 @@ The hardware design and software are largely complete. (This will work if you bu
 
 The bottom side of the PCB (the side with no components mounted) is intended to be used as the top panel of the case.
 This works best with a standard 1.6mm PCB thickness.
-The inside of the case should be lined with a reflective material (e.g. aluminum foil) to refelct light from the LEDs back up through the neighboring drill holes and surrounding copper cutouts.
+The inside of the case should be lined with a reflective material (e.g. aluminum foil) to reflect light from the LEDs back up through the neighboring drill holes and surrounding copper cutouts.
 
 By default, the device functions as a reflective light meter.
 The same design could be adapted for a spot meter or incident light meter by
