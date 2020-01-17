@@ -141,7 +141,7 @@ static inline int32_t subtract_margin(int32_t max_lux)
 // def output_tables():
 //     def f(c0,c1,a,b,gain,itime):
 //         return (a * c0 + b * c1) / gain / itime
-//     print("static const int LUX_VAL_DOWN_SHFIT = 5;")
+//     print("static const int LUX_VAL_DOWN_SHIFT = 5;")
 //     rati = 1
 //     for rat in [(1.7743, 1.1059, 0.44), (4.2785, -1.9548, 0.45), (0.5926, 0.1185, 0.84)]:
 //         print("static const uint16_t RAT_%i_MAX_LUX_VALS[8][6] = {" % rati)
@@ -160,7 +160,7 @@ static inline int32_t subtract_margin(int32_t max_lux)
 //             print("},")
 //         rati += 1
 //         print("};")
-static const int LUX_VAL_DOWN_SHFIT = 5;
+static const int LUX_VAL_DOWN_SHIFT = 5;
 static const uint16_t RAT_1_MAX_LUX_VALS[8][6] = {
     {14,28,169,338,676,1353,},
     {16,32,193,386,773,1546,},
@@ -211,7 +211,7 @@ static void get_mode(sensor_reading r, int32_t *itime, int *itime_key, int32_t *
     int i, j;
     for (i = 0; i < 8; ++i) {
         for (j = 0; j < 6; ++j) {
-            uint32_t maxlux = tab[i*8+j] << LUX_VAL_DOWN_SHFIT << EV_BPS;
+            uint32_t maxlux = tab[i*8+j] << LUX_VAL_DOWN_SHIFT << EV_BPS;
             if (lux50 < maxlux / 2)
                 goto breakout;
         }
