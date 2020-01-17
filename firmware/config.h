@@ -13,8 +13,6 @@
 
 #define MISSES_REQUIRED_TO_BREAK_HOLD          2
 
-#define IDLE_TIME_BEFORE_DEEPEST_SLEEP_SECONDS 30
-
 #define DISPLAY_READING_TIME_SECONDS           20
 
 // Maximum of 12 LEDs being displayed at once.
