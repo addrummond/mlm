@@ -210,7 +210,7 @@
     (add_net "VREG")
   )
 
-  (module "mlm:M20-7910542R" (layer "F.Cu") (tedit 5E1B8BD5) (tstamp 5DEBBFFA)
+  (module "mlm:M20-7910542R" (layer "F.Cu") (tedit 5E2DA5E9) (tstamp 5DEBBFFA)
     (at 111.36 69.21 270)
     (path "/5C3453EA")
     (fp_text reference "J1" (at 0.04 -2.89 90) (layer "F.SilkS") hide
@@ -230,7 +230,6 @@
     (fp_line (start -6.475 0.15) (end -6.475 1) (layer "F.SilkS") (width 0.3))
     (fp_line (start 6.475 1) (end 6.475 0.15) (layer "F.SilkS") (width 0.3))
     (fp_line (start 6.475 0.15) (end 6.475 -2.4) (layer "F.SilkS") (width 0.3))
-    (fp_poly (pts (xy -6.75 -11.5) (xy 6.75 -11.5) (xy 6.75 -1.825) (xy -6.75 -1.825)) (layer "F.Mask") (width 0.1))
     (pad "5" smd rect (at 5.08 0.6 270) (size 1.1 1.8) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 9 "GND"))
     (pad "4" smd rect (at 2.54 0.6 270) (size 1.1 1.8) (layers "F.Cu" "F.Paste" "F.Mask")
