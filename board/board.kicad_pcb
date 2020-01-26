@@ -1371,7 +1371,7 @@
     (at 107.4 70.6 180)
     (path "/5C5DC471")
     (attr smd)
-    (fp_text reference "C12" (at -2.35 0.17) (layer "F.SilkS")
+    (fp_text reference "C12" (at 2.32 -0.01) (layer "F.SilkS")
       (effects (font (size 0.74 0.75) (thickness 0.15)))
     )
     (fp_text value "10u" (at 0 1.9) (layer "F.Fab")
