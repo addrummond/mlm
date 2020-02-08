@@ -420,7 +420,7 @@ press get_center_pad_press()
     // We should define a setup function that just turns on ACM1,
     // but when I tried that I got weird issues. This works ok.
     // The extra power consumption of having both comparators on
-    // shouldn't be significant, as we're doing all this in EM1.
+    // shouldn't be significant, as we're doing all this in EM0.
     setup_capsense();
     cycle_capsense();
     cycle_capsense();
