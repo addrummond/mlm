@@ -110,6 +110,11 @@ int32_t lux_to_ev(int32_t lux)
         return under + diff;
     }
 
+    // Results consistently seem to be out by a factor of 10 (i.e. approx. three stops).
+    // I suspect that there's a factor of 10 error in the appendix (?)
+    lux *= 10;
+
+
     lux *= 2;
     lux /= 5;
 
