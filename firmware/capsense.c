@@ -174,11 +174,14 @@ void calibrate_capsense()
     SEGGER_RTT_printf(0, "Capsense calibration values: %u %u %u (le: %u %u %u)\n", calibration_values[0], calibration_values[1], calibration_values[2], le_calibration_values[0], le_calibration_values[1], le_calibration_values[2]);
 }
 
+static const uint32_t THRESHOLD_NUM = 92;
+static const uint32_t THRESHOLD_DENOM = 100;
+
 touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2)
 {
-    uint32_t NOTOUCH_THRESHOLD0 = calibration_values[0] * 7 / 10;
-    uint32_t NOTOUCH_THRESHOLD1 = calibration_values[1] * 7 / 10;
-    uint32_t NOTOUCH_THRESHOLD2 = calibration_values[2] * 7 / 10;
+    uint32_t NOTOUCH_THRESHOLD0 = calibration_values[0] * THRESHOLD_NUM / THRESHOLD_DENOM;
+    uint32_t NOTOUCH_THRESHOLD1 = calibration_values[1] * THRESHOLD_NUM / THRESHOLD_DENOM;
+    uint32_t NOTOUCH_THRESHOLD2 = calibration_values[2] * THRESHOLD_NUM / THRESHOLD_DENOM;
 
     if (chan0 != 0 && chan0 < NOTOUCH_THRESHOLD0 && chan1 != 0 && chan1 < NOTOUCH_THRESHOLD1)
         return LEFT_AND_RIGHT_BUTTONS;
@@ -194,7 +197,7 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
 
 bool center_pad_is_touched(uint32_t chan2)
 {
-    return chan2 != 0 && chan2 < calibration_values[2] * 7 / 10;
+    return chan2 != 0 && chan2 < calibration_values[2] * THRESHOLD_NUM / THRESHOLD_DENOM;
 }
 
 uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)
