@@ -1,8 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define REGMODE_PORT                           gpioPortB
-#define REGMODE_PIN                            13
+#define REGMODE_PORT                           gpioPortF
+#define REGMODE_PIN                            2
 
 #define BATSENSE_PORT                          gpioPortC
 #define BATSENSE_PIN                           15

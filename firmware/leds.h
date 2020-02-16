@@ -73,8 +73,8 @@
 #define LED22_CAT_DPIN  4
 #define LED23_CAT_DPIN  5
 #define LED24_CAT_DPIN  6
-#define LED25_CAT_DPIN  2
-#define LED26_CAT_DPIN  3
+#define LED25_CAT_DPIN  5
+#define LED26_CAT_DPIN  6
 
 #define LED0_AN_DPIN    6
 #define LED1_AN_DPIN    6
