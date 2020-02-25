@@ -88,7 +88,7 @@ static const int16_t lux_to_ev_lookup[] = {
     -2461, -2449, -2437, -2425, -2413, -2401, -2389, -2378
 };
 
-int32_t lux_to_ev(int32_t lux)
+int32_t lux_to_reflective_ev(int32_t lux)
 {
     // lux = 2^ev * 2.5
 
@@ -110,10 +110,14 @@ int32_t lux_to_ev(int32_t lux)
         return under + diff;
     }
 
-    // Results consistently seem to be out by a factor of 10 (i.e. approx. three stops).
-    // I suspect that there's a factor of 10 error in the appendix (?)
-    lux *= 10;
-
+    // The equation in the sensor data sheet gives us lux (illuminance),
+    // but we want luminance. Assuming 15.7% reflectance, the incident
+    // reading corresponding to this reflective reading would have been
+    // 100/15.7 times brighter (under various idealizing assumptions).
+    // Thus, we need to compensate.
+    // See https://en.wikipedia.org/wiki/Light_meter#Calibrated_reflectance
+    lux *= 1000;
+    lux /= 157;
 
     lux *= 2;
     lux /= 5;
@@ -318,12 +322,12 @@ const char *ap_strings[] = {
 
 #ifdef TEST
 
-static double fp_lux_to_ev(double lux)
+static double fp_lux_to_reflective_ev(double lux)
 {
-    return log2(lux * (2.0/5.0));
+    return log2(lux * (2.0/5.0) * 100 / 15.7);
 }
 
-static bool test_lux_to_ev()
+static bool test_lux_to_reflective_ev()
 {
     bool passed = true;
 
@@ -332,8 +336,8 @@ static bool test_lux_to_ev()
 
     for (double lux = 0.1; lux < 656000; lux *= 1.2) {
         int32_t ilux = (int32_t)(lux * (1 << EV_BPS));
-        double r1 = fp_lux_to_ev(lux);
-        int32_t r2 = lux_to_ev(ilux);
+        double r1 = fp_lux_to_reflective_ev(lux);
+        int32_t r2 = lux_to_reflective_ev(ilux);
         double r2f = ((double)r2) / (1 << EV_BPS);
         double diff = fabs(r1-r2f);
         if (diff > 0.01)
@@ -410,7 +414,7 @@ static const char *passed(bool p)
 
 int main()
 {
-    bool lux_to_ev_passed = test_lux_to_ev();
+    bool lux_to_ev_passed = test_lux_to_reflective_ev();
     bool channels_to_lux_passed = plot_channels_to_lux();
     bool ev_iso_aperture_to_shutter_passed = test_ev_iso_aperture_to_shutter();
 

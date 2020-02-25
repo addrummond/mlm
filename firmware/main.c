@@ -372,7 +372,7 @@ void handle_MODE_DOING_READING()
 
     // Convert the raw reading to an EV value.
     int32_t lux = sensor_reading_to_lux(sr, gain, itime);
-    int32_t ev = lux_to_ev(lux);
+    int32_t ev = lux_to_reflective_ev(lux);
     g_state.last_reading_ev = ev;
     SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS);
 
@@ -639,7 +639,7 @@ int test_sensor_main()
         sensor_wait_till_ready(delay_ms);
         sensor_reading sr = sensor_get_reading_auto(delay_ms, &gain, &itime);
         int32_t lux = sensor_reading_to_lux(sr, gain, itime);
-        int32_t ev = lux_to_ev(lux);
+        int32_t ev = lux_to_reflective_ev(lux);
         int32_t evthird = ev & ((1<<EV_BPS)-1);
         int32_t thirdval = 0;
         if (evthird > (2<<EV_BPS)/3) {
