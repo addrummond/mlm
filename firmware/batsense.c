@@ -10,6 +10,28 @@
 #include <stdint.h>
 #include <time.h>
 
+static const uint32_t CR2032_HOURS = 1200;
+static const uint8_t CR2032_DISCHARGE = {
+    // 150 hours per entry
+    2.85,
+    2.85,
+    2.85,
+    2.85,
+    2.85,
+    2.85,
+    2.85,
+    2.85,
+    2.85,
+    2.825,
+    2.8,
+    2.75,
+    2.7,
+    2.65,
+    2.6,
+    2.45,
+    2.2
+}
+
 static int battery_voltage_in_10th_volts_helper()
 {
     GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInput, 0);
