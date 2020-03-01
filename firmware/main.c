@@ -1,5 +1,6 @@
 #include <config.h>
 
+#include <batsense.h>
 #include <capsense.h>
 #include <em_acmp.h>
 #include <em_chip.h>
@@ -737,6 +738,17 @@ int test_le_capsense_main()
     }
 }
 
+int test_batsense_main()
+{
+    for (;;) {
+        int v = battery_voltage_in_10th_volts();
+        SEGGER_RTT_printf(0, "V: %u\n", v);
+        delay_ms(1000);
+    }
+
+    return 0;
+}
+
 int test_all_led_options_main()
 {
 #define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _CAT_DPIN, _GPIO_PORT) ,
@@ -798,7 +810,8 @@ int main()
     common_init();
 
 //    return real_main();
-    return test_all_led_options_main();
+    return test_batsense_main();
+    //return test_all_led_options_main();
     //return test_debug_led_throb_main();
     //return test_led_interrupt_cycle();
     //return test_show_reading();
