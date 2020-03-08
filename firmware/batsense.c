@@ -7,30 +7,9 @@
 #include <em_acmp.h>
 #include <em_gpio.h>
 #include <leds.h>
+#include <macroutils.h>
 #include <stdint.h>
 #include <time.h>
-
-static const uint32_t CR2032_HOURS = 1200;
-static const uint8_t CR2032_DISCHARGE = {
-    // 150 hours per entry
-    2.85,
-    2.85,
-    2.85,
-    2.85,
-    2.85,
-    2.85,
-    2.85,
-    2.85,
-    2.85,
-    2.825,
-    2.8,
-    2.75,
-    2.7,
-    2.65,
-    2.6,
-    2.45,
-    2.2
-}
 
 static int battery_voltage_in_10th_volts_helper()
 {
@@ -48,7 +27,7 @@ static int battery_voltage_in_10th_volts_helper()
 
     delay_ms(20);
 
-    // We don't have a proper ADC on this model, but we can set the ACMP
+    // We don't have a proper ADC on this model of EFM32, but we can set the ACMP
     // reference voltage in 64ths of VREG and do a binary search. As the
     // battery voltage should be stable over a small time window, this
     // should be accurate enough.
@@ -86,12 +65,9 @@ static int battery_voltage_in_10th_volts_helper()
     CMU_ClockEnable(cmuClock_ACMP1, false);
 
     // Turn off the MOSFET and set the other DPINs back to their default state.
-    GPIO_PinModeSet(DPIN3_GPIO_PORT, DPIN3_GPIO_PIN, gpioModeInputPull, 1);
-    GPIO_PinModeSet(DPIN1_GPIO_PORT, DPIN1_GPIO_PIN, gpioModeInputPull, 1);
-    GPIO_PinModeSet(DPIN2_GPIO_PORT, DPIN2_GPIO_PIN, gpioModeInputPull, 1);
-    GPIO_PinModeSet(DPIN4_GPIO_PORT, DPIN4_GPIO_PIN, gpioModeInputPull, 1);
-    GPIO_PinModeSet(DPIN5_GPIO_PORT, DPIN5_GPIO_PIN, gpioModeInputPull, 1);
-    GPIO_PinModeSet(DPIN6_GPIO_PORT, DPIN6_GPIO_PIN, gpioModeInputPull, 1);
+#define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeInput, 0);
+    DPIN_FOR_EACH(M)
+#undef M
 
     GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInputPull, 1);
 
@@ -100,7 +76,7 @@ static int battery_voltage_in_10th_volts_helper()
     
     // VREG tends to measure at around 3.42V in practice.
     // Note that at this point, low == high.
-    return (34 * avg) / 64;
+    return (342 * avg) / 640;
 }
 
 int battery_voltage_in_10th_volts()

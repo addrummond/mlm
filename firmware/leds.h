@@ -133,8 +133,8 @@
 #define LED_F2_8_N      21
 #define LED_F4_N        22
 #define LED_F5_6_N      23
-#define LED_MINUS_1_3_N 24
-#define LED_PLUS_1_3_N  25
+#define LED_PLUS_1_3_N  24
+#define LED_MINUS_1_3_N 25
 
 #define LED_OUT_OF_RANGE_MASK 0b100000000000000000000011
 

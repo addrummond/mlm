@@ -14,6 +14,7 @@
 #include <em_timer.h>
 #include <em_wdog.h>
 #include <init.h>
+#include <iso.h>
 #include <leds.h>
 #include <rtc.h>
 #include <rtt.h>
@@ -32,7 +33,8 @@ void handle_MODE_JUST_WOKEN()
     // If they've held the button down for a little bit,
     // start doing a reading. If it was a double tap, go to
     // ISO / exposure set mode.
-    press p = get_center_pad_press();
+    setup_capsense_for_center_pad();
+    press p = get_pad_press();
 
     if (p == PRESS_HOLD) {
         SEGGER_RTT_printf(0, "Hold\n");
@@ -105,9 +107,10 @@ static void shift_exposure_wheel(int n, int *ap_index, int *ss_index)
 
 void handle_MODE_DISPLAY_READING()
 {
+    int32_t iso = iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third);
     int ap_index, ss_index, third;
-    ev_iso_aperture_to_shutter(g_state.last_reading_ev, g_state.iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
-    SEGGER_RTT_printf(0, "ISO=%s, ap=%s, ss=%s\n", iso_strings[g_state.iso], ap_index == -1 ? "OOR" : ap_strings[ap_index], ss_index == -1 ? "OOR" : ss_strings[ss_index]);
+    ev_iso_aperture_to_shutter(g_state.last_reading_ev, iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
+    SEGGER_RTT_printf(0, "ISO=%s, ap=%s, ss=%s\n", iso_to_string(iso), ap_index == -1 ? "OOR" : ap_strings[ap_index], ss_index == -1 ? "OOR" : ss_strings[ss_index]);
 
     leds_all_off();
 
@@ -218,7 +221,8 @@ void handle_MODE_DISPLAY_READING()
 handle_center_press:
     leds_all_off();
     disable_capsense();
-    press p = get_center_pad_press();
+    setup_capsense_for_center_pad();
+    press p = get_pad_press();
     if (p == PRESS_HOLD)
         g_state.mode = MODE_DOING_READING;
     else if (p == PRESS_TAP)
@@ -230,18 +234,16 @@ handle_double_button_press:
     g_state.mode = MODE_SETTING_ISO;
 }
 
-static int iso_to_led_n(int iso)
-{
-    int clockwise_led_n = (LED_ISO6_N + iso) % LED_N_IN_WHEEL;
-    return (LED_N_IN_WHEEL - clockwise_led_n) % LED_N_IN_WHEEL;
-}
-
 void handle_MODE_SETTING_ISO()
 {
     leds_all_off();
 
-    uint32_t leds = 1 << iso_to_led_n(g_state.iso);
+    uint32_t leds = 1 << iso_dial_pos_to_led_n(g_state.iso_dial_pos);
     set_led_throb_mask(leds);
+    if (g_state.iso_third == -1)
+        leds |= 1 << LED_MINUS_1_3_N;
+    else if (g_state.iso_third == 1)
+        leds |= 1 << LED_PLUS_1_3_N;
     leds_on(leds);
 
     setup_capsense();
@@ -264,19 +266,51 @@ void handle_MODE_SETTING_ISO()
 
                 if (zero_touch_position == INVALID_TOUCH_POSITION) {
                     if (tp == LEFT_BUTTON || tp == RIGHT_BUTTON) {
-                        leds_all_off();
+                        // Check if it's a tap or a hold, if we're on one
+                        // of the ISOs that can be modified with +/- 1/3rd.
+                        press p = PRESS_TAP;
+                        bool cycled = false;
+                        if ((tp == LEFT_BUTTON && iso_dial_pos_can_go_third_below(g_state.iso_dial_pos)) || (tp == RIGHT_BUTTON && iso_dial_pos_can_go_third_above(g_state.iso_dial_pos))) {
+                            if (tp == LEFT_BUTTON) {
+                                cycled = true;
+                                cycle_capsense();
+                            }
                         
-                        g_state.iso += (tp == RIGHT_BUTTON ? 1 : -1);
-                        if (g_state.iso < 0)
-                            g_state.iso = ISO_MAX + g_state.iso + 1;
-                        if (g_state.iso > ISO_MAX)
-                            g_state.iso = 0;
+                            SEGGER_RTT_printf(0, "GETTING PRESS\n");
+                            p = get_pad_press_while_leds_on();
+                            SEGGER_RTT_printf(0, "DONE GETTING PRESS\n");
+                        }
 
-                        SEGGER_RTT_printf(0, "ISO set to %s\n", iso_strings[g_state.iso]);
+                        leds_all_off();
+
+                        int mag = (tp == RIGHT_BUTTON ? 1 : -1);
+                        if (p == PRESS_TAP) {
+                            g_state.iso_third = 0;
+                            g_state.iso_dial_pos += mag;
+                            if (g_state.iso_dial_pos < 0)
+                                g_state.iso_dial_pos += ISO_N_DIAL_POSITIONS;
+                            else
+                                g_state.iso_dial_pos %= ISO_N_DIAL_POSITIONS;
+                        } else {
+                            // Button press will only have registered as a hold if this is a thirdable point on the dial.
+                            g_state.iso_third = mag;
+                        }
                         
-                        leds = 1 << iso_to_led_n(g_state.iso);
+                        int32_t iso = iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third);
+                        SEGGER_RTT_printf(0, "ISO set to %s (dial pos %u)\n", iso_to_string(iso), g_state.iso_dial_pos);
+                        
+                        leds = 1 << iso_dial_pos_to_led_n(g_state.iso_dial_pos);
                         set_led_throb_mask(leds);
+                        if (g_state.iso_third == -1)
+                            leds |= 1 << LED_MINUS_1_3_N;
+                        else if (g_state.iso_third == 1)
+                            leds |= 1 << LED_PLUS_1_3_N;
                         leds_on(leds);
+
+                        if (cycled) {
+                            cycle_capsense();
+                            cycle_capsense();
+                        }
                     } else if (tp == CENTER_BUTTON) {
                         goto handle_center_press;
                     }
@@ -311,7 +345,8 @@ handle_center_press:
     SEGGER_RTT_printf(0, "ISO button press\n");
     leds_all_off();
     disable_capsense();
-    press p = get_center_pad_press();
+    setup_capsense_for_center_pad();
+    press p = get_pad_press();
     if (p == PRESS_HOLD)
         g_state.mode = MODE_DOING_READING;
     else if (p == PRESS_TAP)
@@ -396,8 +431,9 @@ void handle_MODE_DOING_READING()
     delay_ms(PAD_COUNT_MS);
     get_touch_count(&chan, 0);
     if (center_pad_is_touched(chan)) {
+        int32_t iso = iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third);
         int ap_index, ss_index, third;
-        ev_iso_aperture_to_shutter(g_state.last_reading_ev, g_state.iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
+        ev_iso_aperture_to_shutter(g_state.last_reading_ev, iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
         SEGGER_RTT_printf(0, "Third: %s%u\n", sign_of(third), iabs(third));
         if (ap_index == -1)
             leds_on(LED_OUT_OF_RANGE_MASK);
@@ -724,7 +760,8 @@ int test_le_capsense_main()
         setup_le_capsense(LE_CAPSENSE_SLEEP);
         EMU_EnterEM2(true);
         disable_le_capsense();
-        press p = get_center_pad_press();
+        setup_capsense_for_center_pad();
+        press p = get_pad_press();
         switch (p) {
             case PRESS_TAP:
                 SEGGER_RTT_printf(0, "TAP!\n");
@@ -796,6 +833,14 @@ static const uint8_t led_cat_pins[] = {
     }
 }
 
+int test_init_main()
+{
+    for (;;)
+        ;
+
+    return 0;
+}
+
 int real_main()
 {
     set_state_to_default();
@@ -809,8 +854,8 @@ int main()
 {
     common_init();
 
-//    return real_main();
-    return test_batsense_main();
+    return real_main();
+    //return test_batsense_main();
     //return test_all_led_options_main();
     //return test_debug_led_throb_main();
     //return test_led_interrupt_cycle();
@@ -824,4 +869,5 @@ int main()
     //return test_watchdog_wakeup_main();
     //return test_led_change_main();
     //return reset_state_main();
+    //return test_init_main();
 }

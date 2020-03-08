@@ -145,7 +145,7 @@ void led_on(unsigned n)
 
 static void turnoff()
 {
-#define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeInput, 1);
+#define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeInput, 0);
     DPIN_FOR_EACH(M)
 #undef M
 

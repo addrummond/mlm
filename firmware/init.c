@@ -11,23 +11,28 @@
 
 static void gpio_pins_to_initial_states()
 {
-    // Setting pins to input with a pulldown as the default should minimize power consumption.
+    // Setting pins to input with a pull up as the default should minimize power consumption.
     GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortF, 0, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortF, 1, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortC, 14, gpioModeInputPull, 1);
-    GPIO_PinModeSet(gpioPortD, 7, gpioModeInputPull, 1);
-    GPIO_PinModeSet(gpioPortD, 6, gpioModeInputPull, 1);
+    //GPIO_PinModeSet(gpioPortD, 7, gpioModeInputPull, 1);
+    //GPIO_PinModeSet(gpioPortD, 6, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortB, 14, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortB, 13, gpioModeInputPull, 1);
-    GPIO_PinModeSet(gpioPortB, 11, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortB, 8, gpioModeInputPull, 1);
-    GPIO_PinModeSet(gpioPortB, 7, gpioModeInputPull, 1);
+    //GPIO_PinModeSet(gpioPortB, 11, gpioModeInputPull, 0);
+    //GPIO_PinModeSet(gpioPortB, 8, gpioModeInputPull, 1);
+    //GPIO_PinModeSet(gpioPortB, 7, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortC, 0, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortC, 1, gpioModeInputPull, 1);
-    GPIO_PinModeSet(gpioPortA, 0, gpioModeInputPull, 1);
+    //GPIO_PinModeSet(gpioPortA, 0, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortE, 13, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortE, 12, gpioModeInputPull, 1);
+
+    // leaving the DPINs as floating seems to work better
+#define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeInput, 0);
+    DPIN_FOR_EACH(M)
+#undef M
 
     // The regmode pin has external pulldown. Activating the internal
     // pulldown too could cause a small current to flow (if the EFM32

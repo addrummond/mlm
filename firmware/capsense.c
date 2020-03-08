@@ -7,6 +7,7 @@
 #include <em_pcnt.h>
 #include <em_prs.h>
 #include <em_rtc.h>
+#include <leds.h>
 #include <rtt.h>
 #include <stdbool.h>
 #include <time.h>
@@ -417,8 +418,7 @@ void disable_le_capsense()
     NVIC_DisableIRQ(LESENSE_IRQn);
 }
 
-// To be called after LESENSE wakeup to detect press kind
-press get_center_pad_press()
+void setup_capsense_for_center_pad()
 {
     // We should define a setup function that just turns on ACM1,
     // but when I tried that I got weird issues. This works ok.
@@ -427,7 +427,10 @@ press get_center_pad_press()
     setup_capsense();
     cycle_capsense();
     cycle_capsense();
+}
 
+press get_pad_press()
+{
     const int long_press_ticks = LONG_PRESS_MS * RTC_FREQ / 1000;
     const int touch_count_ticks = PAD_COUNT_MS * RTC_FREQ / 1000;
 
@@ -448,9 +451,6 @@ press get_center_pad_press()
         next_touch_count = RTC->CNT + touch_count_ticks;
         
         get_touch_count(&count, 0);
-        //SEGGER_RTT_printf(0, "COUNT %u\n", count);
-        //next_touch_count = RTC->CNT + touch_count_ticks;
-        //continue;
 
         if (! center_pad_is_touched(count)) {
             ++miss_count;
@@ -468,5 +468,43 @@ press get_center_pad_press()
 
     RTC->CTRL &= ~RTC_CTRL_EN;
     disable_capsense();
+    return p;
+}
+
+press get_pad_press_while_leds_on()
+{
+    const uint32_t long_press_ticks = LONG_PRESS_MS * RTC_RAW_FREQ / 1000;
+    const uint32_t touch_count_ticks = PAD_COUNT_MS * RTC_RAW_FREQ / 1000;
+
+    uint32_t base_touch_count = leds_on_for_cycles;
+    uint32_t next_touch_count = base_touch_count + touch_count_ticks;
+    press p;
+
+    uint32_t count;
+    get_touch_count(&count, 0);
+
+    int miss_count = 0;
+    for (;;) {
+        while (leds_on_for_cycles < next_touch_count)
+            ;
+        
+        next_touch_count = leds_on_for_cycles + touch_count_ticks;
+        
+        get_touch_count(&count, 0);
+
+        if (! center_pad_is_touched(count)) {
+            ++miss_count;
+            if (miss_count > 1) {
+                p = PRESS_TAP;
+                break;
+            }
+        }
+
+        if (leds_on_for_cycles - base_touch_count >= long_press_ticks) {
+            p = PRESS_HOLD;
+            break;
+        }
+    }
+
     return p;
 }

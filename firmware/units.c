@@ -1,3 +1,4 @@
+#include <iso.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <units.h>
@@ -129,7 +130,7 @@ int32_t lux_to_reflective_ev(int32_t lux)
 //
 //     https://github.com/automote/LTR303/issues/2
 //
-// The lux formula given is as follows. Note that unit for ALS_INT is in
+// The lux formula given is as follows. Note that the unit for ALS_INT is
 // 1/10ths of a second.
 //
 // RATIO = CH1/(CH0+CH1)
@@ -150,14 +151,14 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t als_gain_val, int32_t al
     int64_t ch0 = r.chan0;
     int64_t ch1 = r.chan1;
 
-#define TOFP(x) ((int64_t)(((double)(1 << EV_BPS)) * (x) + 0.5))
-    static const int64_t c1a = TOFP(1.7743);
-    static const int64_t c1b = TOFP(1.1059);
-    static const int64_t c2a = TOFP(4.2785);
-    static const int64_t c2b = TOFP(1.9548);
-    static const int64_t c3a = TOFP(0.5926);
-    static const int64_t c3b = TOFP(0.1185);
-#undef TOFP
+#define TOFIXP(x) ((int64_t)(((double)(1 << EV_BPS)) * (x) + 0.5))
+    static const int64_t c1a = TOFIXP(1.7743);
+    static const int64_t c1b = TOFIXP(1.1059);
+    static const int64_t c2a = TOFIXP(4.2785);
+    static const int64_t c2b = TOFIXP(1.9548);
+    static const int64_t c3a = TOFIXP(0.5926);
+    static const int64_t c3b = TOFIXP(0.1185);
+#undef TOFIXP
 
     int64_t tmp;
     if (rat < 45)
@@ -213,7 +214,7 @@ void ev_iso_aperture_to_shutter(int32_t ev, int32_t iso, int32_t ap, int *ap_ind
 
     // For calculation purposes it's convenient to have the ISO setting on a
     // full stop as well as the aperture and the shutter speed. Thus, if the
-    // ISO not on a full stop boundary, we adjust the ev value to compensate.
+    // ISO is not on a full stop boundary, we adjust the ev value to compensate.
     ev_to_shutter_iso100_f8(ev + ((1<<EV_BPS)*r)/3, &ss_index, &third);
 
 #ifdef TEST
@@ -223,7 +224,7 @@ void ev_iso_aperture_to_shutter(int32_t ev, int32_t iso, int32_t ap, int *ap_ind
 #endif
 
     // Adjust shutter speed to compensate for ISO difference.
-    ss_index += fsiso - ISO_100_INDEX/3;
+    ss_index += fsiso - ISO_100/3;
 
     // Adjust shutter speed to get desired aperture.
     ss_index -= ap - F8_AP_INDEX;
@@ -262,33 +263,6 @@ default_set:
     *ss_index_out = ss_index;
     *third_out = third;
 }
-
-const char *iso_strings[] = {
-    "6",
-    "8",
-    "10",
-    "12",
-    "16",
-    "20",
-    "25",
-    "32",
-    "40",
-    "50",
-    "64",
-    "80",
-    "100",
-    "125",
-    "160",
-    "200",
-    "250",
-    "320",
-    "400",
-    "500",
-    "640",
-    "800",
-    "1000",
-    "1250"
-};
 
 const char *ss_strings[] = {
     "1S",

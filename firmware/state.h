@@ -30,7 +30,8 @@ typedef struct state {
     int32_t last_reading_gain;
     int32_t last_reading_ev;
     int32_t last_reading_flags;
-    int32_t iso; // 0 = ISO 6, 1 = ISO 8, and so on (increments of 1/3 stop).
+    int32_t iso_dial_pos;
+    int32_t iso_third; // 0, -1 or 1
     int32_t compensation; // in units of 1/3 stop
     int32_t led_brightness_ev_ref;
 } state;
