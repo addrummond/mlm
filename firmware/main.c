@@ -819,15 +819,17 @@ static const uint8_t led_cat_pins[] = {
                     GPIO_PinModeSet(led_cat_ports[k], led_cat_pins[k], gpioModeInput, 1);
                 }
 
+                SEGGER_RTT_printf(0, "PIN %u ; PIN %u\n", i, j);
+
                 GPIO_PinModeSet(port1, pin1, gpioModePushPull, 1);
                 GPIO_PinModeSet(port2, pin2, gpioModePushPull, 0);
 
-                delay_ms(250);
+                delay_ms(1000);
 
                 GPIO_PinModeSet(port1, pin1, gpioModePushPull, 0);
                 GPIO_PinModeSet(port2, pin2, gpioModePushPull, 1);
 
-                delay_ms(250);
+                delay_ms(1000);
             }
         }
     }
@@ -854,7 +856,7 @@ int main()
 {
     common_init();
 
-    return real_main();
+    //return real_main();
     //return test_batsense_main();
     //return test_all_led_options_main();
     //return test_debug_led_throb_main();
@@ -867,7 +869,7 @@ int main()
     //return test_capsense_main();
     //return test_le_capsense_main();
     //return test_watchdog_wakeup_main();
-    //return test_led_change_main();
+    return test_led_change_main();
     //return reset_state_main();
     //return test_init_main();
 }
