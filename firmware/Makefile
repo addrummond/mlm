@@ -26,6 +26,10 @@ else
     override ARMCFLAGS += -O2
 endif
 
+ifdef NOGRACE
+    override ARMCFLAGS += -DNOGRACE
+endif
+
 ifdef NO_RTT
     override ARMCFLAGS += -DNO_RTT
 endif

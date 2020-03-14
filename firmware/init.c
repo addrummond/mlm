@@ -98,8 +98,8 @@ void common_init()
 
     // Give a grace period before calibrating capsense, so that
     // the programming headerœ can be disconnected first.
-#ifndef DEBUG
-    leds_on(1);
+#if !defined(DEBUG) && !defined(NOGRACE)
+    leds_on(23);
     uint32_t base = leds_on_for_cycles;
     while (leds_on_for_cycles < base + RTC_RAW_FREQ * 8)
         ;

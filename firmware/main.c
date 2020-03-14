@@ -10,6 +10,7 @@
 #include <em_emu.h>
 #include <em_gpio.h>
 #include <em_prs.h>
+#include <em_rmu.h>
 #include <em_rtc.h>
 #include <em_timer.h>
 #include <em_wdog.h>
@@ -296,8 +297,10 @@ void handle_MODE_SETTING_ISO()
                             g_state.iso_third = mag;
                         }
                         
+#ifdef DEBUG
                         int32_t iso = iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third);
                         SEGGER_RTT_printf(0, "ISO set to %s (dial pos %u)\n", iso_to_string(iso), g_state.iso_dial_pos);
+#endif
                         
                         leds = 1 << iso_dial_pos_to_led_n(g_state.iso_dial_pos);
                         set_led_throb_mask(leds);
@@ -715,40 +718,42 @@ int test_tempsensor_main()
 
 int test_watchdog_wakeup_main()
 {
-    SEGGER_RTT_printf(0, "In test_watchdog_wakeup_main...\n");
-
-    delay_ms(1000);
-
+    uint32_t reset_cause = RMU_ResetCauseGet();
+    RMU_ResetCauseClear();
     leds_all_off();
-    leds_on(1);
+    if ((reset_cause & RMU_RSTCAUSE_WDOGRST) == 0) {
+        // First run.
+        leds_on(0b1);
+    } else {
+        leds_on(0b1000);
+    }
+
+    //RMU->CTRL &= ~0b111;
+    //RMU->CTRL |= 1; // limited watchdog reset
+
+    uint32_t base = leds_on_for_cycles;
+    while (leds_on_for_cycles < base + RTC_RAW_FREQ)
+        ;
 
     CMU_ClockEnable(cmuClock_CORELE, true);
 
-    for (;;) {
-        EMU_EM23Init_TypeDef dcdcInit = EMU_EM23INIT_DEFAULT;
-        EMU_EM23Init(&dcdcInit);
+    EMU_EM23Init_TypeDef dcdcInit = EMU_EM23INIT_DEFAULT;
+    EMU_EM23Init(&dcdcInit);
 
-        WDOG_Init_TypeDef wInit = WDOG_INIT_DEFAULT;
-        wInit.debugRun = true; // Run in debug
-        wInit.clkSel = wdogClkSelULFRCO;
-        wInit.em2Run = true;
-        wInit.em3Run = true;
-        wInit.perSel = wdogPeriod_4k; // 4k 1kHz periods should give ~4 seconds in EM3
-        wInit.enable = true;
+    WDOG_Init_TypeDef wInit = WDOG_INIT_DEFAULT;
+    wInit.debugRun = true; // Run in debug
+    wInit.clkSel = wdogClkSelULFRCO;
+    wInit.em2Run = true;
+    wInit.em3Run = true;
+    wInit.perSel = wdogPeriod_4k; // 4k 1kHz periods should give ~4 seconds in EM3
+    wInit.enable = true;
 
-        WDOGn_Init(WDOG, &wInit);
-        WDOGn_Feed(WDOG);
+    WDOGn_Init(WDOG, &wInit);
+    WDOGn_Feed(WDOG);
 
-        SEGGER_RTT_printf(0, "Sleepy sleepy\n");
-        EMU_EnterEM3(true); // true = restore oscillators, clocks and voltage scaling
+    EMU_EnterEM3(false);
 
-        leds_all_off();
-        leds_on(1);
-
-        delay_ms(1000);
-        
-        leds_all_off();
-    }
+    // EM3 will be terminated by a reset, so we'll never get here.
 
     return 0;
 }
@@ -868,8 +873,8 @@ int main()
     //return test_main();
     //return test_capsense_main();
     //return test_le_capsense_main();
-    //return test_watchdog_wakeup_main();
-    return test_led_change_main();
+    return test_watchdog_wakeup_main();
+    //return test_led_change_main();
     //return reset_state_main();
     //return test_init_main();
 }
