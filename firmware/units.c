@@ -117,11 +117,7 @@ int32_t lux_to_reflective_ev(int32_t lux)
     // 100/15.7 times brighter (under various idealizing assumptions).
     // Thus, we need to compensate.
     // See https://en.wikipedia.org/wiki/Light_meter#Calibrated_reflectance
-    lux *= 1000;
-    lux /= 157;
-
-    lux *= 2;
-    lux /= 5;
+    lux = (lux * 1000 * 2) / (157 * 5);
 
     return log_base2(lux);
 }
