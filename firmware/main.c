@@ -735,6 +735,8 @@ int test_watchdog_wakeup_main()
     while (leds_on_for_cycles < base + RTC_RAW_FREQ)
         ;
 
+    leds_all_off();
+
     CMU_ClockEnable(cmuClock_CORELE, true);
 
     EMU_EM23Init_TypeDef dcdcInit = EMU_EM23INIT_DEFAULT;

@@ -3,6 +3,7 @@
 #include <em_cmu.h>
 #include <em_emu.h>
 #include <em_gpio.h>
+#include <em_rmu.h>
 #include <em_rtc.h>
 #include <em_timer.h>
 #include <leds.h>
@@ -97,13 +98,15 @@ void common_init()
     gpio_pins_to_initial_states();
 
     // Give a grace period before calibrating capsense, so that
-    // the programming headerœ can be disconnected first.
+    // the programming header can be disconnected first.
 #if !defined(DEBUG) && !defined(NOGRACE)
-    leds_on(23);
-    uint32_t base = leds_on_for_cycles;
-    while (leds_on_for_cycles < base + RTC_RAW_FREQ * 8)
-        ;
-    leds_all_off();
+    if ((RMU_ResetCauseGet() & RMU_RSTCAUSE_WDOGRST) == 0) {
+        leds_on(23);
+        uint32_t base = leds_on_for_cycles;
+        while (leds_on_for_cycles < base + RTC_RAW_FREQ * 8)
+            ;
+        leds_all_off();
+    }
 #endif
 
     setup_capsense();
