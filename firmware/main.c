@@ -314,6 +314,8 @@ static void handle_MODE_SETTING_ISO()
                             leds |= 1 << LED_PLUS_1_3_N;
                         leds_on(leds);
 
+                        SEGGER_RTT_printf(0, "ISO set to raw val of %u\n", iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third));
+
                         if (cycled) {
                             cycle_capsense();
                             cycle_capsense();

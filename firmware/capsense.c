@@ -20,7 +20,7 @@ static uint32_t touch_acmp;
 static uint32_t old_count;
 
 static uint32_t calibration_values[3];
-static uint32_t le_calibration_values[3];
+static uint32_t le_calibration_center_pad_value;
 
 static const PCNT_Init_TypeDef initPCNT =
 {
@@ -121,6 +121,8 @@ void cycle_capsense()
 
 void calibrate_capsense()
 {
+    setup_capsense();
+
     uint32_t count, chan;
     get_touch_count(&count, &chan);
     delay_ms(PAD_COUNT_MS);
@@ -152,27 +154,25 @@ void calibrate_capsense()
     while (RTC->CNT < end)
         ;
 
-    do {
-        get_touch_count(&count, &chan);
-        if (! (chans_done & (1 << chan))) {
-            le_calibration_values[chan] = count;
-            chans_done |= (1 << chan);
-        }
 
-        cycle_capsense();
-        get_touch_count(&count, &chan);
-
-        start = RTC->CNT;
-        end = start + LE_PAD_CLOCK_COUNT;
-        while (RTC->CNT < end)
-            ;
-    } while (chans_done != 0b111);
 
     RTC_Enable(false);
     CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
     RTC_Enable(true);
 
-    SEGGER_RTT_printf(0, "Capsense calibration values: %u %u %u (le: %u %u %u)\n", calibration_values[0], calibration_values[1], calibration_values[2], le_calibration_values[0], le_calibration_values[1], le_calibration_values[2]);
+    disable_capsense();
+
+    SEGGER_RTT_printf(0, "Capsense calibration values: %u %u %u\n", calibration_values[0], calibration_values[1], calibration_values[2]);
+}
+
+void calibrate_le_capsense()
+{
+    setup_le_capsense(LE_CAPSENSE_SENSE);
+    EMU_EnterEM2(true);
+    le_calibration_center_pad_value = lesense_result;
+    disable_le_capsense();
+
+    SEGGER_RTT_printf(0, "LE capsense calibration value: %u\n", le_calibration_center_pad_value);
 }
 
 static const uint32_t THRESHOLD_NUM = 92;
@@ -203,7 +203,7 @@ bool center_pad_is_touched(uint32_t chan2)
 
 bool le_center_pad_is_touched(uint32_t chan2)
 {
-    return chan2 != 0 && chan2 < le_calibration_values[2] * THRESHOLD_NUM / THRESHOLD_DENOM;
+    return chan2 != 0 && chan2 < le_calibration_center_pad_value * THRESHOLD_NUM / THRESHOLD_DENOM;
 }
 
 uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)
@@ -385,7 +385,7 @@ void setup_le_capsense(le_capsense_mode mode)
     if (mode == LE_CAPSENSE_SLEEP) {
         while (!(LESENSE->STATUS & LESENSE_STATUS_BUFHALFFULL))
             ;
-        LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_calibration_values[2]);
+        LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_calibration_center_pad_value);
     }
 }
 

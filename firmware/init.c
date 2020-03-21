@@ -110,7 +110,6 @@ void common_init()
     }
 #endif
 
-    setup_capsense();
+    calibrate_le_capsense();
     calibrate_capsense();
-    disable_capsense();
 }
