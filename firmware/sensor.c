@@ -143,42 +143,44 @@ static void get_mode(sensor_reading r, int32_t *itime, int *itime_key, int32_t *
         400, 350, 300, 250, 200, 150, 100, 50
     };
     static const int8_t gains[] = {
-        1, 2, 4, 8, 48, 96
+        48, 8, 4, 2, 1, 96
     };
 
     static const int32_t NOMINAL_MAX_CHAN = 6000;
 
     int i, j;
-    if (rat >= 0.85) {
+    if (rat >= 85) {
         i = sizeof(itimes)/sizeof(itimes[0]) - 1;
         j = 0;
     } else {
         // Figure out the longest possible itime we can use.
         // Could use a binary search here, but a linear search performs well enough.
-        for (int i = 0; i < sizeof(itimes)/sizeof(itimes[0]); ++i) {
-            for (int j = 0; j < sizeof(gains)/sizeof(gains[0]); ++j) {
+        for (i = 0; i < sizeof(itimes)/sizeof(itimes[0]); ++i) {
+            for (j = 0; j < sizeof(gains)/sizeof(gains[0]); ++j) {
                 int32_t max;
-                if (rat < 45) {
+                int32_t ch1 = (rat * NOMINAL_MAX_CHAN) / (100 - rat);
+                if (rat < 45)
                     // * 10 because itime is in 100ths here, but 10ths in formula
-                    int32_t ch1 = (rat * NOMINAL_MAX_CHAN) / (100 - rat);
                     max = ((17743*NOMINAL_MAX_CHAN + 11059*ch1) * 10) / gains[j] / itimes[i];
-                } else if (rat < 64) {
-                    int32_t ch0 = ((100 - rat) * NOMINAL_MAX_CHAN) / rat;
-                    max = ((42785*ch0 + 19548*NOMINAL_MAX_CHAN) * 10) / gains[j] / itimes[i];
-                } else { // if (rat < 0.85)
-                    int32_t ch0 = ((100 - rat) * NOMINAL_MAX_CHAN) / rat;
-                    max = ((5926*ch0 + 1185*NOMINAL_MAX_CHAN) * 10) / gains[j] / itimes[i];
-                }
+                else if (rat < 64)
+                    max = ((42785*NOMINAL_MAX_CHAN - 19548*ch1) * 10) / gains[j] / itimes[i];
+                else // if (rat < 0.85)
+                    max = ((5926*NOMINAL_MAX_CHAN + 1185*ch1) * 10) / gains[j] / itimes[i];
 
                 // max is in lux*10000. Convert to 1 << EV_BPS
                 // + 1 so that we get a slight underestimate rather than a slight overestimate.
                 max /= (10000 / (1 << EV_BPS)) + 1;
 
                 if (max > (lux50*11) / 10)
-                    break;
+                    goto break_outer;
             }
         }
     }
+
+break_outer:
+
+    i %= sizeof(itimes)/sizeof(itimes[0]);
+    j %= sizeof(gains)/sizeof(gains[0]);
 
     *itime = itimes[i];
     *gain = gains[j];
@@ -208,29 +210,32 @@ static void get_mode(sensor_reading r, int32_t *itime, int *itime_key, int32_t *
         case 0:
             *itime_key = ITIME_400;
             break;
+        default:
+            SEGGER_RTT_printf(0, "ERROR: SHOULD NOT GET HERE! [1] (val = %u)\n", i);
+            break;
     }
 
     switch (j) {
         case 0:
-            *gain_key = GAIN_1X;
+            *gain_key = GAIN_48X;
             break;
         case 1:
-            *gain_key = GAIN_2X;
+            *gain_key = GAIN_8X;
             break;
         case 2:
             *gain_key = GAIN_4X;
             break;
         case 3:
-            *gain_key = GAIN_8X;
+            *gain_key = GAIN_2X;
             break;
         case 4:
-            *gain_key = GAIN_48X;
+            *gain_key = GAIN_1X;
             break;
         case 5:
             *gain_key = GAIN_96X;
             break;
         default:
-            *gain_key = GAIN_1X;
+            SEGGER_RTT_printf(0, "ERROR: SHOULD NOT GET HERE! [2] (val = %u)\n", j);
             break;
     }
 }
