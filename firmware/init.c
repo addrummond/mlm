@@ -6,6 +6,7 @@
 #include <em_rmu.h>
 #include <em_rtc.h>
 #include <em_timer.h>
+#include <em_wdog.h>
 #include <leds.h>
 #include <rtt.h>
 #include <time.h>
@@ -99,12 +100,12 @@ void common_init()
 
     // Give a grace period before calibrating capsense, so that
     // the programming header can be disconnected first.
-#if !defined(DEBUG) && !defined(NOGRACE)
+#if (!defined(DEBUG) && !defined(NOGRACE)) || defined(GRACE)
     if ((RMU_ResetCauseGet() & RMU_RSTCAUSE_WDOGRST) == 0) {
-        leds_on(23);
+        leds_on(1);
         uint32_t base = leds_on_for_cycles;
         while (leds_on_for_cycles < base + RTC_RAW_FREQ * 8)
-            ;
+            WDOGn_Feed(WDOG);
         leds_all_off();
     }
 #endif

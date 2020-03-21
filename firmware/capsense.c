@@ -201,6 +201,11 @@ bool center_pad_is_touched(uint32_t chan2)
     return chan2 != 0 && chan2 < calibration_values[2] * THRESHOLD_NUM / THRESHOLD_DENOM;
 }
 
+bool le_center_pad_is_touched(uint32_t chan2)
+{
+    return chan2 != 0 && chan2 < le_calibration_values[2] * THRESHOLD_NUM / THRESHOLD_DENOM;
+}
+
 uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)
 {
     if (chan != 0)
@@ -260,7 +265,7 @@ uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)
     lesenseClkLF,             /* Use the LF clock for sample timing. */                                  \
     0x000,                    /* Excitation time is set to ___ excitation clock cycles. */               \
     LE_PAD_CLOCK_COUNT,       /* Sample delay is set to ___ sample clock cycles. */                      \
-    0x0,                      /* Measure delay is set to ___ excitation clock cycles.*/                  \
+    1,                        /* Measure delay is set to ___ excitation clock cycles.*/                  \
     LESENSE_ACMP_VDD_SCALE,   /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */               \
     lesenseSampleModeCounter, /* ACMP will be used in comparison. */                                     \
     lesenseSetIntLevel,       /* Interrupt is generated if the sensor triggers. */                       \
@@ -384,10 +389,14 @@ void setup_le_capsense(le_capsense_mode mode)
     }
 }
 
+uint32_t lesense_result;
+
 void LESENSE_IRQHandler(void)
 {
     LESENSE_IntClear(LESENSE_IEN_SCANCOMPLETE);
     LESENSE_IntClear(LESENSE_IF_CH14);
+
+    lesense_result = LESENSE_ScanResultDataGet();
 
     // Stop additional interrupts screwing things up by setting threshold to zero.
     if (le_mode == LE_CAPSENSE_SLEEP)

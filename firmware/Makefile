@@ -30,6 +30,10 @@ ifdef NOGRACE
     override ARMCFLAGS += -DNOGRACE
 endif
 
+ifdef GRACE
+    override ARMCFLAGS += -DGRACE
+endif
+
 ifdef NO_RTT
     override ARMCFLAGS += -DNO_RTT
 endif
@@ -38,6 +42,7 @@ override ARMASMFLAGS += -x assembler-with-cpp -D$(DEVICE) -Wall -Wextra -mcpu=co
 ifdef DEBUG
     override ARMASMFLAGS += -DDEBUG_EFM
 endif
+
 override ARMASMFLAGS += $(DEPFLAGS)
 
 OBJS := main.out \
@@ -58,6 +63,11 @@ OBJS := main.out \
 
 ifdef DEBUG
     OBJS += rtt.out rtt/SEGGER_RTT.out rtt/SEGGER_RTT_printf.out
+endif
+
+ifdef TEST_MAIN
+    OBJS += tests/$(TEST_MAIN).out
+    override ARMCFLAGS += -DTEST_MAIN
 endif
 
 LIBS := -Wl,--start-group -lgcc -lc_nano -lnosys -Wl,--end-group

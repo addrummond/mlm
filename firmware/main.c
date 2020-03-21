@@ -28,7 +28,11 @@
 #include <units.h>
 #include <util.h>
 
-void handle_MODE_JUST_WOKEN()
+#ifdef TEST_MAIN
+int test_main(void);
+#endif
+
+static void handle_MODE_JUST_WOKEN()
 {
     // If it was a brief tap on the button, go to AWAKE_AT_REST.
     // If they've held the button down for a little bit,
@@ -50,7 +54,7 @@ void handle_MODE_JUST_WOKEN()
     }
 }
 
-void handle_MODE_AWAKE_AT_REST()
+static void handle_MODE_AWAKE_AT_REST()
 {
     // Display the current reading, if any.
     if (fresh_reading_is_saved()) {
@@ -63,7 +67,7 @@ void handle_MODE_AWAKE_AT_REST()
 }
 
 
-void handle_MODE_SNOOZE()
+static void handle_MODE_SNOOZE()
 {
     // Make sure LDO is off
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModeInput, 0);
@@ -106,7 +110,7 @@ static void shift_exposure_wheel(int n, int *ap_index, int *ss_index)
     }
 }
 
-void handle_MODE_DISPLAY_READING()
+static void handle_MODE_DISPLAY_READING()
 {
     int32_t iso = iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third);
     int ap_index, ss_index, third;
@@ -235,7 +239,7 @@ handle_double_button_press:
     g_state.mode = MODE_SETTING_ISO;
 }
 
-void handle_MODE_SETTING_ISO()
+static void handle_MODE_SETTING_ISO()
 {
     leds_all_off();
 
@@ -377,7 +381,7 @@ static void display_reading_interrupt_cycle_interrupt_handler()
     leds_change_mask((1 << display_reading_interrupt_cycle_mask1) | (1 << (LED_N_IN_WHEEL - display_reading_interrupt_cycle_mask2 - 1)) | (1 << display_reading_interrupt_cycle_mask3));
 }
 
-void handle_MODE_DOING_READING()
+static void handle_MODE_DOING_READING()
 {
     // Light show while the reading is being done.
     leds_all_off();
@@ -466,7 +470,7 @@ void handle_MODE_DOING_READING()
     g_state.mode = MODE_DISPLAY_READING;
 }
 
-void state_loop()
+static void state_loop()
 {
     for (;;) {
         switch (g_state.mode) {
@@ -504,353 +508,7 @@ void state_loop()
     }
 }
 
-int test_debug_led_throb_main()
-{
-    leds_all_off();
-    int l1 = 0;
-    int l2 = 4;
-    int l3 = 7;
-
-    for (;;) {
-        set_led_throb_mask(1 << l1);
-        leds_on((1 << l1) | (1 << l2) | (1 << l3));
-        uint32_t offat = leds_on_for_cycles + RTC_RAW_FREQ;
-        while (leds_on_for_cycles < offat)
-            ;
-        leds_all_off();
-        l1 = (l1 + 1) % 24;
-        l2 = (l2 + 1) % 24;
-        l3 = (l3 + 1) % 24;
-    }
-}
-
-int test_led_change_main()
-{
-    leds_all_off();
-    uint32_t v = 1;
-    for (;;) {
-        SEGGER_RTT_printf(0, "MASK %u\n", v);
-        leds_on(v);
-
-        uint32_t base = leds_on_for_cycles;
-        while (leds_on_for_cycles < base + RTC_RAW_FREQ / 4)
-            ;
-
-        leds_all_off();
-
-        v <<= 1;
-        if (v > (1 << 25))
-            v = 1;
-    }
-
-    for (;;) {
-        SEGGER_RTT_printf(0, "First pattern\n");
-        leds_on(0b101);
-        uint32_t base_cycles = leds_on_for_cycles;
-        while (leds_on_for_cycles < base_cycles + RTC_RAW_FREQ)
-            ;
-        SEGGER_RTT_printf(0, "Second pattern\n");
-        leds_all_off();
-        CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFRCO);
-        CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
-        CMU_ClockEnable(cmuClock_RTC, true);
-        delay_ms(1000);
-        //leds_on(0b00011);
-        //base_cycles = leds_on_for_cycles;
-        //while (leds_on_for_cycles < base_cycles + RTC_RAW_FREQ)
-        //    ;
-    }
-}
-
-int test_show_reading()
-{
-    leds_all_off();
-
-    leds_on_for_reading(F22_AP_INDEX, SS500_INDEX, 0);
-
-    for (;;);
-
-    return 0;
-}
-
-int test_capsense_main()
-{
-    SEGGER_RTT_printf(0, "Capsense test...\n");
-
-    setup_capsense();
-
-    uint32_t touch_counts[] = { 0, 0, 0 };
-    for (unsigned i = 0;; ++i) {
-        uint32_t count, chan;
-        get_touch_count(&count, &chan);
-        touch_counts[chan] = count;
-
-        touch_position tp = get_touch_position(touch_counts[0], touch_counts[1], touch_counts[2]);
-        const char *tps = "UNKNOWN";
-        switch (tp) {
-            case INVALID_TOUCH_POSITION:
-                tps = "INVALID"; break;
-            case NO_TOUCH_DETECTED:
-                tps = "NOTOUCH"; break;
-            case LEFT_BUTTON:
-                tps = "LEFT"; break;
-            case RIGHT_BUTTON:
-                tps = "RIGHT"; break;
-            case LEFT_AND_RIGHT_BUTTONS:
-                tps = "LEFT+RIGHT"; break;
-            case CENTER_BUTTON:
-                tps = "CENTER"; break;
-        }
-
-        if (i % (4*6) == 0)
-            SEGGER_RTT_printf(0, "count %u %u %u pos = %s\n", touch_counts[1], touch_counts[0], touch_counts[2], tps);
-        
-        cycle_capsense();
-
-        delay_ms(PAD_COUNT_MS);
-    }
-}
-
-int test_capsense_with_wheel_main()
-{
-    int led_index = 0;
-
-    leds_all_off();
-    leds_on(1 << led_index);
-
-    setup_capsense();
-
-    int zero_touch_position = INVALID_TOUCH_POSITION;
-    uint32_t touch_counts[] = { 0, 0, 0 };
-    for (unsigned i = 0;; ++i) {
-        if (i != 0 && i % 2 == 0) {
-            uint32_t count, chan;
-            get_touch_count(&count, &chan);
-            touch_counts[chan] = count;
-            int tp = get_touch_position(touch_counts[0], touch_counts[1], touch_counts[2]);
-            //SEGGER_RTT_printf(0,"Pads %u %u (%s%u)\n", touch_counts[1], touch_counts[0], sign_of(tp), tp);
-            
-            if (tp == NO_TOUCH_DETECTED) {
-                zero_touch_position = INVALID_TOUCH_POSITION;
-            } else {
-                //SEGGER_RTT_printf(0, "Touch: %s%u\n", sign_of(tp), iabs(tp));
-
-                if (zero_touch_position == INVALID_TOUCH_POSITION) {
-                    if (tp != INVALID_TOUCH_POSITION) {
-                        leds_all_off();
-                        led_index += (tp == LEFT_BUTTON ? -1 : 1);
-                        if (led_index < 0)
-                            led_index = LED_N + led_index;
-                        else if (led_index >= LED_N)
-                            led_index %= LED_N;
-                        leds_on(1 << led_index);
-                    }
-                    zero_touch_position = tp;
-                } else {
-                    zero_touch_position = tp;
-                }
-            }
-        }
-
-        cycle_capsense();
-
-        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
-            ;
-    }
-}
-
-int test_sensor_main()
-{
-    // Turn on the LDO to power up the sensor.
-    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
-    SEGGER_RTT_printf(0, "LDO turned on\n");
-    delay_ms(100); // make sure LDO has time to start up and sensor has time to
-                   // power up
-    sensor_init();
-    delay_ms(100);
-
-    // Turn the sensor on an give it time to get ready. (We have to set a gain
-    // value when we turn the sensor on, but the choice here is immaterial.)
-    sensor_turn_on(GAIN_1X);
-    delay_ms(10);
-
-    for (;;) {
-        int32_t gain, itime;
-        sensor_wait_till_ready(delay_ms);
-        sensor_reading sr = sensor_get_reading_auto(delay_ms, &gain, &itime);
-        int32_t lux = sensor_reading_to_lux(sr, gain, itime);
-        int32_t ev = lux_to_reflective_ev(lux);
-        int32_t evthird = ev & ((1<<EV_BPS)-1);
-        int32_t thirdval = 0;
-        if (evthird > (2<<EV_BPS)/3) {
-            thirdval = 2;
-        } else if (evthird > (1 << EV_BPS)/3) {
-            thirdval = 1;
-        }
-        SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u+%u/3)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS, thirdval);
-        //leds_all_off();
-        //led_on(LED_1S_N + ss_index);
-        //if (third == -1)
-        //    led_on(LED_MINUS_1_3_N);
-        //else
-        //    led_on(LED_PLUS_1_3_N);
-    }
-}
-
-int test_tempsensor_main()
-{
-    // Turn on the LDO to power up the sensor.
-    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
-    SEGGER_RTT_printf(0, "LDO turned on\n");
-    delay_ms(100); // make sure LDO has time to start up and sensor has time to
-                   // power up
-    tempsensor_init();
-    delay_ms(100);
-
-    for (;;) {
-        int32_t reading = tempsensor_get_reading(delay_ms);
-        SEGGER_RTT_printf(0, "TEMP READING %s%u, %s%uC\n", sign_of(reading), iabs(reading), sign_of(reading), iabs(reading >> 8));
-        delay_ms(500);
-    }
-
-    return 0;
-}
-
-int test_watchdog_wakeup_main()
-{
-    uint32_t reset_cause = RMU_ResetCauseGet();
-    RMU_ResetCauseClear();
-    leds_all_off();
-    if ((reset_cause & RMU_RSTCAUSE_WDOGRST) == 0) {
-        // First run.
-        leds_on(0b1);
-    } else {
-        leds_on(0b1000);
-    }
-
-    //RMU->CTRL &= ~0b111;
-    //RMU->CTRL |= 1; // limited watchdog reset
-
-    uint32_t base = leds_on_for_cycles;
-    while (leds_on_for_cycles < base + RTC_RAW_FREQ)
-        ;
-
-    leds_all_off();
-
-    CMU_ClockEnable(cmuClock_CORELE, true);
-
-    EMU_EM23Init_TypeDef dcdcInit = EMU_EM23INIT_DEFAULT;
-    EMU_EM23Init(&dcdcInit);
-
-    WDOG_Init_TypeDef wInit = WDOG_INIT_DEFAULT;
-    wInit.debugRun = true; // Run in debug
-    wInit.clkSel = wdogClkSelULFRCO;
-    wInit.em2Run = true;
-    wInit.em3Run = true;
-    wInit.perSel = wdogPeriod_4k; // 4k 1kHz periods should give ~4 seconds in EM3
-    wInit.enable = true;
-
-    WDOGn_Init(WDOG, &wInit);
-    WDOGn_Feed(WDOG);
-
-    EMU_EnterEM3(false);
-
-    // EM3 will be terminated by a reset, so we'll never get here.
-
-    return 0;
-}
-
-int test_le_capsense_main()
-{
-    for (;;) {
-        SEGGER_RTT_printf(0, "LOOP\n");
-        setup_le_capsense(LE_CAPSENSE_SLEEP);
-        EMU_EnterEM2(true);
-        disable_le_capsense();
-        setup_capsense_for_center_pad();
-        press p = get_pad_press();
-        switch (p) {
-            case PRESS_TAP:
-                SEGGER_RTT_printf(0, "TAP!\n");
-                break;
-            case PRESS_HOLD:
-                SEGGER_RTT_printf(0, "HOLD!\n");
-                break;
-            default:
-                SEGGER_RTT_printf(0, "Unknown press type\n");
-        }
-    }
-}
-
-int test_batsense_main()
-{
-    for (;;) {
-        int v = battery_voltage_in_10th_volts();
-        SEGGER_RTT_printf(0, "V: %u\n", v);
-        delay_ms(1000);
-    }
-
-    return 0;
-}
-
-int test_all_led_options_main()
-{
-#define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _CAT_DPIN, _GPIO_PORT) ,
-static GPIO_Port_TypeDef led_cat_ports[] = {
-    LED_FOR_EACH(M)
-};
-#undef M
-
-#define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _CAT_DPIN, _GPIO_PIN) ,
-static const uint8_t led_cat_pins[] = {
-    LED_FOR_EACH(M)
-};
-#undef M
-
-    for (;;) {
-        for (int i = 0; i < sizeof(led_cat_ports)/sizeof(led_cat_ports[0]); ++i) {
-            GPIO_Port_TypeDef port1 = led_cat_ports[i];
-            int pin1 = led_cat_pins[i];
-
-            for (int j = 0; j < sizeof(led_cat_pins)/sizeof(led_cat_pins[0]); ++j) {
-                if (i == j)
-                    continue;
-
-                GPIO_Port_TypeDef port2 = led_cat_ports[j];
-                int pin2 = led_cat_pins[j];
-
-                for (int k = 0; k < sizeof(led_cat_ports)/sizeof(led_cat_ports[0]); ++k) {
-                    if (k == i || k == j)
-                        continue;
-
-                    GPIO_PinModeSet(led_cat_ports[k], led_cat_pins[k], gpioModeInput, 1);
-                }
-
-                SEGGER_RTT_printf(0, "PIN %u ; PIN %u\n", i, j);
-
-                GPIO_PinModeSet(port1, pin1, gpioModePushPull, 1);
-                GPIO_PinModeSet(port2, pin2, gpioModePushPull, 0);
-
-                delay_ms(1000);
-
-                GPIO_PinModeSet(port1, pin1, gpioModePushPull, 0);
-                GPIO_PinModeSet(port2, pin2, gpioModePushPull, 1);
-
-                delay_ms(1000);
-            }
-        }
-    }
-}
-
-int test_init_main()
-{
-    for (;;)
-        ;
-
-    return 0;
-}
-
-int real_main()
+static int real_main()
 {
     set_state_to_default();
 
@@ -863,20 +521,9 @@ int main()
 {
     common_init();
 
-    //return real_main();
-    //return test_batsense_main();
-    //return test_all_led_options_main();
-    //return test_debug_led_throb_main();
-    //return test_led_interrupt_cycle();
-    //return test_show_reading();
-    //return test_sensor_main();
-    //return test_tempsensor_main();
-    //return test_capsense_with_wheel_main();
-    //return test_main();
-    //return test_capsense_main();
-    //return test_le_capsense_main();
-    return test_watchdog_wakeup_main();
-    //return test_led_change_main();
-    //return reset_state_main();
-    //return test_init_main();
+#ifdef TEST_MAIN
+    return test_main();
+#else
+    return real_main();
+#endif
 }
