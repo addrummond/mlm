@@ -301,8 +301,8 @@ sensor_reading sensor_get_reading_auto(delay_func delayf, int32_t *gain, int32_t
     get_mode(r, itime, &itime_key, gain, &gain_key);
 
     sensor_standby();
-    sensor_write_reg(SENSOR_I2C_ADDR, REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | itime_key);
     sensor_turn_on(gain_key);
+    sensor_write_reg(SENSOR_I2C_ADDR, REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | itime_key);
     delayf((*itime) * 6 / 5);
 
     sensor_wait_till_ready(delayf);
