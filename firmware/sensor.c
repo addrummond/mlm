@@ -161,11 +161,11 @@ static void get_mode(sensor_reading r, int32_t *itime, int *itime_key, int32_t *
                 int32_t ch1 = (rat * NOMINAL_MAX_CHAN) / (100 - rat);
                 if (rat < 45)
                     // * 10 because itime is in 100ths here, but 10ths in formula
-                    max = ((17743*NOMINAL_MAX_CHAN + 11059*ch1) * 10) / gains[j] / itimes[i];
+                    max = ((17743*NOMINAL_MAX_CHAN + 11059*ch1) * 100) / gains[j] / itimes[i];
                 else if (rat < 64)
-                    max = ((42785*NOMINAL_MAX_CHAN - 19548*ch1) * 10) / gains[j] / itimes[i];
+                    max = ((42785*NOMINAL_MAX_CHAN - 19548*ch1) * 100) / gains[j] / itimes[i];
                 else // if (rat < 0.85)
-                    max = ((5926*NOMINAL_MAX_CHAN + 1185*ch1) * 10) / gains[j] / itimes[i];
+                    max = ((5926*NOMINAL_MAX_CHAN + 1185*ch1) * 100) / gains[j] / itimes[i];
 
                 // max is in lux*10000. Convert to 1 << EV_BPS
                 // + 1 so that we get a slight underestimate rather than a slight overestimate.
@@ -268,8 +268,8 @@ sensor_reading sensor_get_reading_auto(delay_func delayf, int32_t *gain, int32_t
     get_mode(r, itime, &itime_key, gain, &gain_key);
 
     sensor_standby();
-    sensor_turn_on(gain_key);
     sensor_write_reg(SENSOR_I2C_ADDR, REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | itime_key);
+    sensor_turn_on(gain_key);
     delayf((*itime) * 6 / 5);
 
     sensor_wait_till_ready(delayf);
