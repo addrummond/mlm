@@ -159,6 +159,7 @@ static void get_mode(sensor_reading r, int32_t *itime, int *itime_key, int32_t *
             for (int j = 0; j < sizeof(gains)/sizeof(gains[0]); ++j) {
                 int32_t max;
                 if (rat < 45) {
+                    // * 10 because itime is in 100ths here, but 10ths in formula
                     int32_t ch1 = (rat * NOMINAL_MAX_CHAN) / (100 - rat);
                     max = ((17743*NOMINAL_MAX_CHAN + 11059*ch1) * 10) / gains[j] / itimes[i];
                 } else if (rat < 64) {
@@ -166,7 +167,7 @@ static void get_mode(sensor_reading r, int32_t *itime, int *itime_key, int32_t *
                     max = ((42785*ch0 + 19548*NOMINAL_MAX_CHAN) * 10) / gains[j] / itimes[i];
                 } else { // if (rat < 0.85)
                     int32_t ch0 = ((100 - rat) * NOMINAL_MAX_CHAN) / rat;
-                    max = ((42785*ch0 + 19548*NOMINAL_MAX_CHAN) * 10) / gains[j] / itimes[i];
+                    max = ((5926*ch0 + 1185*NOMINAL_MAX_CHAN) * 10) / gains[j] / itimes[i];
                 }
 
                 // max is in lux*10000. Convert to 1 << EV_BPS
