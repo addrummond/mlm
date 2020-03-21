@@ -362,23 +362,19 @@ handle_center_press:
 
 static uint32_t display_reading_interrupt_cycle_mask1;
 static uint32_t display_reading_interrupt_cycle_mask2;
-static uint32_t display_reading_interrupt_cycle_mask3;
+static uint32_t display_reading_interrupt_cycle_iso_mask;
 static void display_reading_interrupt_cycle_interrupt_handler()
 {
     if (leds_on_for_cycles % 16 != 0)
         return;
 
-    if (leds_on_for_cycles % 64 != 0) {
+    if (leds_on_for_cycles % 32 != 0) {
         display_reading_interrupt_cycle_mask1 = (display_reading_interrupt_cycle_mask1 + 1) % LED_N_IN_WHEEL;
     }
 
-    if (leds_on_for_cycles % 32 != 0) {
-        display_reading_interrupt_cycle_mask2 = (display_reading_interrupt_cycle_mask2 + 1) % LED_N_IN_WHEEL;
-    }
+    display_reading_interrupt_cycle_mask2 = (display_reading_interrupt_cycle_mask2 + 1) % LED_N_IN_WHEEL;
 
-    display_reading_interrupt_cycle_mask3 = (display_reading_interrupt_cycle_mask3 + 1) % LED_N_IN_WHEEL;
-
-    leds_change_mask((1 << display_reading_interrupt_cycle_mask1) | (1 << (LED_N_IN_WHEEL - display_reading_interrupt_cycle_mask2 - 1)) | (1 << display_reading_interrupt_cycle_mask3));
+    leds_change_mask((1 << display_reading_interrupt_cycle_iso_mask) | (1 << (LED_N_IN_WHEEL - display_reading_interrupt_cycle_mask1 - 1)) | (1 << display_reading_interrupt_cycle_mask2));
 }
 
 static void handle_MODE_DOING_READING()
@@ -386,10 +382,10 @@ static void handle_MODE_DOING_READING()
     // Light show while the reading is being done.
     leds_all_off();
     add_rtc_interrupt_handler(display_reading_interrupt_cycle_interrupt_handler);
-    display_reading_interrupt_cycle_mask1 = 0;
-    display_reading_interrupt_cycle_mask2 = 8;
-    display_reading_interrupt_cycle_mask3 = 16;
-    leds_on((1 << display_reading_interrupt_cycle_mask1) | (1 << display_reading_interrupt_cycle_mask2) | (1 << display_reading_interrupt_cycle_mask3));
+    display_reading_interrupt_cycle_mask1 = 8;
+    display_reading_interrupt_cycle_mask2 = 16;
+    display_reading_interrupt_cycle_iso_mask = iso_dial_pos_to_led_n(g_state.iso_dial_pos);
+    leds_on((1 << display_reading_interrupt_cycle_iso_mask) | (1 << display_reading_interrupt_cycle_mask1) | (1 << display_reading_interrupt_cycle_mask2));
 
     // Turn on the LDO to power up the sensor.
     SEGGER_RTT_printf(0, "Turning on LDO.\n");
