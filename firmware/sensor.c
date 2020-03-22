@@ -146,7 +146,7 @@ static void get_mode(sensor_reading r, int32_t *itime, int *itime_key, int32_t *
         48, 8, 4, 2, 1, 96
     };
 
-    static const int32_t NOMINAL_MAX_CHAN = 6000;
+    static const int64_t NOMINAL_MAX_CHAN = 6000;
 
     int i, j;
     if (rat >= 85) {
@@ -157,21 +157,22 @@ static void get_mode(sensor_reading r, int32_t *itime, int *itime_key, int32_t *
         // Could use a binary search here, but a linear search performs well enough.
         for (i = 0; i < sizeof(itimes)/sizeof(itimes[0]); ++i) {
             for (j = 0; j < sizeof(gains)/sizeof(gains[0]); ++j) {
-                int32_t max;
-                int32_t ch1 = (rat * NOMINAL_MAX_CHAN) / (100 - rat);
+                int64_t max;
+                int64_t ch1 = (rat * NOMINAL_MAX_CHAN) / (100 - rat);
                 if (rat < 45)
                     // * 10 because itime is in 100ths here, but 10ths in formula
-                    max = ((17743*NOMINAL_MAX_CHAN + 11059*ch1) * 100) / gains[j] / itimes[i];
+                    max = ((17743*NOMINAL_MAX_CHAN + 11059*(int64_t)ch1) * 100) / (int64_t)gains[j] / (int64_t)itimes[i];
                 else if (rat < 64)
-                    max = ((42785*NOMINAL_MAX_CHAN - 19548*ch1) * 100) / gains[j] / itimes[i];
+                    max = ((42785*NOMINAL_MAX_CHAN - 19548*(int64_t)ch1) * 100) / (int64_t)gains[j] / (int64_t)itimes[i];
                 else // if (rat < 0.85)
-                    max = ((5926*NOMINAL_MAX_CHAN + 1185*ch1) * 100) / gains[j] / itimes[i];
+                    max = ((5926*NOMINAL_MAX_CHAN + 1185*(int64_t)ch1) * 100) / (int64_t)gains[j] / (int64_t)itimes[i];
 
                 // max is in lux*10000. Convert to 1 << EV_BPS
                 // + 1 so that we get a slight underestimate rather than a slight overestimate.
-                max /= (10000 / (1 << EV_BPS)) + 1;
+                int32_t max32 = (int32_t)(max / (10000 / (1 << EV_BPS)) + 1);
 
-                if (max > (lux50*11) / 10)
+                //SEGGER_RTT_printf(0, "CMP c0=%u c1=%u  %s%u > %s%u\n", NOMINAL_MAX_CHAN, ch1, sign_of(max), iabs(max), sign_of((lux50*11)/10), iabs((lux50*11)/10));
+                if (max32 > (lux50*11) / 10)
                     goto break_outer;
             }
         }
@@ -180,7 +181,8 @@ static void get_mode(sensor_reading r, int32_t *itime, int *itime_key, int32_t *
 break_outer:
 
     i %= sizeof(itimes)/sizeof(itimes[0]);
-    j %= sizeof(gains)/sizeof(gains[0]);
+    if (j >= sizeof(gains)/sizeof(gains[0]))
+        j = 4;
 
     *itime = itimes[i];
     *gain = gains[j];
