@@ -13,7 +13,10 @@
 #define LED_REFRESH_RATE_HZ                    1200
 
 // This is the value for a 2mm thick transparent acrylic window.
-#define WINDOW_ATTENUATION_1024THS_STOP        162
+#define WINDOW_ATTENUATION_STOPS               0.1586
+
+// TODO: Crude estimate, think about this more carefully.
+#define WINDOW_FOV_ATTENUATION_STOPS           0.454
 
 // TODO: move these out of config.h
 #define REGMODE_PORT                           gpioPortF

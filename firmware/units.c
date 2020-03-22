@@ -11,6 +11,8 @@
 #include <stdio.h>
 #endif
 
+#define TOFIXP(typ, x) ((typ)(((double)(1 << EV_BPS)) * (x) + 0.5))
+
 static int32_t log_base2(uint32_t x)
 {
     // This implementation is based on Clay. S. Turner's fast binary logarithm
@@ -130,9 +132,12 @@ int32_t lux_to_reflective_ev(int32_t lux)
 
     // The window over the sensor attenuates the light, so compensate for this.
     if (1024 > (1 << EV_BPS))
-        ev += WINDOW_ATTENUATION_1024THS_STOP / (1024 / (1 << EV_BPS));
+        ev += TOFIXP(int32_t, WINDOW_ATTENUATION_STOPS);
     else
-        ev += WINDOW_ATTENUATION_1024THS_STOP / ((1 << EV_BPS) / 1024);
+        ev += TOFIXP(int32_t, WINDOW_ATTENUATION_STOPS);
+
+    // Compensate for the restricted FOV imposed by the window.
+    ev += TOFIXP(int32_t, WINDOW_FOV_ATTENUATION_STOPS);
 
     return ev;
 }
@@ -162,14 +167,12 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t als_gain_val, int32_t al
     int64_t ch0 = r.chan0;
     int64_t ch1 = r.chan1;
 
-#define TOFIXP(x) ((int64_t)(((double)(1 << EV_BPS)) * (x) + 0.5))
-    static const int64_t c1a = TOFIXP(1.7743);
-    static const int64_t c1b = TOFIXP(1.1059);
-    static const int64_t c2a = TOFIXP(4.2785);
-    static const int64_t c2b = TOFIXP(1.9548);
-    static const int64_t c3a = TOFIXP(0.5926);
-    static const int64_t c3b = TOFIXP(0.1185);
-#undef TOFIXP
+    static const int64_t c1a = TOFIXP(int64_t, 1.7743);
+    static const int64_t c1b = TOFIXP(int64_t, 1.1059);
+    static const int64_t c2a = TOFIXP(int64_t, 4.2785);
+    static const int64_t c2b = TOFIXP(int64_t, 1.9548);
+    static const int64_t c3a = TOFIXP(int64_t, 0.5926);
+    static const int64_t c3b = TOFIXP(int64_t, 0.1185);
 
     int64_t tmp;
     if (rat < 45)
