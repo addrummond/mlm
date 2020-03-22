@@ -1,12 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define REGMODE_PORT                           gpioPortF
-#define REGMODE_PIN                            2
-
-#define BATSENSE_PORT                          gpioPortC
-#define BATSENSE_PIN                           15
-
 #define LONG_PRESS_MS                          300
 #define DOUBLE_BUTTON_SLOP_MS                  300
 #define CENTER_BUTTON_DEAD_ZONE_MS             300
@@ -17,5 +11,14 @@
 
 // Maximum of 12 LEDs being displayed at once.
 #define LED_REFRESH_RATE_HZ                    1200
+
+// This is the value for a 2mm thick transparent acrylic window.
+#define WINDOW_ATTENUATION_1024THS_STOP        162
+
+// TODO: move these out of config.h
+#define REGMODE_PORT                           gpioPortF
+#define REGMODE_PIN                            2
+#define BATSENSE_PORT                          gpioPortC
+#define BATSENSE_PIN                           15
 
 #endif

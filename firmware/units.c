@@ -1,3 +1,4 @@
+#include <config.h>
 #include <iso.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -111,22 +112,29 @@ int32_t lux_to_reflective_ev(int32_t lux)
         return under + diff;
     }
 
+    // This comes from the 2.5 constant in the lux formula.
+    lux *= 2;
+    lux /= 5;
+
+    int32_t ev = log_base2(lux);
+
     // The equation in the sensor data sheet gives us lux (illuminance),
     // but we want luminance. Assuming 15.7% reflectance, the incident
     // reading corresponding to this reflective reading would have been
     // 100/15.7 times brighter (under various idealizing assumptions).
     // Thus, we need to compensate.
     // See https://en.wikipedia.org/wiki/Light_meter#Calibrated_reflectance
-    int64_t lux64 = lux;
-    lux64 *= 1000;
-    lux64 /= 157;
+    //
+    // log2(100/15.7) = 2.6711635357704604
+    ev += (int32_t)((2.6711635357704604 * (double)(1 << EV_BPS)) + 0.5);
 
-    // This comes from the 2.5 constant in the lux formula.
-    lux = (int32_t)lux64;
-    lux *= 2;
-    lux /= 5;
+    // The window over the sensor attenuates the light, so compensate for this.
+    if (1024 > (1 << EV_BPS))
+        ev += WINDOW_ATTENUATION_1024THS_STOP / (1024 / (1 << EV_BPS));
+    else
+        ev += WINDOW_ATTENUATION_1024THS_STOP / ((1 << EV_BPS) / 1024);
 
-    return log_base2(lux);
+    return ev;
 }
 
 // I finally located the mysterious "Appendix A" referred to on the datasheet here:
