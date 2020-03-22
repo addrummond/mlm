@@ -62,7 +62,7 @@ static const uint32_t led_cat_location[] = {
 
 static const uint32_t COUNT = 50;
 static const int32_t DUTY_CYCLE_MIN = 3;
-static const int32_t DUTY_CYCLE_MAX = 42;
+static const int32_t DUTY_CYCLE_MAX = 90;
 
 static const int CYCLES_PER_THROB_STEP = RTC_RAW_FREQ / 60;
 
@@ -103,6 +103,9 @@ static uint32_t get_duty_cycle()
         duty_cycle = 1;
     else if (duty_cycle > DUTY_CYCLE_MAX)
         duty_cycle = DUTY_CYCLE_MAX;
+
+    duty_cycle = DUTY_CYCLE_MAX;
+
     return COUNT - duty_cycle;
 }
 
