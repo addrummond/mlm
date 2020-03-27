@@ -154,8 +154,6 @@ void calibrate_capsense()
     while (RTC->CNT < end)
         ;
 
-
-
     RTC_Enable(false);
     CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
     RTC_Enable(true);
