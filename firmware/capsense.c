@@ -173,7 +173,7 @@ void calibrate_le_capsense()
     SEGGER_RTT_printf(0, "LE capsense calibration value: %u\n", le_calibration_center_pad_value);
 }
 
-static const uint32_t THRESHOLD_NUM = 88;
+static const uint32_t THRESHOLD_NUM = 89;
 static const uint32_t THRESHOLD_DENOM = 100;
 
 touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2)
