@@ -36,4 +36,6 @@ int test_main()
         //while (leds_on_for_cycles < base_cycles + RTC_RAW_FREQ)
         //    ;
     }
+
+    return 0;
 }

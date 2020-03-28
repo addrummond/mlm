@@ -46,4 +46,6 @@ int test_main()
         for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
             ;
     }
+
+    return 0;
 }

@@ -36,4 +36,6 @@ int test_main()
 
         delay_ms(PAD_COUNT_MS);
     }
+
+    return 0;
 }

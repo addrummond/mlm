@@ -47,4 +47,6 @@ static const uint8_t led_cat_pins[] = {
             }
         }
     }
+
+    return 0;
 }

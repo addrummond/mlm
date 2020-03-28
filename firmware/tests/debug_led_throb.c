@@ -18,4 +18,6 @@ int test_main()
         l2 = (l2 + 1) % 24;
         l3 = (l3 + 1) % 24;
     }
+
+    return 0;
 }

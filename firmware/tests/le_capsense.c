@@ -20,4 +20,6 @@ int test_main()
                 SEGGER_RTT_printf(0, "Unknown press type\n");
         }
     }
+
+    return 0;
 }

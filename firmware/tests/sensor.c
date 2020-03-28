@@ -40,4 +40,6 @@ int test_main()
         //else
         //    led_on(LED_PLUS_1_3_N);
     }
+
+    return 0;
 }
