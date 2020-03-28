@@ -343,7 +343,7 @@ void leds_all_off()
         rtc_has_been_borked_for_led_cycling = false;
     }
 
-    clear_rtc_interrupt_handlers();
+    remove_rtc_interrupt_handler(led_rtc_count_callback);
     set_led_throb_mask(0);
 
     TIMER_Enable(TIMER0, false);

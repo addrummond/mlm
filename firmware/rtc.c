@@ -40,6 +40,19 @@ void add_rtc_interrupt_handler(void (*callback)(void))
         SEGGER_RTT_printf(0, "WARNING: RTC count callbacks array full\n");
 }
 
+void remove_rtc_interrupt_handler(void (*callback)(void))
+{
+    int i, j;
+    for (i = 0, j = 0; i < sizeof(rtc_count_callbacks)/sizeof(rtc_count_callbacks[0]); ++i) {
+        if (rtc_count_callbacks[j] != callback) {
+            rtc_count_callbacks[j] = rtc_count_callbacks[i];
+            ++j;
+        }
+    }
+    for (; j < i; ++j)
+        rtc_count_callbacks[j] = 0;
+}
+
 void clear_rtc_interrupt_handlers()
 {
     for (int i = 0; i < sizeof(rtc_count_callbacks)/sizeof(rtc_count_callbacks[0]); ++i)

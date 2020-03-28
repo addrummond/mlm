@@ -3,6 +3,7 @@
 
 void RTC_IRQHandler(void);
 void add_rtc_interrupt_handler(void (*callback)(void));
+void remove_rtc_interrupt_handler(void (*callback)(void));
 void clear_rtc_interrupt_handlers(void);
 
 

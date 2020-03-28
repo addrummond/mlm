@@ -422,7 +422,6 @@ static void handle_MODE_DOING_READING()
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModeInput, 0);
 
     leds_all_off();
-    clear_rtc_interrupt_handlers();
 
     // If they're still holding down the button, display the reading
     // indefinitely until the button is released, then go into the
