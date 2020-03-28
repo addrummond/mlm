@@ -344,14 +344,14 @@ void setup_le_capsense(le_capsense_mode mode)
     GPIO_PinModeSet(gpioPortC, 14, gpioModeDisabled, 0);
 
     static const ACMP_CapsenseInit_TypeDef initACMP = {
-        .fullBias                 = false,
-        .halfBias                 = false,
+        .fullBias                 = true,
+        .halfBias                 = true,
         .biasProg                 = 0x7,
         .warmTime                 = acmpWarmTime512,
-        .hysteresisLevel          = acmpHysteresisLevel7,
+        .hysteresisLevel          = acmpHysteresisLevel5,
         .resistor                 = acmpResistor0,
         .lowPowerReferenceEnabled = false,
-        .vddLevel                 = 0x3D,
+        .vddLevel                 = 0x30,
         .enable                   = false
     };
 
