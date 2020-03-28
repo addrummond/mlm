@@ -26,20 +26,17 @@ typedef enum press {
 } press;
 
 void setup_capsense(void);
-void setup_capsense_center_pad_only(void);
 void disable_capsense(void);
 void cycle_capsense(void);
-uint32_t get_touch_count(uint32_t *chan1, uint32_t *chan2);
+uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan);
 void calibrate_capsense(void);
 void calibrate_le_capsense(void);
 void setup_le_capsense(le_capsense_mode mode);
 void disable_le_capsense();
 touch_position get_touch_position(uint32_t chan1, uint32_t chan2, uint32_t chan3);
-bool center_pad_is_touched(uint32_t chan2);
 bool le_center_pad_is_touched(uint32_t chan2);
-void setup_capsense_for_center_pad(void);
-press get_pad_press(void);
-press get_pad_press_while_leds_on(void);
+press get_pad_press(touch_position touch_pos);
+press get_pad_press_while_leds_on(touch_position touch_pos);
 
 extern uint32_t lesense_result;
 

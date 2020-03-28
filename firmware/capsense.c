@@ -1,6 +1,7 @@
 #include <capsense.h>
 #include <em_acmp.h>
 #include <em_cmu.h>
+#include <em_emu.h>
 #include <em_gpio.h>
 #include <em_lesense.h>
 #include <em_wdog.h>
@@ -149,7 +150,6 @@ void calibrate_capsense()
 
     cycle_capsense();
     get_touch_count(&count, &chan);
-    uint32_t start = RTC->CNT;
     uint32_t end = RTC->CNT + LE_PAD_CLOCK_COUNT;
     while (RTC->CNT < end)
         ;
@@ -178,7 +178,27 @@ static const uint32_t THRESHOLD_DENOM = 100;
 
 touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2)
 {
-    uint32_t NOTOUCH_THRESHOLD0 = calibration_values[0] * THRESHOLD_NUM / THRESHOLD_DENOM;
+    uint32_t rat0nopress = (calibration_values[0] << 8) / (calibration_values[1] + calibration_values[2]);
+    uint32_t rat1nopress = (calibration_values[1] << 8) / (calibration_values[0] + calibration_values[2]);
+    uint32_t rat2nopress = (calibration_values[2] << 8) / (calibration_values[0] + calibration_values[1]);
+
+
+    uint32_t rat0 = (chan0 << 8) / (chan1 + chan2);
+    uint32_t rat1 = (chan1 << 8) / (chan0 + chan2);
+    uint32_t rat2 = (chan2 << 8) / (chan0 + chan1);
+
+    if (rat0 < (85 * rat0nopress) / 100 && rat1 < (85 * rat1nopress) / 100)
+        return LEFT_AND_RIGHT_BUTTONS;
+    else if (rat2 < (80 * rat2nopress) / 100)
+        return CENTER_BUTTON;
+    else if (rat0 < (80 * rat0nopress) / 100)
+        return RIGHT_BUTTON;
+    else if (rat1 < (80 * rat1nopress) / 100)
+        return LEFT_BUTTON;
+
+    return NO_TOUCH_DETECTED;
+
+    /*uint32_t NOTOUCH_THRESHOLD0 = calibration_values[0] * THRESHOLD_NUM / THRESHOLD_DENOM;
     uint32_t NOTOUCH_THRESHOLD1 = calibration_values[1] * THRESHOLD_NUM / THRESHOLD_DENOM;
     uint32_t NOTOUCH_THRESHOLD2 = calibration_values[2] * THRESHOLD_NUM / THRESHOLD_DENOM;
 
@@ -191,12 +211,7 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
     if (chan1 != 0 && chan1 < NOTOUCH_THRESHOLD1)
         return LEFT_BUTTON;
 
-    return NO_TOUCH_DETECTED;
-}
-
-bool center_pad_is_touched(uint32_t chan2)
-{
-    return chan2 != 0 && chan2 < calibration_values[2] * THRESHOLD_NUM / THRESHOLD_DENOM;
+    return NO_TOUCH_DETECTED;*/
 }
 
 bool le_center_pad_is_touched(uint32_t chan2)
@@ -211,12 +226,14 @@ uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)
 
     uint32_t raw_cnt = PCNT0->CNT;
 
-    if (old_count == 0) {
-        *chan_value = raw_cnt;
-    } else if (raw_cnt > old_count) {
-        *chan_value = raw_cnt - old_count;
-    } else {
-        *chan_value = 0xFFFF - old_count + raw_cnt;
+    if (chan_value != 0) {
+        if (old_count == 0) {
+            *chan_value = raw_cnt;
+        } else if (raw_cnt > old_count) {
+            *chan_value = raw_cnt - old_count;
+        } else {
+            *chan_value = 0xFFFF - old_count + raw_cnt;
+        }
     }
 
     old_count = raw_cnt;
@@ -383,7 +400,7 @@ void setup_le_capsense(le_capsense_mode mode)
     if (mode == LE_CAPSENSE_SLEEP) {
         while (!(LESENSE->STATUS & LESENSE_STATUS_BUFHALFFULL))
             ;
-        LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_calibration_center_pad_value);
+        LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_calibration_center_pad_value * 85 / 100);
     }
 }
 
@@ -425,18 +442,7 @@ void disable_le_capsense()
     NVIC_DisableIRQ(LESENSE_IRQn);
 }
 
-void setup_capsense_for_center_pad()
-{
-    // We should define a setup function that just turns on ACM1,
-    // but when I tried that I got weird issues. This works ok.
-    // The extra power consumption of having both comparators on
-    // shouldn't be significant, as we're doing all this in EM0.
-    setup_capsense();
-    cycle_capsense();
-    cycle_capsense();
-}
-
-press get_pad_press()
+press get_pad_press(touch_position touch_pos)
 {
     const int long_press_ticks = LONG_PRESS_MS * RTC_FREQ / 1000;
     const int touch_count_ticks = PAD_COUNT_MS * RTC_FREQ / 1000;
@@ -447,23 +453,28 @@ press get_pad_press()
     RTC->CNT = 0;
     RTC->CTRL |= RTC_CTRL_EN;
 
-    uint32_t count;
-    get_touch_count(&count, 0);
+    get_touch_count(0, 0); // clear any nonsense value
 
     int miss_count = 0;
+    uint32_t chans[] = { 0, 0, 0 };
     for (;;) {
         while (RTC->CNT < next_touch_count)
             ;
         
         next_touch_count = RTC->CNT + touch_count_ticks;
         
-        get_touch_count(&count, 0);
+        uint32_t count, chan;
+        get_touch_count(&count, &chan);
+        chans[chan] = count;
 
-        if (! center_pad_is_touched(count)) {
-            ++miss_count;
-            if (miss_count > 1) {
-                p = PRESS_TAP;
-                break;
+        if (chans[0] != 0 && chans[1] != 0 && chans[2] != 0) {
+            touch_position tp = get_touch_position(chans[0], chans[1], chans[2]);
+            if (tp != touch_pos) {
+                ++miss_count;
+                if (miss_count > 1) {
+                    p = PRESS_TAP;
+                    break;
+                }
             }
         }
 
@@ -471,14 +482,17 @@ press get_pad_press()
             p = PRESS_HOLD;
             break;
         }
+
+        cycle_capsense();
     }
 
     RTC->CTRL &= ~RTC_CTRL_EN;
     disable_capsense();
+
     return p;
 }
 
-press get_pad_press_while_leds_on()
+press get_pad_press_while_leds_on(touch_position touch_pos)
 {
     const uint32_t long_press_ticks = LONG_PRESS_MS * RTC_RAW_FREQ / 1000;
     const uint32_t touch_count_ticks = PAD_COUNT_MS * RTC_RAW_FREQ / 1000;
@@ -487,23 +501,28 @@ press get_pad_press_while_leds_on()
     uint32_t next_touch_count = base_touch_count + touch_count_ticks;
     press p;
 
-    uint32_t count;
-    get_touch_count(&count, 0);
+    get_touch_count(0, 0); // clear any nonsense value
 
     int miss_count = 0;
+    uint32_t chans[] = { 0, 0, 0 };
     for (;;) {
         while (leds_on_for_cycles < next_touch_count)
             ;
         
         next_touch_count = leds_on_for_cycles + touch_count_ticks;
         
-        get_touch_count(&count, 0);
+        uint32_t count, chan;
+        get_touch_count(&count, &chan);
+        chans[chan] = count;
 
-        if (! center_pad_is_touched(count)) {
-            ++miss_count;
-            if (miss_count > 1) {
-                p = PRESS_TAP;
-                break;
+        if (chans[0] != 0 && chans[1] != 0 && chans[2] != 0) {
+            touch_position tp = get_touch_position(chans[0], chans[1], chans[2]);
+            if (tp != touch_pos) {
+                ++miss_count;
+                if (miss_count > 1) {
+                    p = PRESS_TAP;
+                    break;
+                }
             }
         }
 
@@ -511,6 +530,8 @@ press get_pad_press_while_leds_on()
             p = PRESS_HOLD;
             break;
         }
+
+        cycle_capsense();
     }
 
     return p;

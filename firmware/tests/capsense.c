@@ -12,9 +12,10 @@ int test_main()
 
     setup_capsense();
 
+    int32_t temp_reading = tempsensor_get_reading(delay_ms);
+
     uint32_t touch_counts[] = { 0, 0, 0 };
     for (unsigned i = 0;; ++i) {
-        int32_t temp_reading = tempsensor_get_reading(delay_ms);
 
         uint32_t count, chan;
         get_touch_count(&count, &chan);

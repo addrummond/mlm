@@ -7,8 +7,8 @@ int test_main()
         setup_le_capsense(LE_CAPSENSE_SLEEP);
         EMU_EnterEM2(true);
         disable_le_capsense();
-        setup_capsense_for_center_pad();
-        press p = get_pad_press();
+        setup_capsense();
+        press p = get_pad_press(CENTER_BUTTON);
         switch (p) {
             case PRESS_TAP:
                 SEGGER_RTT_printf(0, "TAP!\n");

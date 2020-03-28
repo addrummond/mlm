@@ -38,8 +38,8 @@ static void handle_MODE_JUST_WOKEN()
     // If they've held the button down for a little bit,
     // start doing a reading. If it was a double tap, go to
     // ISO / exposure set mode.
-    setup_capsense_for_center_pad();
-    press p = get_pad_press();
+    setup_capsense();
+    press p = get_pad_press(CENTER_BUTTON);
 
     if (p == PRESS_HOLD) {
         SEGGER_RTT_printf(0, "Hold\n");
@@ -225,9 +225,8 @@ static void handle_MODE_DISPLAY_READING()
 
 handle_center_press:
     leds_all_off();
-    disable_capsense();
-    setup_capsense_for_center_pad();
-    press p = get_pad_press();
+    touch_counts[0] = 0, touch_counts[1] = 0, touch_counts[2] = 0;
+    press p = get_pad_press(CENTER_BUTTON);
     if (p == PRESS_HOLD)
         g_state.mode = MODE_DOING_READING;
     else if (p == PRESS_TAP)
@@ -282,7 +281,7 @@ static void handle_MODE_SETTING_ISO()
                             }
                         
                             SEGGER_RTT_printf(0, "GETTING PRESS\n");
-                            p = get_pad_press_while_leds_on();
+                            p = get_pad_press_while_leds_on(CENTER_BUTTON);
                             SEGGER_RTT_printf(0, "DONE GETTING PRESS\n");
                         }
 
@@ -354,8 +353,8 @@ handle_center_press:
     SEGGER_RTT_printf(0, "ISO button press\n");
     leds_all_off();
     disable_capsense();
-    setup_capsense_for_center_pad();
-    press p = get_pad_press();
+    setup_capsense();
+    press p = get_pad_press(CENTER_BUTTON);
     if (p == PRESS_HOLD)
         g_state.mode = MODE_DOING_READING;
     else if (p == PRESS_TAP)
@@ -429,13 +428,16 @@ static void handle_MODE_DOING_READING()
     // indefinitely until the button is released, then go into the
     // regular display reading mode.
     setup_capsense();
-    cycle_capsense();
-    cycle_capsense(); // get to center button
-    uint32_t chan;
-    get_touch_count(&chan, 0);
-    delay_ms(PAD_COUNT_MS);
-    get_touch_count(&chan, 0);
-    if (center_pad_is_touched(chan)) {
+    uint32_t chans[] = { 0, 0, 0 };
+    get_touch_count(0, 0); // clear any nonsense value
+    do {
+        delay_ms(PAD_COUNT_MS);
+        uint32_t count, chan;
+        get_touch_count(&count, &chan);
+        chans[chan] = count;
+        cycle_capsense();
+    } while (chans[0] == 0 || chans[1] == 0 || chans[2] == 0);
+    if (get_touch_position(chans[0], chans[1], chans[2]) == CENTER_BUTTON) {
         int32_t iso = iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third);
         int ap_index, ss_index, third;
         ev_iso_aperture_to_shutter(g_state.last_reading_ev, iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
@@ -445,20 +447,27 @@ static void handle_MODE_DOING_READING()
         else
             leds_on_for_reading(ap_index, ss_index, third);
 
-        get_touch_count(&chan, 0);
+        chans[0] = 0, chans[1] = 0, chans[2] = 0;
+        get_touch_count(0, 0); // clear any nonsense value
         int misses = 0;
         for (;;) {
             for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
                 ;
-            get_touch_count(&chan, 0);
+            uint32_t count, chan;
+            get_touch_count(&count, &chan);
+            chans[chan] = count;
 
-            if (! center_pad_is_touched(chan)) {
-                ++misses;
-                if (misses >= MISSES_REQUIRED_TO_BREAK_HOLD)
-                    break;
-            } else {
-                misses = 0;
+            if (chans[0] != 0 && chans[1] != 0 && chans[2] != 0) {
+                if (get_touch_position(chans[0], chans[1], chans[2]) != CENTER_BUTTON) {
+                    ++misses;
+                    if (misses >= MISSES_REQUIRED_TO_BREAK_HOLD)
+                        break;
+                } else {
+                    misses = 0;
+                }
             }
+
+            cycle_capsense();
         }
     }
 
