@@ -173,7 +173,7 @@ void calibrate_le_capsense()
     SEGGER_RTT_printf(0, "LE capsense calibration value: %u\n", le_calibration_center_pad_value);
 }
 
-static const uint32_t THRESHOLD_NUM = 92;
+static const uint32_t THRESHOLD_NUM = 88;
 static const uint32_t THRESHOLD_DENOM = 100;
 
 touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2)
@@ -182,14 +182,14 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
     uint32_t NOTOUCH_THRESHOLD1 = calibration_values[1] * THRESHOLD_NUM / THRESHOLD_DENOM;
     uint32_t NOTOUCH_THRESHOLD2 = calibration_values[2] * THRESHOLD_NUM / THRESHOLD_DENOM;
 
+    if (chan2 != 0 && chan2 < NOTOUCH_THRESHOLD2)
+        return CENTER_BUTTON;
     if (chan0 != 0 && chan0 < NOTOUCH_THRESHOLD0 && chan1 != 0 && chan1 < NOTOUCH_THRESHOLD1)
         return LEFT_AND_RIGHT_BUTTONS;
     if (chan0 != 0 && chan0 < NOTOUCH_THRESHOLD0)
         return RIGHT_BUTTON;
     if (chan1 != 0 && chan1 < NOTOUCH_THRESHOLD1)
         return LEFT_BUTTON;
-    if (chan2 != 0 && chan2 < NOTOUCH_THRESHOLD2)
-        return CENTER_BUTTON;
 
     return NO_TOUCH_DETECTED;
 }
