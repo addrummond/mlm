@@ -254,6 +254,11 @@ static void init_timers()
 
 static bool rtc_has_been_borked_for_led_cycling;
 
+bool rtc_borked_for_led_cycling()
+{
+    return rtc_has_been_borked_for_led_cycling;
+}
+
 void leds_on(uint32_t mask)
 {
     RTC_Enable(false);
@@ -267,7 +272,7 @@ void leds_on(uint32_t mask)
 
     turnoff();
 
-    CMU_ClockDivSet(cmuClock_RTC, cmuClkDiv_1);
+    set_rtc_clock_div(cmuClkDiv_1);
 
     orig_mask = mask;
     current_mask = mask;
@@ -329,7 +334,7 @@ void leds_all_off()
     orig_mask = 0;
 
     if (rtc_has_been_borked_for_led_cycling) {
-        CMU_ClockDivSet(cmuClock_RTC, MACROUTILS_CONCAT(cmuClkDiv_, RTC_CLK_DIV));
+        set_rtc_clock_div(MACROUTILS_CONCAT(cmuClkDiv_, RTC_CLK_DIV));
         RTC_IntDisable(RTC_IEN_COMP0);
         NVIC_DisableIRQ(RTC_IRQn);
 

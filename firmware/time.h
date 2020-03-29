@@ -10,5 +10,7 @@
 #define RTC_CMU_CLK_DIV  MACROUTILS_CONCAT(cmuClkDiv_, RTC_CLK_DIV)
 
 void delay_ms(int ms);
+void set_rtc_clock_div(CMU_ClkDiv_TypeDef div);
+int get_rtc_freq(void);
 
 #endif

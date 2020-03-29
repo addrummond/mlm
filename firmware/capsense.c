@@ -9,6 +9,7 @@
 #include <em_prs.h>
 #include <em_rtc.h>
 #include <leds.h>
+#include <rtc.h>
 #include <rtt.h>
 #include <stdbool.h>
 #include <time.h>
@@ -80,6 +81,8 @@ void setup_capsense()
 
 void disable_capsense()
 {
+    remove_rtc_interrupt_handler(recalibrate_le_capsense);
+
     ACMP0->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
     ACMP1->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
     ACMP_Disable(ACMP0);
@@ -145,7 +148,7 @@ void calibrate_capsense()
     chans_done = 0;
 
     RTC_Enable(false);
-    CMU_ClockDivSet(cmuClock_RTC, cmuClkDiv_1);
+    set_rtc_clock_div(cmuClkDiv_1);
     RTC_Enable(true);
 
     cycle_capsense();
@@ -155,7 +158,7 @@ void calibrate_capsense()
         ;
 
     RTC_Enable(false);
-    CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
+    set_rtc_clock_div(RTC_CMU_CLK_DIV);
     RTC_Enable(true);
 
     disable_capsense();
@@ -333,6 +336,11 @@ static const LESENSE_Init_TypeDef initLESENSE =
 
 static le_capsense_mode le_mode;
 
+static uint32_t le_center_pad_count_to_threshold(uint32_t count)
+{
+    return count * 85 / 100;
+}
+
 void setup_le_capsense(le_capsense_mode mode)
 {
     le_mode = mode;
@@ -385,8 +393,22 @@ void setup_le_capsense(le_capsense_mode mode)
     if (mode == LE_CAPSENSE_SLEEP) {
         while (!(LESENSE->STATUS & LESENSE_STATUS_BUFHALFFULL))
             ;
-        LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_calibration_center_pad_value * 85 / 100);
+        LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_center_pad_count_to_threshold(le_calibration_center_pad_value));
     }
+
+    // Periodically wake up to recalibrate.
+    add_rtc_interrupt_handler(recalibrate_le_capsense);
+    static const RTC_Init_TypeDef rtcInit = {
+      .enable   = true,
+      .debugRun = false,
+      .comp0Top = true
+    };
+    RTC_Init(&rtcInit);
+    RTC_Enable(false);
+    set_rtc_clock_div(cmuClkDiv_32768);
+    RTC_CompareSet(0, LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS);
+    RTC_IntEnable(RTC_IFS_COMP0);
+    RTC_Enable(true);
 }
 
 uint32_t lesense_result;
@@ -401,6 +423,71 @@ void LESENSE_IRQHandler(void)
     // Stop additional interrupts screwing things up by setting threshold to zero.
     if (le_mode == LE_CAPSENSE_SLEEP)
         LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, 0);
+}
+
+static uint32_t get_max_value(volatile uint32_t* A, int N){
+    int i;
+    uint32_t max = 0;
+
+    for (i = 0; i < N; i++) {
+        if (max < A[i])
+            max = A[i];
+    }
+
+    return max;
+}
+
+#define NUMBER_OF_LE_CALIBRATION_VALUES 5
+#define NUM_LESENSE_CHANNELS            1
+
+// Adapted from example code in AN0028.
+void recalibrate_le_capsense()
+{
+    SEGGER_RTT_printf(0, "Recalibrating capsense.\n");
+
+    static uint32_t channels_used_mask;
+    static const int num_channels_used = 1;
+    static volatile uint32_t calibration_value[NUM_LESENSE_CHANNELS][NUMBER_OF_LE_CALIBRATION_VALUES];
+    static volatile uint32_t channel_max_value[NUM_LESENSE_CHANNELS];
+
+    int i, k;
+    uint16_t nominal_count;
+    static uint8_t calibration_value_index = 0;
+
+    // Wait for current scan to finish
+    while (LESENSE->STATUS & LESENSE_STATUS_SCANACTIVE)
+        ;
+
+    // Get position for first channel data in count buffer from lesense write pointer
+    k = ((LESENSE->PTR & _LESENSE_PTR_WR_MASK) >> _LESENSE_PTR_WR_SHIFT);
+
+    // Handle circular buffer wraparound
+    if (k >= num_channels_used)
+        k = k - num_channels_used;
+    else
+        k = k - num_channels_used + NUM_LESENSE_CHANNELS;
+
+    // Fill calibration values array with buffer values
+    for (i = 0; i < NUM_LESENSE_CHANNELS; i++) {
+        if ((channels_used_mask >> i) & 0x1)
+            calibration_value[i][calibration_value_index] = LESENSE_ScanResultDataBufferGet(k++);
+    }
+
+    // Wrap around calibration_values_index
+    calibration_value_index++;
+    if (calibration_value_index >= NUMBER_OF_LE_CALIBRATION_VALUES)
+        calibration_value_index = 0;
+
+    // Calculate max value for each channel and set threshold
+    for (i = 0; i < NUM_LESENSE_CHANNELS; i++) {
+        if ((channels_used_mask >> i) & 0x1) {
+            channel_max_value[i] = get_max_value(calibration_value[i], NUMBER_OF_LE_CALIBRATION_VALUES);
+
+            nominal_count = channel_max_value[i];
+            //LESENSE_ChannelThresSet(i, 0x0,(uint16_t) (nominal_count - ((nominal_count * channel_threshold_percent[i])/100.0)) ); 
+            LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_center_pad_count_to_threshold(nominal_count));
+        }
+    }
 }
 
 void disable_le_capsense()
@@ -429,8 +516,9 @@ void disable_le_capsense()
 
 press get_pad_press(touch_position touch_pos)
 {
-    const int long_press_ticks = LONG_PRESS_MS * RTC_FREQ / 1000;
-    const int touch_count_ticks = PAD_COUNT_MS * RTC_FREQ / 1000;
+    int rtc_freq = get_rtc_freq();
+    int long_press_ticks = LONG_PRESS_MS * rtc_freq / 1000;
+    int touch_count_ticks = PAD_COUNT_MS * rtc_freq / 1000;
 
     int next_touch_count = touch_count_ticks;
     press p;

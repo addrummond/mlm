@@ -34,12 +34,20 @@ int test_main(void);
 
 static void handle_MODE_JUST_WOKEN()
 {
+    SEGGER_RTT_printf(0, "HERE %u\n", RTC_CMU_CLK_DIV);
+    remove_rtc_interrupt_handler(recalibrate_le_capsense);
+    rtc_init();
+    SEGGER_RTT_printf(0, "THERE\n");
+
     // If it was a brief tap on the button, go to AWAKE_AT_REST.
     // If they've held the button down for a little bit,
     // start doing a reading. If it was a double tap, go to
     // ISO / exposure set mode.
     setup_capsense();
+    SEGGER_RTT_printf(0, "MIDDLE\n");
     press p = get_pad_press(CENTER_BUTTON);
+
+    SEGGER_RTT_printf(0, "THERE %u\n", p);
 
     if (p == PRESS_HOLD) {
         SEGGER_RTT_printf(0, "Hold\n");

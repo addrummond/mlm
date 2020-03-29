@@ -3,6 +3,7 @@
 
 
 void common_init(void);
+void rtc_init(void);
 
 
 #endif

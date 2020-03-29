@@ -56,7 +56,7 @@ static void low_power_init_wait()
 
     CMU_ClockEnable(cmuClock_CORELE, true);
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
-    CMU_ClockDivSet(cmuClock_RTC, cmuClkDiv_2048);
+    set_rtc_clock_div(cmuClkDiv_2048);
     CMU_ClockEnable(cmuClock_RTC, true);
     RTC_Init(&rtc_init);
     RTC_IntEnable(RTC_IEN_COMP0);
@@ -65,6 +65,17 @@ static void low_power_init_wait()
     RTC_IntClear(RTC_IFC_COMP0);
 
     EMU_EnterEM2(false);
+}
+
+void rtc_init()
+{
+    RTC_Init_TypeDef rtc_init = {
+        false, // Start counting when initialization is done
+        false, // Enable updating during debug halt.
+        false  // Restart counting from 0 when reaching COMP0.
+    };
+    RTC_Init(&rtc_init);
+    set_rtc_clock_div(RTC_CMU_CLK_DIV);
 }
 
 void common_init()
@@ -83,15 +94,10 @@ void common_init()
     CMU_OscillatorEnable(cmuOsc_LFRCO, true, true);
     CMU_ClockEnable(cmuClock_CORELE, true);
     CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFRCO);
-    CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
+    set_rtc_clock_div(RTC_CMU_CLK_DIV);
     CMU_ClockEnable(cmuClock_RTC, true);
 
-    RTC_Init_TypeDef rtc_init = {
-        false, // Start counting when initialization is done
-        false, // Enable updating during debug halt.
-        false  // Restart counting from 0 when reaching COMP0.
-    };
-    RTC_Init(&rtc_init);
+    rtc_init();
 
     rtt_init();
     SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));

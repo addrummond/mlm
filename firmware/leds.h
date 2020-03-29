@@ -1,6 +1,7 @@
 #ifndef LEDS_HH
 #define LEDS_HH
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #define LED_N           26
@@ -144,6 +145,7 @@ void leds_all_off();
 void leds_on_for_reading(int ap_index, int ss_index, int third);
 void delay_ms_with_led_rtc(int ms);
 void set_led_throb_mask(uint32_t mask);
+bool rtc_borked_for_led_cycling(void);
 
 extern volatile uint32_t leds_on_for_cycles;
 
