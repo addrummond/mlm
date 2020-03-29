@@ -197,21 +197,6 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
         return LEFT_BUTTON;
 
     return NO_TOUCH_DETECTED;
-
-    /*uint32_t NOTOUCH_THRESHOLD0 = calibration_values[0] * THRESHOLD_NUM / THRESHOLD_DENOM;
-    uint32_t NOTOUCH_THRESHOLD1 = calibration_values[1] * THRESHOLD_NUM / THRESHOLD_DENOM;
-    uint32_t NOTOUCH_THRESHOLD2 = calibration_values[2] * THRESHOLD_NUM / THRESHOLD_DENOM;
-
-    if (chan2 != 0 && chan2 < NOTOUCH_THRESHOLD2)
-        return CENTER_BUTTON;
-    if (chan0 != 0 && chan0 < NOTOUCH_THRESHOLD0 && chan1 != 0 && chan1 < NOTOUCH_THRESHOLD1)
-        return LEFT_AND_RIGHT_BUTTONS;
-    if (chan0 != 0 && chan0 < NOTOUCH_THRESHOLD0)
-        return RIGHT_BUTTON;
-    if (chan1 != 0 && chan1 < NOTOUCH_THRESHOLD1)
-        return LEFT_BUTTON;
-
-    return NO_TOUCH_DETECTED;*/
 }
 
 bool le_center_pad_is_touched(uint32_t chan2)
