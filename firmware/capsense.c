@@ -185,7 +185,6 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
     uint32_t rat1nopress = (calibration_values[1] << 8) / (calibration_values[0] + calibration_values[2]);
     uint32_t rat2nopress = (calibration_values[2] << 8) / (calibration_values[0] + calibration_values[1]);
 
-
     uint32_t rat0 = (chan0 << 8) / (chan1 + chan2);
     uint32_t rat1 = (chan1 << 8) / (chan0 + chan2);
     uint32_t rat2 = (chan2 << 8) / (chan0 + chan1);
