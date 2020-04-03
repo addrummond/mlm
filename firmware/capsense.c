@@ -81,6 +81,7 @@ void setup_capsense()
 
 void disable_capsense()
 {
+    //SEGGER_RTT_printf(0, "REMOVING I HANDLER [1]\n");
     remove_rtc_interrupt_handler(recalibrate_le_capsense);
 
     ACMP0->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
@@ -396,7 +397,7 @@ void setup_le_capsense(le_capsense_mode mode)
     }
 
     // Periodically wake up to recalibrate.
-    add_rtc_interrupt_handler(recalibrate_le_capsense);
+    //SEGGER_RTT_printf(0, "ADDING I HANDLER [1]\n");
     static const RTC_Init_TypeDef rtcInit = {
       .enable   = true,
       .debugRun = false,
@@ -412,6 +413,15 @@ void setup_le_capsense(le_capsense_mode mode)
 
 uint32_t lesense_result;
 
+static volatile bool irq_handler_triggered;
+
+bool check_lesense_irq_handler()
+{
+    bool v = irq_handler_triggered;
+    irq_handler_triggered = false;
+    return v;
+}
+
 void LESENSE_IRQHandler(void)
 {
     LESENSE_IntClear(LESENSE_IEN_SCANCOMPLETE);
@@ -422,6 +432,8 @@ void LESENSE_IRQHandler(void)
     // Stop additional interrupts screwing things up by setting threshold to zero.
     if (le_mode == LE_CAPSENSE_SLEEP)
         LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, 0);
+
+    irq_handler_triggered = true;
 }
 
 static uint32_t get_max_value(volatile uint32_t* A, int N){

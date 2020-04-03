@@ -10,7 +10,6 @@
 #include <em_emu.h>
 #include <em_gpio.h>
 #include <em_prs.h>
-#include <em_rmu.h>
 #include <em_rtc.h>
 #include <em_timer.h>
 #include <em_wdog.h>
@@ -34,20 +33,23 @@ int test_main(void);
 
 static void handle_MODE_JUST_WOKEN()
 {
-    SEGGER_RTT_printf(0, "HERE %u\n", RTC_CMU_CLK_DIV);
-    remove_rtc_interrupt_handler(recalibrate_le_capsense);
+    while (! check_lesense_irq_handler()) {
+        recalibrate_le_capsense();
+        setup_le_capsense(LE_CAPSENSE_SLEEP);
+        SEGGER_RTT_printf(0, "Entering EM2 for snooze following calibration\n");
+        EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
+        disable_le_capsense();
+        SEGGER_RTT_printf(0, "Woken up [2]!\n");
+    }
+
     rtc_init();
-    SEGGER_RTT_printf(0, "THERE\n");
 
     // If it was a brief tap on the button, go to AWAKE_AT_REST.
     // If they've held the button down for a little bit,
     // start doing a reading. If it was a double tap, go to
     // ISO / exposure set mode.
     setup_capsense();
-    SEGGER_RTT_printf(0, "MIDDLE\n");
     press p = get_pad_press(CENTER_BUTTON);
-
-    SEGGER_RTT_printf(0, "THERE %u\n", p);
 
     if (p == PRESS_HOLD) {
         SEGGER_RTT_printf(0, "Hold\n");
