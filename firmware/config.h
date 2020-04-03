@@ -11,7 +11,6 @@
 
 #define DISPLAY_READING_TIME_SECONDS             20
 
-// Maximum of 12 LEDs being displayed at once.
 #define LED_REFRESH_RATE_HZ                      1200
 
 // This is the value for a 2mm thick transparent acrylic window.
