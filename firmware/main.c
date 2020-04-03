@@ -429,6 +429,7 @@ static void handle_MODE_DOING_READING()
     // Turn the LDO off to power down the sensor.
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModeInput, 0);
 
+    remove_rtc_interrupt_handler(display_reading_interrupt_cycle_interrupt_handler);
     leds_all_off();
 
     // If they're still holding down the button, display the reading
@@ -477,8 +478,6 @@ static void handle_MODE_DOING_READING()
             cycle_capsense();
         }
     }
-
-    remove_rtc_interrupt_handler(display_reading_interrupt_cycle_interrupt_handler);
 
     leds_all_off();
     disable_capsense();
