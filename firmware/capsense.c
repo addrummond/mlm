@@ -397,7 +397,6 @@ void setup_le_capsense(le_capsense_mode mode)
     }
 
     // Periodically wake up to recalibrate.
-    //SEGGER_RTT_printf(0, "ADDING I HANDLER [1]\n");
     static const RTC_Init_TypeDef rtcInit = {
       .enable   = true,
       .debugRun = false,
