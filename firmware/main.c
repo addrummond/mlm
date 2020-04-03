@@ -470,6 +470,8 @@ static void handle_MODE_DOING_READING()
         }
     }
 
+    remove_rtc_interrupt_handler(display_reading_interrupt_cycle_interrupt_handler);
+
     leds_all_off();
     disable_capsense();
 
