@@ -1,5 +1,7 @@
 #include <tests/include.h>
 
+uint8_t cnt __attribute__((section (".persistent")));
+
 int test_main()
 {
     uint32_t reset_cause = RMU_ResetCauseGet();
@@ -9,7 +11,9 @@ int test_main()
         // First run.
         leds_on(0b1);
     } else {
-        leds_on(0b1000);
+        ++cnt;
+        cnt %= 24;
+        leds_on((1 << (cnt % 24)));
     }
 
     //RMU->CTRL &= ~0b111;

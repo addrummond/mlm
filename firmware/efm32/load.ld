@@ -196,6 +196,12 @@ SECTIONS
     __bss_end__ = .;
   } > RAM
 
+  .persistent (NOLOAD) :
+  {
+    *(.persistent*)
+    . = ALIGN(4);
+  } > RAM
+
   .heap (COPY):
   {
     __HeapBase = .;
