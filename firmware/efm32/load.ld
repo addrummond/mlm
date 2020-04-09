@@ -196,8 +196,8 @@ SECTIONS
     __bss_end__ = .;
   } > RAM
 
-  // ALEX DRUMMOND: This section is used for storing variables whose
-  // values should persist across resets.
+  /* ALEX DRUMMOND: This section is used for storing variables whose
+     values should persist across resets. */
   .persistent (NOLOAD) :
   {
     *(.persistent*)
