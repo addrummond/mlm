@@ -50,9 +50,7 @@ static void go_into_deep_sleep()
     WDOGn_Init(WDOG, &wInit);
     WDOGn_Feed(WDOG);
 
-    SEGGER_RTT_printf(0, "Going into deep sleep.\n");
-
-#ifdef TEST
+#ifdef DEBUG
     EMU_EnterEM2(false);
 #else
     EMU_EnterEM3(false);
@@ -602,7 +600,7 @@ int main()
         calibrate_le_capsense();
     } else {
         setup_le_capsense(LE_CAPSENSE_SENSE);
-        EMU_EnterEM1();
+        EMU_EnterEM2(true);
 
         if (! le_center_pad_is_touched(lesense_result)) {
             if (deep_sleep_capsense_recalibration_counter++ >= LE_CAPSENSE_DEEP_SLEEP_CALIBRATION_INTERVAL_SECONDS) {
