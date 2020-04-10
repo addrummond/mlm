@@ -34,6 +34,14 @@ int test_main(void);
 
 static void go_into_deep_sleep()
 {
+    SEGGER_RTT_printf(0, "Going into deep sleep.\n");
+    leds_all_off();
+    leds_on(0b111);
+    uint32_t start = leds_on_for_cycles;
+    while (leds_on_for_cycles - start < RTC_RAW_FREQ)
+        ;
+    leds_all_off();
+
     CMU_ClockEnable(cmuClock_CORELE, true);
 
     EMU_EM23Init_TypeDef dcdcInit = EMU_EM23INIT_DEFAULT;
@@ -599,6 +607,7 @@ int main()
         calibrate_capsense();
         calibrate_le_capsense();
     } else {
+        SEGGER_RTT_printf(0, "WW!\n");
         setup_le_capsense(LE_CAPSENSE_SENSE);
         EMU_EnterEM2(true);
 
