@@ -1,6 +1,7 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <sensor.h>
 
@@ -34,6 +35,8 @@ typedef struct state {
     int32_t iso_third; // 0, -1 or 1
     int32_t compensation; // in units of 1/3 stop
     int32_t led_brightness_ev_ref;
+    int32_t deep_sleep_counter;
+    bool watchdog_wakeup;
 } state;
 
 // Don't trust sizeof here because of possible padding.

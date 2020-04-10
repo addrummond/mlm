@@ -21,8 +21,8 @@ static uint32_t touch_acmp;
 
 static uint32_t old_count;
 
-static uint32_t calibration_values[3];
-static uint32_t le_calibration_center_pad_value;
+uint32_t calibration_values[3] __attribute__((section (".persistent")));
+uint32_t le_calibration_center_pad_value __attribute__((section (".persistent")));
 
 static const PCNT_Init_TypeDef initPCNT =
 {
@@ -396,18 +396,21 @@ void setup_le_capsense(le_capsense_mode mode)
         LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_center_pad_count_to_threshold(le_calibration_center_pad_value));
     }
 
-    // Periodically wake up to recalibrate.
-    static const RTC_Init_TypeDef rtcInit = {
-      .enable   = true,
-      .debugRun = false,
-      .comp0Top = true
-    };
-    RTC_Init(&rtcInit);
-    RTC_Enable(false);
-    set_rtc_clock_div(cmuClkDiv_32768);
-    RTC_CompareSet(0, LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS);
-    RTC_IntEnable(RTC_IFS_COMP0);
-    RTC_Enable(true);
+    if (mode != LE_CAPSENSE_SENSE) {
+        // Periodically wake up to recalibrate.
+        SEGGER_RTT_printf(0, "Setting recalibration wakeup timer.\n");
+        static const RTC_Init_TypeDef rtcInit = {
+        .enable   = true,
+        .debugRun = false,
+        .comp0Top = true
+        };
+        RTC_Init(&rtcInit);
+        RTC_Enable(false);
+        set_rtc_clock_div(cmuClkDiv_32768);
+        RTC_CompareSet(0, LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS);
+        RTC_IntEnable(RTC_IFS_COMP0);
+        RTC_Enable(true);
+    }
 }
 
 uint32_t lesense_result;

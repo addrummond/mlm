@@ -103,19 +103,4 @@ void common_init()
     SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
 
     gpio_pins_to_initial_states();
-
-    // Give a grace period before calibrating capsense, so that
-    // the programming header can be disconnected first.
-#if (!defined(DEBUG) && !defined(NOGRACE)) || defined(GRACE)
-    if ((RMU_ResetCauseGet() & RMU_RSTCAUSE_WDOGRST) == 0) {
-        leds_on(1);
-        uint32_t base = leds_on_for_cycles;
-        while (leds_on_for_cycles < base + RTC_RAW_FREQ * 8)
-            WDOGn_Feed(WDOG);
-        leds_all_off();
-    }
-#endif
-
-    calibrate_le_capsense();
-    calibrate_capsense();
 }

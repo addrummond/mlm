@@ -10,6 +10,7 @@
 #include <em_emu.h>
 #include <em_gpio.h>
 #include <em_prs.h>
+#include <em_rmu.h>
 #include <em_rtc.h>
 #include <em_timer.h>
 #include <em_wdog.h>
@@ -31,16 +32,54 @@
 int test_main(void);
 #endif
 
+static void go_into_deep_sleep()
+{
+    CMU_ClockEnable(cmuClock_CORELE, true);
+
+    EMU_EM23Init_TypeDef dcdcInit = EMU_EM23INIT_DEFAULT;
+    EMU_EM23Init(&dcdcInit);
+
+    WDOG_Init_TypeDef wInit = WDOG_INIT_DEFAULT;
+    wInit.debugRun = true; // Run in debug
+    wInit.clkSel = wdogClkSelULFRCO;
+    wInit.em2Run = true;
+    wInit.em3Run = true;
+    wInit.perSel = wdogPeriod_4k; // 1k 1kHz periods should give ~1 seconds in EM3
+    wInit.enable = true;
+
+    WDOGn_Init(WDOG, &wInit);
+    WDOGn_Feed(WDOG);
+
+    SEGGER_RTT_printf(0, "Going into deep sleep.\n");
+
+#ifdef TEST
+    EMU_EnterEM2(false);
+#else
+    EMU_EnterEM3(false);
+#endif
+}
+
 static void handle_MODE_JUST_WOKEN()
 {
-    while (! check_lesense_irq_handler()) {
-        recalibrate_le_capsense();
-        setup_le_capsense(LE_CAPSENSE_SLEEP);
-        SEGGER_RTT_printf(0, "Entering EM2 for snooze following calibration\n");
-        EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
-        disable_le_capsense();
-        SEGGER_RTT_printf(0, "Woken up [2]!\n");
+    if (! g_state.watchdog_wakeup) {
+        while (! check_lesense_irq_handler()) {
+            if (g_state.deep_sleep_counter++ > DEEP_SLEEP_TIMEOUT_SECONDS/LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS) {
+                // We've been sleeping for a while now and nothing has happened.
+                // Time to go into deep sleep.
+                go_into_deep_sleep();
+            }
+
+            recalibrate_le_capsense();
+            setup_le_capsense(LE_CAPSENSE_SLEEP);
+            SEGGER_RTT_printf(0, "Entering EM2 for snooze following calibration\n");
+            EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
+            disable_le_capsense();
+            SEGGER_RTT_printf(0, "Woken up [2]!\n");
+        }
     }
+
+    g_state.watchdog_wakeup = false;
+    g_state.deep_sleep_counter = 0;
 
     rtc_init();
 
@@ -525,22 +564,59 @@ static void state_loop()
     }
 }
 
-static int real_main()
+static int real_main(bool watchdog_wakeup)
 {
     set_state_to_default();
+    g_state.watchdog_wakeup = watchdog_wakeup;
 
     state_loop();
 
     return 0;
 }
 
+int32_t deep_sleep_capsense_recalibration_counter __attribute__((section (".persistent")));
+
 int main()
 {
+    uint32_t reset_cause = RMU_ResetCauseGet();
+    RMU_ResetCauseClear();
+
     common_init();
+
+    bool watchdog_wakeup = ((reset_cause & RMU_RSTCAUSE_WDOGRST) != 0);
+
+    if (! watchdog_wakeup) {
+        deep_sleep_capsense_recalibration_counter = 0;
+
+        // Give a grace period before calibrating capsense, so that
+        // the programming header can be disconnected first.
+#if (!defined(DEBUG) && !defined(NOGRACE)) || defined(GRACE)
+        leds_on(1);
+        uint32_t base = leds_on_for_cycles;
+        while (leds_on_for_cycles < base + RTC_RAW_FREQ * 8)
+            WDOGn_Feed(WDOG); // make sure no reset is triggered if the watchdog is enabled
+        leds_all_off();
+#endif
+
+        calibrate_capsense();
+        calibrate_le_capsense();
+    } else {
+        setup_le_capsense(LE_CAPSENSE_SENSE);
+        EMU_EnterEM1();
+
+        if (! le_center_pad_is_touched(lesense_result)) {
+            if (deep_sleep_capsense_recalibration_counter++ >= LE_CAPSENSE_DEEP_SLEEP_CALIBRATION_INTERVAL_SECONDS) {
+                recalibrate_le_capsense();
+                deep_sleep_capsense_recalibration_counter = 0;
+            }
+
+            go_into_deep_sleep();
+        }
+    }
 
 #ifdef TEST_MAIN
     return test_main();
 #else
-    return real_main();
+    return real_main(watchdog_wakeup);
 #endif
 }
