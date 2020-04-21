@@ -261,6 +261,8 @@ bool rtc_borked_for_led_cycling()
 
 void leds_on(uint32_t mask)
 {
+    static bool leds_on_for_cycles_initialized;
+
     RTC_Enable(false);
 
     mask &= (1<<LED_N)-1;
@@ -292,7 +294,10 @@ void leds_on(uint32_t mask)
     RTC_IntEnable(RTC_IEN_COMP0);
     NVIC_EnableIRQ(RTC_IRQn);
 
-    leds_on_for_cycles = 0;
+    if (! leds_on_for_cycles_initialized) {
+        leds_on_for_cycles = 0;
+        leds_on_for_cycles_initialized = true;
+    }
     next_throb_cycles = CYCLES_PER_THROB_STEP;
 
     RTC_Init(&init);

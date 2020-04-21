@@ -383,7 +383,7 @@ static void handle_MODE_SETTING_ISO()
         for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles - base < RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
             ;
 
-        if (leds_on_for_cycles >= base_cycles + DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
+        if (leds_on_for_cycles - base_cycles >= DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
             SEGGER_RTT_printf(0, "Reading display timeout (in ISO set mode)\n");
             break;
         }
