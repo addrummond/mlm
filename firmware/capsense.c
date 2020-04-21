@@ -399,17 +399,17 @@ void setup_le_capsense(le_capsense_mode mode)
     if (mode != LE_CAPSENSE_SENSE) {
         // Periodically wake up to recalibrate.
         SEGGER_RTT_printf(0, "Setting recalibration wakeup timer.\n");
-        static const RTC_Init_TypeDef rtcInit = {
-        .enable   = true,
-        .debugRun = false,
-        .comp0Top = true
+        static const RTC_Init_TypeDef rtc_init = {
+            .enable   = true,
+            .debugRun = false,
+            .comp0Top = true
         };
-        RTC_Init(&rtcInit);
-        RTC_Enable(false);
+        RTC_Init(&rtc_init);
+        RTC_IntEnable(RTC_IEN_COMP0);
+        NVIC_EnableIRQ(RTC_IRQn);
         set_rtc_clock_div(cmuClkDiv_32768);
-        RTC_CompareSet(0, LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS);
-        RTC_IntEnable(RTC_IFS_COMP0);
-        RTC_Enable(true);
+        RTC_CompareSet(0, RTC->CNT + LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS);
+        RTC_IntClear(RTC_IFC_COMP0);
     }
 }
 
