@@ -35,24 +35,31 @@ int test_main(void);
 static void go_into_deep_sleep()
 {
     SEGGER_RTT_printf(0, "Going into deep sleep.\n");
+
+    // A visual indication that it's going into deep sleep mode is useful for
+    // debugging.
+#ifdef DEBUG
     leds_all_off();
     leds_on(0b111);
     uint32_t start = leds_on_for_cycles;
     while (leds_on_for_cycles - start < RTC_RAW_FREQ)
         ;
     leds_all_off();
+#endif
 
     CMU_ClockEnable(cmuClock_CORELE, true);
 
     EMU_EM23Init_TypeDef dcdcInit = EMU_EM23INIT_DEFAULT;
     EMU_EM23Init(&dcdcInit);
 
+    RTC_Enable(false);
+
     WDOG_Init_TypeDef wInit = WDOG_INIT_DEFAULT;
     wInit.debugRun = true; // Run in debug
     wInit.clkSel = wdogClkSelULFRCO;
     wInit.em2Run = true;
     wInit.em3Run = true;
-    wInit.perSel = wdogPeriod_4k; // 1k 1kHz periods should give ~1 seconds in EM3
+    wInit.perSel = wdogPeriod_1k; // 1k 1kHz periods should give ~1 seconds in EM3
     wInit.enable = true;
 
     WDOGn_Init(WDOG, &wInit);
@@ -583,15 +590,20 @@ static int real_main(bool watchdog_wakeup)
     return 0;
 }
 
-int32_t deep_sleep_capsense_recalibration_counter __attribute__((section (".persistent")));
+int32_t deep_sleep_capsense_recalibration_counter /*__attribute__((section (".persistent")))*/;
 
 int main()
 {
+#ifndef TEST_MAIN
     uint32_t reset_cause = RMU_ResetCauseGet();
     RMU_ResetCauseClear();
+#endif
 
     common_init();
 
+#ifdef TEST_MAIN
+    return test_main();
+#else
     bool watchdog_wakeup = ((reset_cause & RMU_RSTCAUSE_WDOGRST) != 0);
 
     if (! watchdog_wakeup) {
@@ -624,9 +636,6 @@ int main()
         }
     }
 
-#ifdef TEST_MAIN
-    return test_main();
-#else
     return real_main(watchdog_wakeup);
 #endif
 }

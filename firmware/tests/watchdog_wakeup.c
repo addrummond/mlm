@@ -30,13 +30,16 @@ int test_main()
     EMU_EM23Init_TypeDef dcdcInit = EMU_EM23INIT_DEFAULT;
     EMU_EM23Init(&dcdcInit);
 
-    WDOG_Init_TypeDef wInit = WDOG_INIT_DEFAULT;
-    wInit.debugRun = true; // Run in debug
-    wInit.clkSel = wdogClkSelULFRCO;
-    wInit.em2Run = true;
-    wInit.em3Run = true;
-    wInit.perSel = wdogPeriod_4k; // 4k 1kHz periods should give ~4 seconds in EM3
-    wInit.enable = true;
+    WDOG_Init_TypeDef wInit = {
+        .debugRun = true,
+        .em2Run = true,
+        .em3Run = true,
+        .em4Block = true,
+        .enable = true,
+        .lock = false,
+        .perSel = wdogPeriod_4k, // 4k 1kHz periods should give ~4 seconds in EM3
+        .swoscBlock = false
+    };
 
     WDOGn_Init(WDOG, &wInit);
     WDOGn_Feed(WDOG);
