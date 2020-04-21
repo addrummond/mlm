@@ -34,6 +34,14 @@ int test_main(void);
 
 static void go_into_deep_sleep()
 {
+    SEGGER_RTT_printf(0, "Going into deep sleep.\n");
+    leds_all_off();
+    leds_on(0b111);
+    uint32_t start = leds_on_for_cycles;
+    while (leds_on_for_cycles - start < RTC_RAW_FREQ)
+        ;
+    leds_all_off();
+
     CMU_ClockEnable(cmuClock_CORELE, true);
 
     EMU_EM23Init_TypeDef dcdcInit = EMU_EM23INIT_DEFAULT;
@@ -65,6 +73,7 @@ static void handle_MODE_JUST_WOKEN()
                 // We've been sleeping for a while now and nothing has happened.
                 // Time to go into deep sleep.
                 go_into_deep_sleep();
+                return; // not reached
             }
 
             recalibrate_le_capsense();
@@ -74,6 +83,8 @@ static void handle_MODE_JUST_WOKEN()
             disable_le_capsense();
             SEGGER_RTT_printf(0, "Woken up [2]!\n");
         }
+    } else {
+        SEGGER_RTT_printf(0, "Watchdog wakeup.\n");
     }
 
     g_state.watchdog_wakeup = false;
@@ -599,6 +610,7 @@ int main()
         calibrate_capsense();
         calibrate_le_capsense();
     } else {
+        SEGGER_RTT_printf(0, "WW!\n");
         setup_le_capsense(LE_CAPSENSE_SENSE);
         EMU_EnterEM2(true);
 
