@@ -13,8 +13,6 @@
 
 #define SENSOR_I2C_ADDR       (0x29 << 1)
 
-// https://github.com/alibaba/AliOS-Things/blob/8cae6d447d331989ede14d28c0ec189f2aa2b3c7/device/sensor/drv/drv_als_liteon_ltr303.c
-
 void sensor_init()
 {
     SEGGER_RTT_printf(0, "Starting light sensor initialization..\n");
@@ -54,26 +52,6 @@ void sensor_init()
     NVIC_DisableIRQ(I2C0_IRQn);
 
     SEGGER_RTT_printf(0, "Light sensor initialization complete.\n");
-}
-
-__attribute__((unused)) static void print_stat(int status)
-{
-    if (status == 0)
-        SEGGER_RTT_printf(0, "S: I2C done.\n");
-    else if (status == 1)
-        SEGGER_RTT_printf(0, "S: I2C in progress\n");
-    else if (status == -1)
-        SEGGER_RTT_printf(0, "S: NACK\n");
-    else if (status == -2)
-        SEGGER_RTT_printf(0, "S: BUS ERR\n");
-    else if (status == -3)
-        SEGGER_RTT_printf(0, "S: ARB LOST\n");
-    else if (status == -4)
-        SEGGER_RTT_printf(0, "S: USAGE FAULT\n");
-    else if (status == -5)
-        SEGGER_RTT_printf(0, "S: SW FAULT\n");
-    else
-        SEGGER_RTT_printf(0, "S: UNKNOWN %u\n", status);
 }
 
 void sensor_write_reg(uint16_t addr, uint8_t reg, uint8_t val)
@@ -171,7 +149,6 @@ static void get_mode(sensor_reading r, int32_t *itime, int *itime_key, int32_t *
                 // + 1 so that we get a slight underestimate rather than a slight overestimate.
                 int32_t max32 = (int32_t)(max / (10000 / (1 << EV_BPS)) + 1);
 
-                //SEGGER_RTT_printf(0, "CMP c0=%u c1=%u  %s%u > %s%u\n", NOMINAL_MAX_CHAN, ch1, sign_of(max), iabs(max), sign_of((lux50*11)/10), iabs((lux50*11)/10));
                 if (max32 > (lux50*11) / 10)
                     goto break_outer;
             }
@@ -244,20 +221,6 @@ break_outer:
 
 sensor_reading sensor_get_reading_auto(delay_func delayf, int32_t *gain, int32_t *itime)
 {
-    // We first do a quick reading at 50ms integ time to get an idea
-    // of the light level, and then follow up with a reading at 250ms
-    // integ time with the appropriate gain setting, or at very low
-    // light levels, 400ms at 48X gain. The latter should be a little
-    // less noisy than 250ms at 96X gain, and has an almost identical
-    // range.
-    //
-    // As far as I can tell at the moment, the entire sensitivity
-    // range of the sensor can be covered using a 250ms integ time and
-    // adjusting the gain. Setting the gain to a shorter period takes
-    // the max calculated lux values above the maximum specified value
-    // on the datasheet (64k lux), so I assume that any such results
-    // would be bogus.
-
     sensor_standby();
     uint8_t measrate = sensor_read_reg(SENSOR_I2C_ADDR, REG_ALS_MEAS_RATE);
     sensor_write_reg(SENSOR_I2C_ADDR, REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_50);

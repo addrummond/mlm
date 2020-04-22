@@ -18,16 +18,10 @@ static void gpio_pins_to_initial_states()
     GPIO_PinModeSet(gpioPortF, 0, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortF, 1, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortC, 14, gpioModeInputPull, 1);
-    //GPIO_PinModeSet(gpioPortD, 7, gpioModeInputPull, 1);
-    //GPIO_PinModeSet(gpioPortD, 6, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortB, 14, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortB, 13, gpioModeInputPull, 1);
-    //GPIO_PinModeSet(gpioPortB, 11, gpioModeInputPull, 0);
-    //GPIO_PinModeSet(gpioPortB, 8, gpioModeInputPull, 1);
-    //GPIO_PinModeSet(gpioPortB, 7, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortC, 0, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortC, 1, gpioModeInputPull, 1);
-    //GPIO_PinModeSet(gpioPortA, 0, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortE, 13, gpioModeInputPull, 1);
     GPIO_PinModeSet(gpioPortE, 12, gpioModeInputPull, 1);
 

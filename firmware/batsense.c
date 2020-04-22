@@ -75,7 +75,6 @@ static int battery_voltage_in_10th_volts_helper()
         return -1;
     
     // VREG tends to measure at around 3.42V in practice.
-    // Note that at this point, low == high.
     return (342 * avg) / 640;
 }
 

@@ -81,7 +81,6 @@ void setup_capsense()
 
 void disable_capsense()
 {
-    //SEGGER_RTT_printf(0, "REMOVING I HANDLER [1]\n");
     remove_rtc_interrupt_handler(recalibrate_le_capsense);
 
     ACMP0->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
@@ -228,29 +227,29 @@ uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)
     return raw_cnt;
 }
 
-#define LESENSE_ACMP_VDD_SCALE 0x37U
+static const uint16_t LESENSE_ACMP_VDD_SCALE = 0x37U;
 
-#define LESENSE_CAPSENSE_CH_CONF_SLEEP                                                                             \
-  {                                                                                                                \
-    true,                               /* Enable scan channel. */                                                 \
-    true,                               /* Enable the assigned pin on scan channel. */                             \
-    true,                               /* Enable interrupts on channel. */                                        \
-    lesenseChPinExDis,                  /* GPIO pin is disabled during the excitation period. */                   \
-    lesenseChPinIdleDis,                /* GPIO pin is disabled during the idle period. */                         \
-    false,                              /* Don't use alternate excitation pins for excitation. */                  \
-    false,                              /* Disabled to shift results from this channel to the decoder register. */ \
-    false,                              /* Disabled to invert the scan result bit. */                              \
-    true,                               /* Enabled to store counter value in the result buffer. */                 \
-    lesenseClkLF,                       /* Use the LF clock for excitation timing. */                              \
-    lesenseClkLF,                       /* Use the LF clock for sample timing. */                                  \
-    0,                                  /* Excitation time is set to 0 excitation clock cycles. */                 \
-    LE_PAD_CLOCK_COUNT,                 /* Sample delay */                                                         \
-    1,                                  /* Measure delay */                                                        \
-    LESENSE_ACMP_VDD_SCALE,             /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */               \
-    lesenseSampleModeCounter,           /* Counter will be used in comparison. */                                  \
-    lesenseSetIntLevel,                 /* Interrupt is generated if the sensor triggers. */                       \
-    0x00,                               /* Counter threshold has been set to 0x0. */                               \
-    lesenseCompModeLess                 /* Compare mode has been set to trigger interrupt on >= */                 \
+#define LESENSE_CAPSENSE_CH_CONF_SLEEP                                                                   \
+  {                                                                                                      \
+    true,                     /* Enable scan channel. */                                                 \
+    true,                     /* Enable the assigned pin on scan channel. */                             \
+    true,                     /* Enable interrupts on channel. */                                        \
+    lesenseChPinExDis,        /* GPIO pin is disabled during the excitation period. */                   \
+    lesenseChPinIdleDis,      /* GPIO pin is disabled during the idle period. */                         \
+    false,                    /* Don't use alternate excitation pins for excitation. */                  \
+    false,                    /* Disabled to shift results from this channel to the decoder register. */ \
+    false,                    /* Disabled to invert the scan result bit. */                              \
+    true,                     /* Enabled to store counter value in the result buffer. */                 \
+    lesenseClkLF,             /* Use the LF clock for excitation timing. */                              \
+    lesenseClkLF,             /* Use the LF clock for sample timing. */                                  \
+    0,                        /* Excitation time is set to 0 excitation clock cycles. */                 \
+    LE_PAD_CLOCK_COUNT,       /* Sample delay */                                                         \
+    1,                        /* Measure delay */                                                        \
+    LESENSE_ACMP_VDD_SCALE,   /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */               \
+    lesenseSampleModeCounter, /* Counter will be used in comparison. */                                  \
+    lesenseSetIntLevel,       /* Interrupt is generated if the sensor triggers. */                       \
+    0x00,                     /* Counter threshold has been set to 0x0. */                               \
+    lesenseCompModeLess       /* Compare mode has been set to trigger interrupt on >= */                 \
   }
 
 #define LESENSE_CAPSENSE_CH_CONF_SENSE                                                                   \
@@ -281,56 +280,52 @@ static const LESENSE_ChDesc_TypeDef chanConfigSleep = LESENSE_CAPSENSE_CH_CONF_S
 
 static const LESENSE_Init_TypeDef initLESENSE =
 {
-    .coreCtrl         =
-    {
-    .scanStart    = lesenseScanStartPeriodic,
-    .prsSel       = lesensePRSCh0,
-    .scanConfSel  = lesenseScanConfDirMap,
-    .invACMP0     = false,
-    .invACMP1     = false,
-    .dualSample   = false,
-    .storeScanRes = false,
-    .bufOverWr    = true,
-    .bufTrigLevel = lesenseBufTrigHalf,
-    .wakeupOnDMA  = lesenseDMAWakeUpDisable,
-    .biasMode     = lesenseBiasModeDutyCycle,
-    .debugRun     = false
+    .coreCtrl = {
+        .scanStart    = lesenseScanStartPeriodic,
+        .prsSel       = lesensePRSCh0,
+        .scanConfSel  = lesenseScanConfDirMap,
+        .invACMP0     = false,
+        .invACMP1     = false,
+        .dualSample   = false,
+        .storeScanRes = false,
+        .bufOverWr    = true,
+        .bufTrigLevel = lesenseBufTrigHalf,
+        .wakeupOnDMA  = lesenseDMAWakeUpDisable,
+        .biasMode     = lesenseBiasModeDutyCycle,
+        .debugRun     = false
     },
 
-    .timeCtrl         =
-    {
-    .startDelay     =          0U
+    .timeCtrl = {
+        .startDelay = 0U
     },
 
-    .perCtrl          =
-    {
-    .dacCh0Data     = lesenseDACIfData,
-    .dacCh0ConvMode = lesenseDACConvModeDisable,
-    .dacCh0OutMode  = lesenseDACOutModeDisable,
-    .dacCh1Data     = lesenseDACIfData,
-    .dacCh1ConvMode = lesenseDACConvModeDisable,
-    .dacCh1OutMode  = lesenseDACOutModeDisable,
-    .dacPresc       =                        0U,
-    .dacRef         = lesenseDACRefBandGap,
-    .acmp0Mode      = lesenseACMPModeDisable,
-    .acmp1Mode      = lesenseACMPModeMuxThres,
-    .warmupMode     = lesenseWarmupModeNormal
+    .perCtrl = {
+        .dacCh0Data     = lesenseDACIfData,
+        .dacCh0ConvMode = lesenseDACConvModeDisable,
+        .dacCh0OutMode  = lesenseDACOutModeDisable,
+        .dacCh1Data     = lesenseDACIfData,
+        .dacCh1ConvMode = lesenseDACConvModeDisable,
+        .dacCh1OutMode  = lesenseDACOutModeDisable,
+        .dacPresc       = 0U,
+        .dacRef         = lesenseDACRefBandGap,
+        .acmp0Mode      = lesenseACMPModeDisable,
+        .acmp1Mode      = lesenseACMPModeMuxThres,
+        .warmupMode     = lesenseWarmupModeNormal
     },
 
-    .decCtrl          =
-    {
-    .decInput  = lesenseDecInputSensorSt,
-    .chkState  = false,
-    .intMap    = true,
-    .hystPRS0  = false,
-    .hystPRS1  = false,
-    .hystPRS2  = false,
-    .hystIRQ   = false,
-    .prsCount  = true,
-    .prsChSel0 = lesensePRSCh0,
-    .prsChSel1 = lesensePRSCh1,
-    .prsChSel2 = lesensePRSCh2,
-    .prsChSel3 = lesensePRSCh3
+    .decCtrl = {
+        .decInput  = lesenseDecInputSensorSt,
+        .chkState  = false,
+        .intMap    = true,
+        .hystPRS0  = false,
+        .hystPRS1  = false,
+        .hystPRS2  = false,
+        .hystIRQ   = false,
+        .prsCount  = true,
+        .prsChSel0 = lesensePRSCh0,
+        .prsChSel1 = lesensePRSCh1,
+        .prsChSel2 = lesensePRSCh2,
+        .prsChSel3 = lesensePRSCh3
     }
 };
 
@@ -497,7 +492,6 @@ void recalibrate_le_capsense()
             channel_max_value[i] = get_max_value(calibration_value[i], NUMBER_OF_LE_CALIBRATION_VALUES);
 
             nominal_count = channel_max_value[i];
-            //LESENSE_ChannelThresSet(i, 0x0,(uint16_t) (nominal_count - ((nominal_count * channel_threshold_percent[i])/100.0)) ); 
             LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_center_pad_count_to_threshold(nominal_count));
         }
     }

@@ -141,7 +141,6 @@ static void led_off(unsigned n)
 
 void led_on(unsigned n)
 {
-    //SEGGER_RTT_printf(0, "Turning on LED %u (= %u)\n", n, normalize_led_number(n));
     uint32_t duty_cycle = get_duty_cycle();
     led_on_with_dc(normalize_led_number(n), duty_cycle);
 }
@@ -231,17 +230,17 @@ static void init_timers()
     TIMER_TopSet(TIMER1, COUNT);
 
     static TIMER_InitCC_TypeDef timerCCInit = {
-        timerEventEveryEdge,      /* Event on every capture. */
-        timerEdgeRising,          /* Input capture edge on rising edge. */
-        timerPRSSELCh0,           /* Not used by default, select PRS channel 0. */
-        timerOutputActionNone,    /* No action on underflow. */
-        timerOutputActionNone,    /* No action on overflow. */
-        timerOutputActionToggle,  /* Action on match. */
-        timerCCModePWM,           /* Disable compare/capture channel. */
-        false,                    /* Disable filter. */
-        false,                    /* Select TIMERnCCx input. */
-        false,                    /* Clear output when counter disabled. */
-        false                     /* Do not invert output. */
+        timerEventEveryEdge,      // Event on every capture.
+        timerEdgeRising,          // Input capture edge on rising edge.
+        timerPRSSELCh0,           // Not used by default, select PRS channel 0.
+        timerOutputActionNone,    // No action on underflow.
+        timerOutputActionNone,    // No action on overflow.
+        timerOutputActionToggle,  // Action on match.
+        timerCCModePWM,           // Disable compare/capture channel.
+        false,                    // Disable filter.
+        false,                    // Select TIMERnCCx input.
+        false,                    // Clear output when counter disabled.
+        false                     // Do not invert output.
     };
 
     for (int i = 0; i < 3; ++i) {
@@ -391,14 +390,7 @@ void leds_on_for_reading(int ap_index, int ss_index, int third)
 void delay_ms_with_led_rtc(int ms)
 {
     uint32_t start = leds_on_for_cycles;
-    uint32_t target = start + ((ms * RTC_RAW_FREQ) / 1000);
-    if (start < target) {
-        while (leds_on_for_cycles < target)
-            ;
-    } else {
-        while (leds_on_for_cycles > start)
-            ;
-        while (leds_on_for_cycles < target)
-            ;
-    }
+    uint32_t cycles = (ms * RTC_RAW_FREQ) / 1000;
+    while (leds_on_for_cycles - start < cycles)
+        ;
 }

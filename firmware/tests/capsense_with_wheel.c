@@ -17,13 +17,10 @@ int test_main()
             get_touch_count(&count, &chan);
             touch_counts[chan] = count;
             int tp = get_touch_position(touch_counts[0], touch_counts[1], touch_counts[2]);
-            //SEGGER_RTT_printf(0,"Pads %u %u (%s%u)\n", touch_counts[1], touch_counts[0], sign_of(tp), tp);
             
             if (tp == NO_TOUCH_DETECTED) {
                 zero_touch_position = INVALID_TOUCH_POSITION;
             } else {
-                //SEGGER_RTT_printf(0, "Touch: %s%u\n", sign_of(tp), iabs(tp));
-
                 if (zero_touch_position == INVALID_TOUCH_POSITION) {
                     if (tp != INVALID_TOUCH_POSITION) {
                         leds_all_off();

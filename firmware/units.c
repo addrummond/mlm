@@ -128,7 +128,7 @@ int32_t lux_to_reflective_ev(int32_t lux)
     // See https://en.wikipedia.org/wiki/Light_meter#Calibrated_reflectance
     //
     // log2(100/15.7) = 2.6711635357704604
-    ev += (int32_t)((2.6711635357704604 * (double)(1 << EV_BPS)) + 0.5);
+    ev += TOFIXP(int32_t, 2.6711635357704604);
 
     // The window over the sensor attenuates the light, so compensate for this.
     if (1024 > (1 << EV_BPS))
