@@ -527,7 +527,7 @@ press get_pad_press(touch_position touch_pos)
     int long_press_ticks = LONG_PRESS_MS * rtc_freq / 1000;
     int touch_count_ticks = PAD_COUNT_MS * rtc_freq / 1000;
 
-    int next_touch_count = touch_count_ticks;
+    int rtc_base = RTC->CNT;
     press p;
 
     RTC->CNT = 0;
@@ -538,10 +538,10 @@ press get_pad_press(touch_position touch_pos)
     int miss_count = 0;
     uint32_t chans[] = { 0, 0, 0 };
     for (;;) {
-        while (RTC->CNT < next_touch_count)
+        while (RTC->CNT - rtc_base < touch_count_ticks)
             ;
         
-        next_touch_count = RTC->CNT + touch_count_ticks;
+        rtc_base = RTC->CNT;
         
         uint32_t count, chan;
         get_touch_count(&count, &chan);
@@ -578,7 +578,6 @@ press get_pad_press_while_leds_on(touch_position touch_pos)
     const uint32_t touch_count_ticks = PAD_COUNT_MS * RTC_RAW_FREQ / 1000;
 
     uint32_t base_touch_count = leds_on_for_cycles;
-    uint32_t next_touch_count = base_touch_count + touch_count_ticks;
     press p;
 
     get_touch_count(0, 0); // clear any nonsense value
@@ -586,10 +585,10 @@ press get_pad_press_while_leds_on(touch_position touch_pos)
     int miss_count = 0;
     uint32_t chans[] = { 0, 0, 0 };
     for (;;) {
-        while (leds_on_for_cycles < next_touch_count)
+        while (leds_on_for_cycles - base_touch_count < touch_count_ticks)
             ;
         
-        next_touch_count = leds_on_for_cycles + touch_count_ticks;
+        base_touch_count = leds_on_for_cycles;
         
         uint32_t count, chan;
         get_touch_count(&count, &chan);
