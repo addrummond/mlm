@@ -91,8 +91,8 @@ void disable_capsense()
     NVIC_DisableIRQ(ACMP0_IRQn);
     CMU_ClockEnable(cmuClock_ACMP0, false);
     CMU_ClockEnable(cmuClock_ACMP1, false);
-    CMU_ClockEnable(cmuClock_PRS, false); // NEW
-    CMU_ClockEnable(cmuClock_PCNT0, false); // NEW
+    CMU_ClockEnable(cmuClock_PRS, false);
+    CMU_ClockEnable(cmuClock_PCNT0, false);
     GPIO_PinModeSet(gpioPortC, 0, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortC, 1, gpioModeInputPull, 0);
     GPIO_PinModeSet(gpioPortC, 14, gpioModeInputPull, 0);
