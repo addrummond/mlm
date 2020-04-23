@@ -26,18 +26,18 @@ uint32_t le_calibration_center_pad_value __attribute__((section (".persistent"))
 
 static const PCNT_Init_TypeDef initPCNT =
 {
-    .mode        = pcntModeExtSingle,   // External, single mode.
-    .counter     = 0,                   // Counter value has been initialized to 0.
-    .top         = 0xFFFF,              // Counter top value.
-    .negEdge     = false,               // Use positive edge.
-    .countDown   = false,               // Up-counting.
-    .filter      = false,               // Filter disabled.
-    .hyst        = false,               // Hysteresis disabled.
-    .s1CntDir    = false,               // Counter direction is given by S1.
-    .cntEvent    = pcntCntEventBoth,    // Regular counter counts up on upcount events.
-    .auxCntEvent = pcntCntEventNone,    // Auxiliary counter doesn't respond to events.
-    .s0PRS       = pcntPRSCh0,          // PRS channel 0 selected as S0IN.
-    .s1PRS       = pcntPRSCh1           // PRS channel 1 selected as S1IN.
+    .mode        = pcntModeExtSingle, // External, single mode.
+    .counter     = 0,                 // Counter value has been initialized to 0.
+    .top         = 0xFFFF,            // Counter top value.
+    .negEdge     = false,             // Use positive edge.
+    .countDown   = false,             // Up-counting.
+    .filter      = false,             // Filter disabled.
+    .hyst        = false,             // Hysteresis disabled.
+    .s1CntDir    = false,             // Counter direction is given by S1.
+    .cntEvent    = pcntCntEventBoth,  // Regular counter counts up on upcount events.
+    .auxCntEvent = pcntCntEventNone,  // Auxiliary counter doesn't respond to events.
+    .s0PRS       = pcntPRSCh0,        // PRS channel 0 selected as S0IN.
+    .s1PRS       = pcntPRSCh1         // PRS channel 1 selected as S1IN.
 };
 
 void setup_capsense()
