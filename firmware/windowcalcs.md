@@ -1,12 +1,12 @@
 ```
-      --------------------  <-  upper surface of window
+      -------------------- <-  upper surface of window
     2mm ↕     ↔ 7.2mm
-        ---------------  <- lower surface of window
+        ---------------    <- lower surface of window
               |
        3.4mm↕ |  
- sensor <-  __|__ ↔ 0.305mm
+ sensor ->  __|__ ↔ 0.305mm
             |   | ↕ 0.7mm
-------------------------------  <- pcb surface
+---------------------------------  <- pcb surface
 ```
 
 Angle of view (half angle):
