@@ -19,7 +19,8 @@ LOWER_WINDOW_DIM = 2.5 # 2.5 gives approx 40 degree viewing angle
 ACRYLIC_REFRACTIVE_INDEX = 1.491
 AIR_REFRACTIVE_INDEX = 1.00029
 WINDOW_THICKNESS = 2
-SENSOR_TO_WINDOW = 3.4
+SENSOR_TO_CUTOUT = 2.1 - 0.7
+SENSOR_TO_WINDOW = SENSOR_TO_CUTOUT + 2
 SENSOR_DIM = 0.305
 
 SENSOR_STEPS = 100
@@ -34,6 +35,7 @@ def add(p1, p2):
 def get_hits():
     hits_for_angles = np.zeros(ANGLE_STEPS)
 
+    cutout = sg.LineString([(-LOWER_WINDOW_DIM/2, SENSOR_TO_CUTOUT), (LOWER_WINDOW_DIM/2, SENSOR_TO_CUTOUT)])
     lower_window = sg.LineString([(-LOWER_WINDOW_DIM/2, SENSOR_TO_WINDOW), (LOWER_WINDOW_DIM/2, SENSOR_TO_WINDOW)])
     upper_window = sg.LineString([(-UPPER_WINDOW_DIM/2, SENSOR_TO_WINDOW+WINDOW_THICKNESS), (UPPER_WINDOW_DIM/2, SENSOR_TO_WINDOW+WINDOW_THICKNESS)])
 
@@ -48,8 +50,9 @@ def get_hits():
 
             ray = sg.LineString([on_sensor, in_distance])
 
+            coi = ray.intersection(cutout)
             lwi = ray.intersection(lower_window)
-            if len(lwi.coords) >= 1:
+            if len(coi.coords) >= 1 and len(lwi.coords) >= 1:
                 angle_of_refraction = math.asin(AIR_REFRACTIVE_INDEX/ACRYLIC_REFRACTIVE_INDEX) * math.sin(a)
                 d = math.atan(angle_of_refraction) * WINDOW_THICKNESS
                 on_upper_window_x = lwi.coords[0][0] + d
