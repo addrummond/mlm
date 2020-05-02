@@ -1,7 +1,10 @@
 # This is a somewhat more elaborate version of the calculation in
 # windowcalcs.md. It takes the thickness of the window and the refractive index
-# of acrylic into account. As it turns out, this only makes a difference to the
-# result on the order of one degree.
+# of acrylic into account.
+
+# With a viewing angle of 40 degrees, the relative sensitivity of the sensor is
+# 0.343. This means that we need to add 1.54 stops to compensate for window
+# attenuation.
 
 __version__ = '0.1.0'
 
@@ -12,7 +15,7 @@ import shapely.geometry as sg
 
 # All dimensions in mm
 UPPER_WINDOW_DIM = 10
-LOWER_WINDOW_DIM = 7.2
+LOWER_WINDOW_DIM = 2.5 # 2.5 gives approx 40 degree viewing angle
 ACRYLIC_REFRACTIVE_INDEX = 1.491
 AIR_REFRACTIVE_INDEX = 1.00029
 WINDOW_THICKNESS = 2
@@ -58,9 +61,9 @@ def get_hits():
     first_max = None
     for h, hi in zip(hits_for_angles, itertools.count(0)):
         angle = (hi/ANGLE_STEPS) * math.pi/2 - math.pi/2
-        if first_nonzero is None and h > 0:
+        if first_nonzero is None and h >= SENSOR_STEPS/10:
             first_nonzero = angle * 180/math.pi
-        if first_max is None and h == SENSOR_STEPS:
+        if first_max is None and h >= SENSOR_STEPS/10 * 9:
             first_max = angle * 180/math.pi
 
     return dict(first_nonzero=first_nonzero, first_max=first_max)
