@@ -31,6 +31,7 @@ int test_main()
     EMU_EM23Init(&dcdcInit);
 
     WDOG_Init_TypeDef wInit = {
+        .clkSel = wdogClkSelULFRCO,
         .debugRun = true,
         .em2Run = true,
         .em3Run = true,

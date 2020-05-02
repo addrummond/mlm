@@ -72,12 +72,13 @@ void rtc_init()
     set_rtc_clock_div(RTC_CMU_CLK_DIV);
 }
 
-void common_init()
+void common_init(bool watchdog_wakeup)
 {
     // https://www.silabs.com/community/mcu/32-bit/forum.topic.html/happy_gecko_em4_conf-Y9Bw
 
     // necessary to ensure boost converter stability
-    low_power_init_wait();
+    if (! watchdog_wakeup)
+        low_power_init_wait();
 
     TIMER_Enable(TIMER1, false);
     CMU_ClockEnable(cmuClock_TIMER1, false);

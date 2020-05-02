@@ -34,10 +34,41 @@ int test_main(void);
 
 static void go_into_deep_sleep()
 {
+    CMU_ClockEnable(cmuClock_CORELE, true);
+
+    EMU_EM23Init_TypeDef dcdcInit = EMU_EM23INIT_DEFAULT;
+    EMU_EM23Init(&dcdcInit);
+
+    RTC_Enable(false);
+
+    WDOG_Init_TypeDef wInit = {
+        .clkSel = wdogClkSelULFRCO,
+        .debugRun = true,
+        .em2Run = true,
+        .em3Run = true,
+        .em4Block = true,
+        .enable = true,
+        .lock = false,
+        .perSel = wdogPeriod_1k, // 1k 1kHz periods should give ~4 seconds in EM3
+        .swoscBlock = false
+    };
+
+    WDOGn_Init(WDOG, &wInit);
+    WDOGn_Feed(WDOG);
+
     SEGGER_RTT_printf(0, "Going into deep sleep.\n");
 
-    // A visual indication that it's going into deep sleep mode is useful for
-    // debugging.
+#ifdef DEBUG
+    EMU_EnterEM2(false);
+#else
+    EMU_EnterEM3(false);
+#endif
+}
+
+static void go_into_deep_sleep_with_debug_log()
+{
+    // A visual indication that it's going into deep sleep mode is sometimes
+    // useful for debugging.
 #ifdef DEBUG
     leds_all_off();
     leds_on(0b111);
@@ -47,29 +78,7 @@ static void go_into_deep_sleep()
     leds_all_off();
 #endif
 
-    CMU_ClockEnable(cmuClock_CORELE, true);
-
-    EMU_EM23Init_TypeDef dcdcInit = EMU_EM23INIT_DEFAULT;
-    EMU_EM23Init(&dcdcInit);
-
-    RTC_Enable(false);
-
-    WDOG_Init_TypeDef wInit = WDOG_INIT_DEFAULT;
-    wInit.debugRun = true; // Run in debug
-    wInit.clkSel = wdogClkSelULFRCO;
-    wInit.em2Run = true;
-    wInit.em3Run = true;
-    wInit.perSel = wdogPeriod_1k; // 1k 1kHz periods should give ~1 seconds in EM3
-    wInit.enable = true;
-
-    WDOGn_Init(WDOG, &wInit);
-    WDOGn_Feed(WDOG);
-
-#ifdef DEBUG
-    EMU_EnterEM2(false);
-#else
-    EMU_EnterEM3(false);
-#endif
+    go_into_deep_sleep();
 }
 
 static void handle_MODE_JUST_WOKEN()
@@ -79,7 +88,7 @@ static void handle_MODE_JUST_WOKEN()
             if (g_state.deep_sleep_counter++ > DEEP_SLEEP_TIMEOUT_SECONDS/LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS) {
                 // We've been sleeping for a while now and nothing has happened.
                 // Time to go into deep sleep.
-                go_into_deep_sleep();
+                go_into_deep_sleep_with_debug_log();
                 return; // not reached
             }
 
@@ -590,21 +599,23 @@ static int real_main(bool watchdog_wakeup)
     return 0;
 }
 
-int32_t deep_sleep_capsense_recalibration_counter /*__attribute__((section (".persistent")))*/;
+int32_t deep_sleep_capsense_recalibration_counter __attribute__((section (".persistent")));
 
 int main()
 {
-#ifndef TEST_MAIN
+#ifdef TEST_MAIN
+    bool watchdog_wakeup = false;
+#else
     uint32_t reset_cause = RMU_ResetCauseGet();
     RMU_ResetCauseClear();
+    bool watchdog_wakeup = ((reset_cause & RMU_RSTCAUSE_WDOGRST) != 0);
 #endif
 
-    common_init();
+    common_init(watchdog_wakeup);
 
 #ifdef TEST_MAIN
     return test_main();
 #else
-    bool watchdog_wakeup = ((reset_cause & RMU_RSTCAUSE_WDOGRST) != 0);
 
     if (! watchdog_wakeup) {
         deep_sleep_capsense_recalibration_counter = 0;
@@ -622,7 +633,6 @@ int main()
         calibrate_capsense();
         calibrate_le_capsense();
     } else {
-        SEGGER_RTT_printf(0, "WW!\n");
         setup_le_capsense(LE_CAPSENSE_SENSE);
         EMU_EnterEM2(true);
 
@@ -634,6 +644,8 @@ int main()
 
             go_into_deep_sleep();
         }
+
+        disable_le_capsense();
     }
 
     return real_main(watchdog_wakeup);
