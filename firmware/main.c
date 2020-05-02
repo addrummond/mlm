@@ -625,7 +625,7 @@ int main()
 #if (!defined(DEBUG) && !defined(NOGRACE)) || defined(GRACE)
         leds_on(1);
         uint32_t base = leds_on_for_cycles;
-        while (leds_on_for_cycles - base < RTC_RAW_FREQ * 8)
+        while (leds_on_for_cycles - base < RTC_RAW_FREQ * GRACE_PERIOD_SECONDS)
             WDOGn_Feed(WDOG); // make sure no reset is triggered if the watchdog is enabled
         leds_all_off();
 #endif

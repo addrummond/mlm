@@ -15,6 +15,9 @@
 
 #define LED_REFRESH_RATE_HZ                                 1200
 
+// Length of the grace period prior to capsense calibration.
+#define GRACE_PERIOD_SECONDS                                8
+
 // This is the value for a 2mm thick transparent acrylic window.
 #define WINDOW_ATTENUATION_STOPS                            0.1586
 
