@@ -83,9 +83,16 @@ static void go_into_deep_sleep_with_debug_log()
 
 static void handle_MODE_JUST_WOKEN()
 {
+    static const int32_t deep_sleep_timeout_seconds =
+#ifdef DEBUG
+        DEEP_SLEEP_TIMEOUT_SECONDS_DEBUG_MODE;
+#else
+        DEEP_SLEEP_TIMEOUT_SECONDS;
+#endif
+
     if (! g_state.watchdog_wakeup) {
         while (! check_lesense_irq_handler()) {
-            if (g_state.deep_sleep_counter++ > DEEP_SLEEP_TIMEOUT_SECONDS/LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS) {
+            if (g_state.deep_sleep_counter++ > deep_sleep_timeout_seconds/LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS) {
                 // We've been sleeping for a while now and nothing has happened.
                 // Time to go into deep sleep.
                 go_into_deep_sleep_with_debug_log();

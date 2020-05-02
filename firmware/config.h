@@ -6,7 +6,8 @@
 #define CENTER_BUTTON_DEAD_ZONE_MS                          300
 
 #define LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS            10
-#define DEEP_SLEEP_TIMEOUT_SECONDS                          20//(6*60*60)
+#define DEEP_SLEEP_TIMEOUT_SECONDS                          (6*60*60)
+#define DEEP_SLEEP_TIMEOUT_SECONDS_DEBUG_MODE               10
 #define LE_CAPSENSE_DEEP_SLEEP_CALIBRATION_INTERVAL_SECONDS 30
 
 #define MISSES_REQUIRED_TO_BREAK_HOLD                       2
