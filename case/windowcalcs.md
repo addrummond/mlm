@@ -1,4 +1,5 @@
 ```
+              ↔ 10mm
       -------------------- <-  upper surface of window
     2mm ↕     ↔ 7.2mm
         ---------------    <- lower surface of window
