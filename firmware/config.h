@@ -22,8 +22,7 @@
 // This is the value for a 2mm thick transparent acrylic window.
 #define WINDOW_ATTENUATION_STOPS                            0.1586
 
-// See windowcalcs.md
-#define WINDOW_FOV_ATTENUATION_STOPS                        0.3468
+#define WINDOW_FOV_ATTENUATION_STOPS                        1.54
 
 // TODO: move these out of config.h
 #define REGMODE_PORT                                        gpioPortF
