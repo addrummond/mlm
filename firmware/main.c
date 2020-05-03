@@ -214,8 +214,6 @@ static void handle_MODE_DISPLAY_READING()
     get_touch_count(0, 0, 8);
     for (unsigned i = 0;; ++i) {
         delay_ms_cyc(PAD_COUNT_MS);
-//        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles - base < RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
-//            __NOP(), __NOP(), __NOP(), __NOP();
 
         uint32_t count, chan;
         get_touch_count(&count, &chan, 9);
@@ -243,8 +241,7 @@ static void handle_MODE_DISPLAY_READING()
                             for (unsigned j = 0;; ++j) {
                                 get_touch_count(0, 0, 10);
 
-                                for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles - base < RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
-                                    __NOP(), __NOP(), __NOP(), __NOP();
+                                delay_ms_cyc(PAD_COUNT_MS);
 
                                 get_touch_count(&count, &chan, 11);
                                 if (chan > 60000)

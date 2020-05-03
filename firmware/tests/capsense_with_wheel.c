@@ -40,8 +40,7 @@ int test_main()
 
         cycle_capsense();
 
-        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles < base + RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
-            ;
+        delay_ms_cyc(PAD_COUNT_MS);
     }
 
     return 0;
