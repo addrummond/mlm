@@ -181,6 +181,9 @@ static const uint32_t THRESHOLD_DENOM = 100;
 
 touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2)
 {
+    if (chan0 > calibration_values[0] * 2 || chan1 > calibration_values[1] * 2 || chan2 > calibration_values[2] * 2)
+        return NO_TOUCH_DETECTED;
+
     uint32_t rat0nopress = (calibration_values[0] << 8) / (calibration_values[1] + calibration_values[2]);
     uint32_t rat1nopress = (calibration_values[1] << 8) / (calibration_values[0] + calibration_values[2]);
     uint32_t rat2nopress = (calibration_values[2] << 8) / (calibration_values[0] + calibration_values[1]);
@@ -220,9 +223,6 @@ uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)
             *chan_value = raw_count - old_count;
         else
             *chan_value = (1 << PCNT0_CNT_SIZE) - old_count + raw_count;
-
-        if (*chan_value > 60000)
-            SEGGER_RTT_printf(0, "WEIRD VAL %u %u %u\n", *chan_value, old_count, raw_count);
     }
 
     old_count = raw_count;
