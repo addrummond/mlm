@@ -562,7 +562,7 @@ press get_pad_press(touch_position touch_pos)
             }
         }
 
-        if (RTC_CNT_SUB(rtc_base) >= long_press_ticks) {
+        if (RTC->CNT >= long_press_ticks) {
             p = PRESS_HOLD;
             break;
         }
