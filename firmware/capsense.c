@@ -153,8 +153,8 @@ void calibrate_capsense()
 
     cycle_capsense();
     get_touch_count(&count, &chan, 4);
-    uint32_t end = RTC->CNT + LE_PAD_CLOCK_COUNT;
-    while (RTC->CNT < end)
+    RTC->CNT = 0;
+    while (RTC->CNT < LE_PAD_CLOCK_COUNT)
         ;
 
     RTC_Enable(false);
@@ -537,16 +537,15 @@ press get_pad_press(touch_position touch_pos)
     press p;
 
     RTC->CTRL |= RTC_CTRL_EN;
-
-    get_touch_count(0, 0, 5); // clear any nonsense value
+    RTC->CNT = 0;
 
     int miss_count = 0;
     uint32_t chans[] = { 0, 0, 0 };
-    int rtc_base = RTC->CNT;
+    uint32_t rtc_base = RTC->CNT;
     for (;;) {
-        uint32_t base = RTC->CNT;
-        while (RTC->CNT - base < touch_count_ticks)
-            ;
+        get_touch_count(0, 0, 5); // clear any nonsense value
+        delay_ms_cyc(PAD_COUNT_MS);
+
 
         uint32_t count, chan;
         get_touch_count(&count, &chan, 6);
@@ -563,7 +562,7 @@ press get_pad_press(touch_position touch_pos)
             }
         }
 
-        if (RTC->CNT - rtc_base >= long_press_ticks) {
+        if (RTC_CNT_SUB(rtc_base) >= long_press_ticks) {
             p = PRESS_HOLD;
             break;
         }
@@ -583,12 +582,11 @@ press get_pad_press_while_leds_on(touch_position touch_pos)
 
     press p;
 
-    get_touch_count(0, 0, 999); // clear any nonsense value
-
     int miss_count = 0;
     uint32_t chans[] = { 0, 0, 0 };
     uint32_t base_touch_count = leds_on_for_cycles;
     for (;;) {
+        get_touch_count(0, 0, 999); // clear any nonsense value
         delay_ms_cyc(PAD_COUNT_MS);
 
         uint32_t count, chan;

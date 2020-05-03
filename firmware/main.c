@@ -211,8 +211,8 @@ static void handle_MODE_DISPLAY_READING()
     int zero_touch_position = INVALID_TOUCH_POSITION;
     uint32_t touch_counts[3] = { 0, 0, 0 };
     bool in_center_button_dead_zone = true;
-    get_touch_count(0, 0, 8);
     for (unsigned i = 0;; ++i) {
+        get_touch_count(0, 0, 8);
         delay_ms_cyc(PAD_COUNT_MS);
 
         uint32_t count, chan;

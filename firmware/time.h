@@ -14,4 +14,7 @@ void delay_ms_cyc(uint32_t ms);
 void set_rtc_clock_div(CMU_ClkDiv_TypeDef div);
 int get_rtc_freq(void);
 
+// RTC is 24-bit, so we can't use overflow with a native type.
+#define RTC_CNT_SUB(n) ( ((n) > RTC->CNT) ? 0xFFFFFF - (n) + RTC->CNT : RTC->CNT - (n) )
+
 #endif
