@@ -26,22 +26,23 @@ static uint32_t clock_freq;
 volatile uint32_t *DWT_CONTROL = (uint32_t *) 0xE0001000;
 volatile uint32_t *DWT_CYCCNT = (uint32_t *) 0xE0001004;
 
-void delay_ms_cyc(uint32_t ms)
+void delay_ms_raw_cyc(uint32_t ms)
 {
     if (ms > 300) {
         SEGGER_RTT_printf(0, "Bad time given to cycle counter\n");
         return;
     }
 
+    *DWT_CONTROL |= 1; // Enable cycle counter
+    *DWT_CYCCNT = 0;
+
     if (clock_freq == 0)
         clock_freq = CMU_ClockFreqGet(cmuClock_CORE);
 
     uint32_t cycles = ms * clock_freq / 1000;
 
-    *DWT_CONTROL |= 1; // Enable cycle counter
-    *DWT_CYCCNT = 0;
     while (*DWT_CYCCNT < cycles)
-        ;
+        __NOP(), __NOP(), __NOP(), __NOP();
 
     *DWT_CONTROL &= ~1U;
 }
