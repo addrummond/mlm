@@ -72,6 +72,7 @@ void setup_capsense()
 
     ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
     ACMP_Enable(ACMP0);
+    ACMP_Enable(ACMP1);
 
     touch_acmp = 0;
     touch_chan = 0;
@@ -106,16 +107,12 @@ void cycle_capsense()
             ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
             touch_chan = 1;
         } else {
-            ACMP0->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
-            ACMP1->CTRL |= ACMP_CTRL_IRISE_ENABLED;
             ACMP_CapsenseChannelSet(ACMP1, acmpChannel6);
             PRS_SourceAsyncSignalSet(0, PRS_CH_CTRL_SOURCESEL_ACMP1, PRS_CH_CTRL_SIGSEL_ACMP1OUT);
             touch_acmp = 1;
             touch_chan = 0;
         }
     } else {
-        ACMP1->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
-        ACMP0->CTRL |= ACMP_CTRL_IRISE_ENABLED;
         ACMP_CapsenseChannelSet(ACMP0, acmpChannel0);
         PRS_SourceAsyncSignalSet(0, PRS_CH_CTRL_SOURCESEL_ACMP0, PRS_CH_CTRL_SIGSEL_ACMP0OUT);
 
