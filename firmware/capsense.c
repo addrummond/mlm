@@ -213,20 +213,20 @@ uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)
     if (chan != 0)
         *chan = (touch_acmp << 1) | touch_chan;
 
-    uint32_t raw_cnt = PCNT0->CNT;
+    uint32_t raw_count = PCNT0->CNT;
 
     if (chan_value != 0) {
-        if (old_count == 0) {
-            *chan_value = raw_cnt;
-        } else if (raw_cnt > old_count) {
-            *chan_value = raw_cnt - old_count;
-        } else {
-            *chan_value = 0xFFFF - old_count + raw_cnt;
-        }
+        if (raw_count >= old_count)
+            *chan_value = raw_count - old_count;
+        else
+            *chan_value = (1 << PCNT0_CNT_SIZE) - old_count + raw_count;
+
+        if (*chan_value > 60000)
+            SEGGER_RTT_printf(0, "WEIRD VAL %u %u %u\n", *chan_value, old_count, raw_count);
     }
 
-    old_count = raw_cnt;
-    return raw_cnt;
+    old_count = raw_count;
+    return raw_count;
 }
 
 static const uint16_t LESENSE_ACMP_VDD_SCALE = 0x37U;

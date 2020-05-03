@@ -234,6 +234,7 @@ static void handle_MODE_DISPLAY_READING()
                         if (tp != LEFT_AND_RIGHT_BUTTONS) {
                             uint32_t over_base = leds_on_for_cycles;
                             int misses = 0;
+                            touch_counts[0] = 0, touch_counts[1] = 0, touch_counts[2] = 0;
                             for (unsigned j = 0;; ++j) {
                                 get_touch_count(0, 0);
 
@@ -243,7 +244,7 @@ static void handle_MODE_DISPLAY_READING()
                                 get_touch_count(&count, &chan);
                                 touch_counts[chan] = count;
 
-                                if (j != 0 && j % 3 == 0) {
+                                if (touch_counts[0] != 0 && touch_counts[1] != 0 && touch_counts[2] != 0) {
                                     int tp2 = get_touch_position(touch_counts[0], touch_counts[1], touch_counts[2]);
                                     if (tp2 == LEFT_AND_RIGHT_BUTTONS) {
                                         tp = tp2;
