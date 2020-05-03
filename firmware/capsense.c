@@ -223,6 +223,9 @@ uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)
             *chan_value = raw_count - old_count;
         else
             *chan_value = (1 << PCNT0_CNT_SIZE) - old_count + raw_count;
+
+        if (*chan_value > 60000)
+            SEGGER_RTT_printf(0, "[X] WEIRD VAL %u %u %u\n", *chan_value, old_count, raw_count);
     }
 
     old_count = raw_count;
@@ -547,6 +550,8 @@ press get_pad_press(touch_position touch_pos)
 
         uint32_t count, chan;
         get_touch_count(&count, &chan);
+        if (chan > 60000)
+            SEGGER_RTT_printf(0, "[9] WEIRD VAL %u\n", chan);
         chans[chan] = count;
 
         if (chans[0] != 0 && chans[1] != 0 && chans[2] != 0) {

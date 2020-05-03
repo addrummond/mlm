@@ -211,9 +211,12 @@ static void handle_MODE_DISPLAY_READING()
     int zero_touch_position = INVALID_TOUCH_POSITION;
     uint32_t touch_counts[] = { 0, 0, 0 };
     bool in_center_button_dead_zone = true;
+    get_touch_count(0, 0);
     for (unsigned i = 0;; ++i) {
         uint32_t count, chan;
         get_touch_count(&count, &chan);
+        if (chan > 60000)
+            SEGGER_RTT_printf(0, "[1] WEIRD VAL %u\n", chan);
         touch_counts[chan] = count;
 
         if (leds_on_for_cycles - base_cycles > (CENTER_BUTTON_DEAD_ZONE_MS * RTC_RAW_FREQ) / 1000)
@@ -242,6 +245,8 @@ static void handle_MODE_DISPLAY_READING()
                                     __NOP(), __NOP(), __NOP(), __NOP();
 
                                 get_touch_count(&count, &chan);
+                                if (chan > 60000)
+                                    SEGGER_RTT_printf(0, "[3] WEIRD VAL %u\n", chan);
                                 touch_counts[chan] = count;
 
                                 if (touch_counts[0] != 0 && touch_counts[1] != 0 && touch_counts[2] != 0) {
@@ -306,6 +311,7 @@ static void handle_MODE_DISPLAY_READING()
     return;
 
 handle_center_press:
+    SEGGER_RTT_printf(0, "Handle center press\n");
     leds_all_off();
     touch_counts[0] = 0, touch_counts[1] = 0, touch_counts[2] = 0;
     press p = get_pad_press(CENTER_BUTTON);
@@ -337,9 +343,12 @@ static void handle_MODE_SETTING_ISO()
     uint32_t base_cycles = leds_on_for_cycles;
     int zero_touch_position = INVALID_TOUCH_POSITION;
     uint32_t touch_counts[] = { 0, 0, 0 };
+    get_touch_count(0, 0);
     for (unsigned i = 0;; ++i) {
         uint32_t count, chan;
         get_touch_count(&count, &chan);
+        if (chan > 60000)
+            SEGGER_RTT_printf(0, "[1] WEIRD VAL %u\n", chan);
         touch_counts[chan] = count;
 
         if (i != 0 && i % 3 == 0) {
