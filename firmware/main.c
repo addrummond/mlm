@@ -232,7 +232,7 @@ static void handle_MODE_DISPLAY_READING()
 
                 if (zero_touch_position == INVALID_TOUCH_POSITION) {
                     if (tp == LEFT_BUTTON || tp == RIGHT_BUTTON || tp == LEFT_AND_RIGHT_BUTTONS) {
-                        // If we just have one of the left/right buttons, wait to see if the situation
+                        /*// If we just have one of the left/right buttons, wait to see if the situation
                         // changes in the next split second.
                         if (tp != LEFT_AND_RIGHT_BUTTONS) {
                             uint32_t over_base = leds_on_for_cycles;
@@ -278,7 +278,7 @@ static void handle_MODE_DISPLAY_READING()
                             leds_all_off();
                             shift_exposure_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index);
                             leds_on_for_reading(ap_index, ss_index, third);
-                        }
+                        }*/
                     } else if (tp == CENTER_BUTTON && ! in_center_button_dead_zone) {
                         goto handle_center_press;
                     }
