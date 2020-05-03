@@ -23,8 +23,8 @@ void delay_ms(int ms)
 }
 
 static uint32_t clock_freq;
-volatile uint32_t *DWT_CONTROL = (uint32_t *) 0xE0001000;
-volatile uint32_t *DWT_CYCCNT = (uint32_t *) 0xE0001004;
+volatile uint32_t *DWT_CONTROL = (uint32_t *)0xE0001000;
+volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004;
 
 void delay_ms_cyc(uint32_t ms)
 {
