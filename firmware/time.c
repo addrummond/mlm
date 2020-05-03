@@ -29,8 +29,8 @@ volatile uint32_t *DWT_CYCCNT = (uint32_t *) 0xE0001004;
 void delay_ms_cyc(uint32_t ms)
 {
     if (ms > 300) {
-        SEGGER_RTT_printf(0, "Bad time given to cycle counter\n");
-        return;
+        SEGGER_RTT_printf(0, "WARNING: Bad time given to cycle counter\n");
+        ms = 300;
     }
 
     *DWT_CONTROL |= 1; // Enable cycle counter
