@@ -19,7 +19,7 @@
 static uint32_t touch_chan;
 static uint32_t touch_acmp;
 
-static uint32_t old_count;
+static volatile uint32_t old_count;
 
 uint32_t calibration_values[3] __attribute__((section (".persistent")));
 uint32_t le_calibration_center_pad_value __attribute__((section (".persistent")));
@@ -64,7 +64,7 @@ void setup_capsense()
     PCNT_PRSInputEnable(PCNT0, pcntPRSInputS0, true);
 
     // Sync up to end PCNT initialization
-    while(PCNT0->SYNCBUSY)
+    while (PCNT0->SYNCBUSY)
     {
         PRS_LevelSet(PRS_SWLEVEL_CH0LEVEL, PRS_SWLEVEL_CH0LEVEL);
         PRS_LevelSet(~PRS_SWLEVEL_CH0LEVEL, PRS_SWLEVEL_CH0LEVEL);
@@ -100,6 +100,8 @@ void disable_capsense()
 
 void cycle_capsense()
 {
+    uint32_t before = PCNT0->CNT;
+
     if (touch_acmp == 0) {
         if (touch_chan == 0) {
             ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
@@ -225,7 +227,7 @@ uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan, unsigned id)
             *chan_value = (1 << PCNT0_CNT_SIZE) - old_count + raw_count;
 
         if (*chan_value > 60000)
-            SEGGER_RTT_printf(0, "[%u] WEIRD VAL %u %u %u\n", id, *chan_value, old_count, raw_count);
+            SEGGER_RTT_printf(0, "[%u] c=%u WEIRD VAL %u %u -> %u\n", id, *chan, *chan_value, old_count, raw_count);
     }
 
     old_count = raw_count;

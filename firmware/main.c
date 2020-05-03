@@ -244,8 +244,6 @@ static void handle_MODE_DISPLAY_READING()
                                 delay_ms_cyc(PAD_COUNT_MS);
 
                                 get_touch_count(&count, &chan, 11);
-                                if (chan > 60000)
-                                    SEGGER_RTT_printf(0, "[3] WEIRD VAL %u\n", chan);
                                 touch_counts[chan] = count;
 
                                 if (touch_counts[0] != 0 && touch_counts[1] != 0 && touch_counts[2] != 0) {
@@ -343,8 +341,6 @@ static void handle_MODE_SETTING_ISO()
     for (unsigned i = 0;; ++i) {
         uint32_t count, chan;
         get_touch_count(&count, &chan, 13);
-        if (chan > 60000)
-            SEGGER_RTT_printf(0, "[1] WEIRD VAL %u\n", chan);
         touch_counts[chan] = count;
 
         if (i != 0 && i % 3 == 0) {
