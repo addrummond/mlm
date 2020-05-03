@@ -2,7 +2,7 @@
 
 ## Overview
 
-The $NAME is a reflective light meter with a range of EV -4.5 to 17.5 at ISO
+The $NAME is a reflective light meter with a range of EV -3.5 to 19 at ISO
 100. The field of view is 40°. This is the horizontal field of view of an 50mm
 lens on full frame.
 
