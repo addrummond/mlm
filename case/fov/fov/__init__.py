@@ -8,7 +8,7 @@
 #     Sensor window = 2.5mm
 #     Viewing angle = 40.1 degrees (20.05 degrees one-sided)
 #     Sensor has close approximation to cosine response.
-#     Sin(20.05) = 0.343 (integral of cos(20.05) from 0 to 90 degrees)
+#     sin(20.05) = 0.343 (integral of cos(20.05) from 0 to 90 degrees)
 #     Relative sensitivity of 0.343 equates to 1.54 stops exposure compensation.
 #
 
