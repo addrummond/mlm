@@ -233,9 +233,10 @@ static void handle_MODE_DISPLAY_READING()
                         // changes in the next split second.
                         if (tp != LEFT_AND_RIGHT_BUTTONS) {
                             uint32_t over_base = leds_on_for_cycles;
-                            get_touch_count(&count, 0);
                             int misses = 0;
                             for (unsigned j = 0;; ++j) {
+                                get_touch_count(0, 0);
+
                                 for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles - base < RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
                                     __NOP(), __NOP(), __NOP(), __NOP();
 
@@ -261,7 +262,6 @@ static void handle_MODE_DISPLAY_READING()
                                     break;
 
                                 cycle_capsense();
-                                get_touch_count(&count, 0);
                             }
                         }
 
