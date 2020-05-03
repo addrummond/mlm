@@ -3,7 +3,7 @@
 ## Overview
 
 The $NAME is a reflective light meter with a range of EV -4.5 to 17.5 at ISO
-100. The field of view is 90°. This is the horizontal field of view of an 18mm
+100. The field of view is 40°. This is the horizontal field of view of an 50mm
 lens on full frame.
 
 The meter has three touch pads (center, left and right). Readings and other
