@@ -213,9 +213,6 @@ static void handle_MODE_DISPLAY_READING()
     bool in_center_button_dead_zone = true;
     get_touch_count(0, 0, 8);
     for (unsigned i = 0;; ++i) {
-        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles - base < RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
-            __NOP(), __NOP(), __NOP(), __NOP();
-
         uint32_t count, chan;
         get_touch_count(&count, &chan, 9);
         touch_counts[chan] = count;
@@ -292,6 +289,9 @@ static void handle_MODE_DISPLAY_READING()
         }
 
         cycle_capsense();
+
+        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles - base < RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
+            __NOP(), __NOP(), __NOP(), __NOP();
 
         if (leds_on_for_cycles - base_cycles >= DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
             SEGGER_RTT_printf(0, "Reading display timeout\n");
