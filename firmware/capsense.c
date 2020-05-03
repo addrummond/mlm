@@ -100,8 +100,6 @@ void disable_capsense()
 
 void cycle_capsense()
 {
-    uint32_t before = PCNT0->CNT;
-
     if (touch_acmp == 0) {
         if (touch_chan == 0) {
             ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);

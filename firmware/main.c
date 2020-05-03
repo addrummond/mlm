@@ -287,12 +287,12 @@ static void handle_MODE_DISPLAY_READING()
             }            
         }
 
-        cycle_capsense();
-
         if (leds_on_for_cycles - base_cycles >= DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
             SEGGER_RTT_printf(0, "Reading display timeout\n");
             break;
         }
+
+        cycle_capsense();
     }
 
     leds_all_off();
