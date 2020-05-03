@@ -362,9 +362,7 @@ static void handle_MODE_SETTING_ISO()
                                 cycle_capsense();
                             }
                         
-                            SEGGER_RTT_printf(0, "GETTING PRESS\n");
                             p = get_pad_press_while_leds_on(tp);
-                            SEGGER_RTT_printf(0, "DONE GETTING PRESS\n");
                         }
 
                         leds_all_off();
