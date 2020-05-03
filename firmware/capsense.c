@@ -128,19 +128,19 @@ void calibrate_capsense()
     setup_capsense();
 
     uint32_t count, chan;
-    get_touch_count(&count, &chan);
+    get_touch_count(&count, &chan, 1);
     delay_ms(PAD_COUNT_MS);
 
     uint32_t chans_done = 0;
     do {
-        get_touch_count(&count, &chan);
+        get_touch_count(&count, &chan, 2);
         if (! (chans_done & (1 << chan))) {
             calibration_values[chan] = count;
             chans_done |= (1 << chan);
         }
         
         cycle_capsense();
-        get_touch_count(&count, &chan);
+        get_touch_count(&count, &chan, 3);
 
         delay_ms(PAD_COUNT_MS);
     } while (chans_done != 0b111);
@@ -152,7 +152,7 @@ void calibrate_capsense()
     RTC_Enable(true);
 
     cycle_capsense();
-    get_touch_count(&count, &chan);
+    get_touch_count(&count, &chan, 4);
     uint32_t end = RTC->CNT + LE_PAD_CLOCK_COUNT;
     while (RTC->CNT < end)
         ;
@@ -211,7 +211,7 @@ bool le_center_pad_is_touched(uint32_t chan2)
     return chan2 != 0 && chan2 < le_calibration_center_pad_value * THRESHOLD_NUM / THRESHOLD_DENOM;
 }
 
-uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)
+uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan, unsigned id)
 {
     if (chan != 0)
         *chan = (touch_acmp << 1) | touch_chan;
@@ -225,7 +225,7 @@ uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)
             *chan_value = (1 << PCNT0_CNT_SIZE) - old_count + raw_count;
 
         if (*chan_value > 60000)
-            SEGGER_RTT_printf(0, "[X] WEIRD VAL %u %u %u\n", *chan_value, old_count, raw_count);
+            SEGGER_RTT_printf(0, "[%u] WEIRD VAL %u %u %u\n", id, *chan_value, old_count, raw_count);
     }
 
     old_count = raw_count;
@@ -538,7 +538,7 @@ press get_pad_press(touch_position touch_pos)
 
     RTC->CTRL |= RTC_CTRL_EN;
 
-    get_touch_count(0, 0); // clear any nonsense value
+    get_touch_count(0, 0, 5); // clear any nonsense value
 
     int miss_count = 0;
     uint32_t chans[] = { 0, 0, 0 };
@@ -549,9 +549,7 @@ press get_pad_press(touch_position touch_pos)
             ;
 
         uint32_t count, chan;
-        get_touch_count(&count, &chan);
-        if (chan > 60000)
-            SEGGER_RTT_printf(0, "[9] WEIRD VAL %u\n", chan);
+        get_touch_count(&count, &chan, 6);
         chans[chan] = count;
 
         if (chans[0] != 0 && chans[1] != 0 && chans[2] != 0) {
@@ -586,7 +584,7 @@ press get_pad_press_while_leds_on(touch_position touch_pos)
 
     press p;
 
-    get_touch_count(0, 0); // clear any nonsense value
+    get_touch_count(0, 0, 999); // clear any nonsense value
 
     int miss_count = 0;
     uint32_t chans[] = { 0, 0, 0 };
@@ -597,7 +595,7 @@ press get_pad_press_while_leds_on(touch_position touch_pos)
             ;
 
         uint32_t count, chan;
-        get_touch_count(&count, &chan);
+        get_touch_count(&count, &chan, 555);
         chans[chan] = count;
 
         if (chans[0] != 0 && chans[1] != 0 && chans[2] != 0) {

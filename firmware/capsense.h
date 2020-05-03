@@ -28,7 +28,8 @@ typedef enum press {
 void setup_capsense(void);
 void disable_capsense(void);
 void cycle_capsense(void);
-uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan);
+//uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan);
+uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan, unsigned id);
 void calibrate_capsense(void);
 void calibrate_le_capsense(void);
 void setup_le_capsense(le_capsense_mode mode);

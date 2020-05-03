@@ -14,7 +14,7 @@ int test_main()
     for (unsigned i = 0;; ++i) {
         if (i != 0 && i % 2 == 0) {
             uint32_t count, chan;
-            get_touch_count(&count, &chan);
+            get_touch_count(&count, &chan, 17);
             touch_counts[chan] = count;
             int tp = get_touch_position(touch_counts[0], touch_counts[1], touch_counts[2]);
             

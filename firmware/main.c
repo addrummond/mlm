@@ -209,20 +209,18 @@ static void handle_MODE_DISPLAY_READING()
 
     uint32_t base_cycles = leds_on_for_cycles;
     int zero_touch_position = INVALID_TOUCH_POSITION;
-    uint32_t touch_counts[] = { 0, 0, 0 };
+    uint32_t touch_counts[3] = { 0, 0, 0 };
     bool in_center_button_dead_zone = true;
-    get_touch_count(0, 0);
+    get_touch_count(0, 0, 8);
     for (unsigned i = 0;; ++i) {
         uint32_t count, chan;
-        get_touch_count(&count, &chan);
-        if (chan > 60000)
-            SEGGER_RTT_printf(0, "[1] WEIRD VAL %u\n", chan);
+        get_touch_count(&count, &chan, 9);
         touch_counts[chan] = count;
 
         if (leds_on_for_cycles - base_cycles > (CENTER_BUTTON_DEAD_ZONE_MS * RTC_RAW_FREQ) / 1000)
             in_center_button_dead_zone = false;
 
-        if (i != 0 && i % 3 == 0) {
+        if (touch_counts[0] != 0 && touch_counts[1] != 0 && touch_counts[2] != 0) {
             int tp = get_touch_position(touch_counts[0], touch_counts[1], touch_counts[2]);
             
             if (tp == NO_TOUCH_DETECTED) {
@@ -239,12 +237,12 @@ static void handle_MODE_DISPLAY_READING()
                             int misses = 0;
                             touch_counts[0] = 0, touch_counts[1] = 0, touch_counts[2] = 0;
                             for (unsigned j = 0;; ++j) {
-                                get_touch_count(0, 0);
+                                get_touch_count(0, 0, 10);
 
                                 for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles - base < RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
                                     __NOP(), __NOP(), __NOP(), __NOP();
 
-                                get_touch_count(&count, &chan);
+                                get_touch_count(&count, &chan, 11);
                                 if (chan > 60000)
                                     SEGGER_RTT_printf(0, "[3] WEIRD VAL %u\n", chan);
                                 touch_counts[chan] = count;
@@ -343,10 +341,10 @@ static void handle_MODE_SETTING_ISO()
     uint32_t base_cycles = leds_on_for_cycles;
     int zero_touch_position = INVALID_TOUCH_POSITION;
     uint32_t touch_counts[] = { 0, 0, 0 };
-    get_touch_count(0, 0);
+    get_touch_count(0, 0, 12);
     for (unsigned i = 0;; ++i) {
         uint32_t count, chan;
-        get_touch_count(&count, &chan);
+        get_touch_count(&count, &chan, 13);
         if (chan > 60000)
             SEGGER_RTT_printf(0, "[1] WEIRD VAL %u\n", chan);
         touch_counts[chan] = count;
@@ -518,11 +516,11 @@ static void handle_MODE_DOING_READING()
     // regular display reading mode.
     setup_capsense();
     uint32_t chans[] = { 0, 0, 0 };
-    get_touch_count(0, 0); // clear any nonsense value
+    get_touch_count(0, 0, 100); // clear any nonsense value
     do {
         delay_ms(PAD_COUNT_MS);
         uint32_t count, chan;
-        get_touch_count(&count, &chan);
+        get_touch_count(&count, &chan, 14);
         chans[chan] = count;
         cycle_capsense();
     } while (chans[0] == 0 || chans[1] == 0 || chans[2] == 0);
@@ -537,13 +535,13 @@ static void handle_MODE_DOING_READING()
             leds_on_for_reading(ap_index, ss_index, third);
 
         chans[0] = 0, chans[1] = 0, chans[2] = 0;
-        get_touch_count(0, 0); // clear any nonsense value
+        get_touch_count(0, 0, 15); // clear any nonsense value
         int misses = 0;
         for (;;) {
             for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles - base < RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
                 ;
             uint32_t count, chan;
-            get_touch_count(&count, &chan);
+            get_touch_count(&count, &chan, 16);
             chans[chan] = count;
 
             if (chans[0] != 0 && chans[1] != 0 && chans[2] != 0) {
