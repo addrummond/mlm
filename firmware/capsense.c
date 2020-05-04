@@ -72,8 +72,6 @@ void setup_capsense()
     }
 
     ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
-    ACMP_Enable(ACMP0);
-    ACMP_Enable(ACMP1);
 
     touch_acmp = 0;
     touch_chan = 0;

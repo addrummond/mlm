@@ -110,8 +110,6 @@ static void handle_MODE_JUST_WOKEN()
         SEGGER_RTT_printf(0, "Watchdog wakeup.\n");
     }
 
-    disable_le_capsense();
-
     g_state.watchdog_wakeup = false;
     g_state.deep_sleep_counter = 0;
 
