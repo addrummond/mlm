@@ -572,7 +572,6 @@ press get_pad_press(touch_position touch_pos)
     }
 
     RTC->CTRL &= ~RTC_CTRL_EN;
-    disable_capsense();
 
     return p;
 }

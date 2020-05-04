@@ -110,6 +110,8 @@ static void handle_MODE_JUST_WOKEN()
         SEGGER_RTT_printf(0, "Watchdog wakeup.\n");
     }
 
+    disable_le_capsense();
+
     g_state.watchdog_wakeup = false;
     g_state.deep_sleep_counter = 0;
 
@@ -121,6 +123,7 @@ static void handle_MODE_JUST_WOKEN()
     // ISO / exposure set mode.
     setup_capsense();
     press p = get_pad_press(CENTER_BUTTON);
+    disable_capsense();
 
     if (p == PRESS_HOLD) {
         SEGGER_RTT_printf(0, "Hold\n");
@@ -306,9 +309,9 @@ static void handle_MODE_DISPLAY_READING()
 handle_center_press:
     SEGGER_RTT_printf(0, "Handle center press\n");
     leds_all_off();
-    disable_capsense();
     touch_counts[0] = 0, touch_counts[1] = 0, touch_counts[2] = 0;
     press p = get_pad_press(CENTER_BUTTON);
+    disable_capsense();
     if (p == PRESS_HOLD)
         g_state.mode = MODE_DOING_READING;
     else if (p == PRESS_TAP)
@@ -437,6 +440,7 @@ handle_center_press:
     disable_capsense();
     setup_capsense();
     press p = get_pad_press(CENTER_BUTTON);
+    disable_capsense();
     if (p == PRESS_HOLD)
         g_state.mode = MODE_DOING_READING;
     else if (p == PRESS_TAP)
