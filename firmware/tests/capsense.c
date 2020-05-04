@@ -16,6 +16,8 @@ int test_main()
 
     uint32_t touch_counts[] = { 0, 0, 0 };
     for (unsigned i = 0;; ++i) {
+        get_touch_count(0,0,0);
+        delay_ms_cyc(PAD_COUNT_MS);
 
         uint32_t count, chan;
         get_touch_count(&count, &chan, 18);
@@ -38,12 +40,10 @@ int test_main()
                 tps = "CENTER"; break;
         }
 
-        if (i % (4*6) == 0)
-            SEGGER_RTT_printf(0, "count %u %u %u pos = %s (temp %s%u)\n", touch_counts[1], touch_counts[0], touch_counts[2], tps, sign_of(temp_reading), iabs(temp_reading >> 8));
+        //if (i % (4*6) == 0)
+        //SEGGER_RTT_printf(0, "count %u %u %u pos = %s (temp %s%u)\n", touch_counts[1], touch_counts[0], touch_counts[2], tps, sign_of(temp_reading), iabs(temp_reading >> 8));
         
         cycle_capsense();
-
-        delay_ms(PAD_COUNT_MS);
     }
 
     return 0;

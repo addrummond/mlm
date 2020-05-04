@@ -209,7 +209,7 @@ static void handle_MODE_DISPLAY_READING()
 
     uint32_t base_cycles = leds_on_for_cycles;
     int zero_touch_position = INVALID_TOUCH_POSITION;
-    uint32_t touch_counts[3] = { 0, 0, 0 };
+    uint32_t touch_counts[] = { 0, 0, 0 };
     bool in_center_button_dead_zone = true;
     for (unsigned i = 0;; ++i) {
         get_touch_count(0, 0, 8);
@@ -296,7 +296,6 @@ static void handle_MODE_DISPLAY_READING()
     }
 
     leds_all_off();
-    SEGGER_RTT_printf(0, "Disabling capsense\n");
     disable_capsense();
 
     SEGGER_RTT_printf(0, "Going into MODE_SNOOZE\n");
@@ -307,6 +306,7 @@ static void handle_MODE_DISPLAY_READING()
 handle_center_press:
     SEGGER_RTT_printf(0, "Handle center press\n");
     leds_all_off();
+    disable_capsense();
     touch_counts[0] = 0, touch_counts[1] = 0, touch_counts[2] = 0;
     press p = get_pad_press(CENTER_BUTTON);
     if (p == PRESS_HOLD)
@@ -317,6 +317,7 @@ handle_center_press:
 
 handle_double_button_press:
     leds_all_off();
+    disable_capsense();
     g_state.mode = MODE_SETTING_ISO;
 }
 

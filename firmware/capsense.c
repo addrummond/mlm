@@ -3,6 +3,7 @@
 #include <em_cmu.h>
 #include <em_emu.h>
 #include <em_gpio.h>
+#include <em_int.h>
 #include <em_lesense.h>
 #include <em_wdog.h>
 #include <em_pcnt.h>
@@ -100,6 +101,8 @@ void disable_capsense()
 
 void cycle_capsense()
 {
+    INT_Disable();
+
     if (touch_acmp == 0) {
         if (touch_chan == 0) {
             ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
@@ -117,6 +120,8 @@ void cycle_capsense()
         touch_acmp = 0;
         touch_chan = 0;
     }
+
+    INT_Enable();
 }
 
 void calibrate_capsense()
