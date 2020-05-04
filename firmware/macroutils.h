@@ -7,4 +7,7 @@
 #define MACROUTILS_CONCAT3_(x, y, z) x ## y ## z
 #define MACROUTILS_CONCAT3(x, y, z)  MACROUTILS_CONCAT3_(x, y, z)
 
+#define MACROUTILS_SYMBOL2(x) # x
+#define MACROUTILS_SYMBOL(x)  MACROUTILS_SYMBOL2(x)
+
 #endif

@@ -278,36 +278,6 @@ default_set:
     *third_out = third;
 }
 
-const char *ss_strings[] = {
-    "1S",
-    "2",
-    "4",
-    "8",
-    "15",
-    "30",
-    "60",
-    "125",
-    "250",
-    "500",
-    "1000",
-    "2000"
-};
-
-const char *ap_strings[] = {
-    "1",
-    "1.4",
-    "2",
-    "2.8",
-    "4",
-    "5.6",
-    "8",
-    "11",
-    "16",
-    "22",
-    "32",
-    "45"
-};
-
 #ifdef TEST
 
 static double fp_lux_to_reflective_ev(double lux)

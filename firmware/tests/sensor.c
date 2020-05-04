@@ -32,7 +32,7 @@ int test_main()
         } else if (evthird > (1 << EV_BPS)/3) {
             thirdval = 1;
         }
-        SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u+%u/3) -- %s %s @ 100 (%u %u)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS, thirdval, ss_strings[ss_index], ap_strings[ap_index], ss_index, ap_index);
+        SEGGER_RTT_printf(0, "READING g=%u itime=%u c0=%u c1=%u lux=%u/%u (%u) ev=%s%u/%u (%u+%u/3)\n", gain, itime, sr.chan0, sr.chan1, lux, 1<<EV_BPS, lux>>EV_BPS, sign_of(ev), iabs(ev), 1<<EV_BPS, ev>>EV_BPS, thirdval);
         //leds_all_off();
         //led_on(LED_1S_N + ss_index);
         //if (third == -1)

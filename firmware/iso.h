@@ -20,7 +20,6 @@
 int32_t iso_dial_pos_and_third_to_iso(int pos, int third);
 bool iso_dial_pos_can_go_third_below(int pos);
 bool iso_dial_pos_can_go_third_above(int pos);
-const char *iso_to_string(int32_t iso);
 int iso_dial_pos_to_led_n(int pos);
 
 

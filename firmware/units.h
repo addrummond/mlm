@@ -42,7 +42,4 @@ int32_t sensor_reading_to_lux(sensor_reading r, int32_t gain, int32_t integ_time
 void ev_to_shutter_iso100_f8(int32_t ev, int *ss_index_out, int *third_out);
 void ev_iso_aperture_to_shutter(int32_t ev, int32_t iso, int32_t ap, int *ap_index_out, int *ss_index_out, int *third_out);
 
-extern const char *ap_strings[];
-extern const char *ss_strings[];
-
 #endif

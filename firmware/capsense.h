@@ -2,6 +2,7 @@
 #define CAPSENSE_H
 
 #include <config.h>
+#include <macroutils.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
@@ -28,7 +29,8 @@ typedef enum press {
 void setup_capsense(void);
 void disable_capsense(void);
 void cycle_capsense(void);
-uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan);
+uint32_t get_touch_count_func(uint32_t *chan_value, uint32_t *chan, const char *src_pos_for_debugging);
+#define get_touch_count(chan_value, chan) get_touch_count_func((chan_value), (chan), __FILE__ ":" MACROUTILS_SYMBOL(__LINE__))
 void calibrate_capsense(void);
 void calibrate_le_capsense(void);
 void setup_le_capsense(le_capsense_mode mode);

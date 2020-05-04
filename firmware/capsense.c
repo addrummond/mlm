@@ -19,7 +19,7 @@
 static uint32_t touch_chan;
 static uint32_t touch_acmp;
 
-static uint32_t old_count;
+static volatile uint32_t old_count;
 
 uint32_t calibration_values[3] __attribute__((section (".persistent")));
 uint32_t le_calibration_center_pad_value __attribute__((section (".persistent")));
@@ -34,7 +34,7 @@ static const PCNT_Init_TypeDef initPCNT =
     .filter      = false,             // Filter disabled.
     .hyst        = false,             // Hysteresis disabled.
     .s1CntDir    = false,             // Counter direction is given by S1.
-    .cntEvent    = pcntCntEventBoth,  // Regular counter counts up on upcount events.
+    .cntEvent    = pcntCntEventUp,    // Regular counter counts up on upcount events.
     .auxCntEvent = pcntCntEventNone,  // Auxiliary counter doesn't respond to events.
     .s0PRS       = pcntPRSCh0,        // PRS channel 0 selected as S0IN.
     .s1PRS       = pcntPRSCh1         // PRS channel 1 selected as S1IN.
@@ -64,15 +64,13 @@ void setup_capsense()
     PCNT_PRSInputEnable(PCNT0, pcntPRSInputS0, true);
 
     // Sync up to end PCNT initialization
-    while(PCNT0->SYNCBUSY)
+    while (PCNT0->SYNCBUSY)
     {
         PRS_LevelSet(PRS_SWLEVEL_CH0LEVEL, PRS_SWLEVEL_CH0LEVEL);
         PRS_LevelSet(~PRS_SWLEVEL_CH0LEVEL, PRS_SWLEVEL_CH0LEVEL);
     }
 
     ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
-    ACMP_Enable(ACMP0);
-    ACMP_Enable(ACMP1);
 
     touch_acmp = 0;
     touch_chan = 0;
@@ -153,8 +151,8 @@ void calibrate_capsense()
 
     cycle_capsense();
     get_touch_count(&count, &chan);
-    uint32_t end = RTC->CNT + LE_PAD_CLOCK_COUNT;
-    while (RTC->CNT < end)
+    RTC->CNT = 0;
+    while (RTC->CNT < LE_PAD_CLOCK_COUNT)
         ;
 
     RTC_Enable(false);
@@ -163,7 +161,7 @@ void calibrate_capsense()
 
     disable_capsense();
 
-    SEGGER_RTT_printf(0, "Capsense calibration values: %u %u %u\n", calibration_values[0], calibration_values[1], calibration_values[2]);
+    SEGGER_RTT_printf(0, "Capsense calibration: %u %u %u\n", calibration_values[0], calibration_values[1], calibration_values[2]);
 }
 
 void calibrate_le_capsense()
@@ -173,7 +171,7 @@ void calibrate_le_capsense()
     le_calibration_center_pad_value = lesense_result;
     disable_le_capsense();
 
-    SEGGER_RTT_printf(0, "LE capsense calibration value: %u\n", le_calibration_center_pad_value);
+    SEGGER_RTT_printf(0, "LE capsense calibration: %u\n", le_calibration_center_pad_value);
 }
 
 static const uint32_t THRESHOLD_NUM = 89;
@@ -181,6 +179,9 @@ static const uint32_t THRESHOLD_DENOM = 100;
 
 touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2)
 {
+    if (chan0 > calibration_values[0] * 2 || chan1 > calibration_values[1] * 2 || chan2 > calibration_values[2] * 2)
+        return NO_TOUCH_DETECTED;
+
     uint32_t rat0nopress = (calibration_values[0] << 8) / (calibration_values[1] + calibration_values[2]);
     uint32_t rat1nopress = (calibration_values[1] << 8) / (calibration_values[0] + calibration_values[2]);
     uint32_t rat2nopress = (calibration_values[2] << 8) / (calibration_values[0] + calibration_values[1]);
@@ -189,14 +190,15 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
     uint32_t rat1 = (chan1 << 8) / (chan0 + chan2);
     uint32_t rat2 = (chan2 << 8) / (chan0 + chan1);
 
-    if (rat0 < (85 * rat0nopress) / 100 && rat1 < (85 * rat1nopress) / 100)
+    if (rat0 < (85 * rat0nopress) / 100 && rat1 < (85 * rat1nopress) / 100 && chan2 >= calibration_values[2] * THRESHOLD_NUM / THRESHOLD_DENOM) {
         return LEFT_AND_RIGHT_BUTTONS;
-    else if (rat2 < (80 * rat2nopress) / 100)
+    } else if (rat2 < (80 * rat2nopress) / 100) {
         return CENTER_BUTTON;
-    else if (rat0 < (80 * rat0nopress) / 100)
+    } else if (rat0 < (80 * rat0nopress) / 100) {
         return RIGHT_BUTTON;
-    else if (rat1 < (80 * rat1nopress) / 100)
+    } else if (rat1 < (80 * rat1nopress) / 100) {
         return LEFT_BUTTON;
+    }
 
     return NO_TOUCH_DETECTED;
 }
@@ -206,25 +208,26 @@ bool le_center_pad_is_touched(uint32_t chan2)
     return chan2 != 0 && chan2 < le_calibration_center_pad_value * THRESHOLD_NUM / THRESHOLD_DENOM;
 }
 
-uint32_t get_touch_count(uint32_t *chan_value, uint32_t *chan)
+uint32_t get_touch_count_func(uint32_t *chan_value, uint32_t *chan, const char *src_pos)
 {
     if (chan != 0)
         *chan = (touch_acmp << 1) | touch_chan;
 
-    uint32_t raw_cnt = PCNT0->CNT;
+    uint32_t raw_count = PCNT0->CNT;
 
     if (chan_value != 0) {
-        if (old_count == 0) {
-            *chan_value = raw_cnt;
-        } else if (raw_cnt > old_count) {
-            *chan_value = raw_cnt - old_count;
-        } else {
-            *chan_value = 0xFFFF - old_count + raw_cnt;
-        }
+        if (raw_count >= old_count)
+            *chan_value = raw_count - old_count;
+        else
+            *chan_value = (1 << PCNT0_CNT_SIZE) - old_count + raw_count;
+
+        // An issue that (I think/hope) only arises when the debugger is attached.
+        if (*chan_value > 60000)
+            SEGGER_RTT_printf(0, "[%s] c=%u WEIRD %u %u -> %u\n", src_pos, *chan, *chan_value, old_count, raw_count);
     }
 
-    old_count = raw_cnt;
-    return raw_cnt;
+    old_count = raw_count;
+    return raw_count;
 }
 
 static const uint16_t LESENSE_ACMP_VDD_SCALE = 0x37U;
@@ -499,8 +502,11 @@ void recalibrate_le_capsense()
 
 void disable_le_capsense()
 {
-    if (le_mode == LE_CAPSENSE_SLEEP)
+    if (le_mode == LE_CAPSENSE_SLEEP) {
+        RTC_IntDisable(RTC_IEN_COMP0);
+        NVIC_DisableIRQ(RTC_IRQn);
         LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, 0);
+    }
 
     LESENSE_ScanStop();
 
@@ -527,21 +533,17 @@ press get_pad_press(touch_position touch_pos)
 {
     int rtc_freq = get_rtc_freq();
     int long_press_ticks = LONG_PRESS_MS * rtc_freq / 1000;
-    int touch_count_ticks = PAD_COUNT_MS * rtc_freq / 1000;
 
     press p;
 
     RTC->CTRL |= RTC_CTRL_EN;
-
-    get_touch_count(0, 0); // clear any nonsense value
+    RTC->CNT = 0;
 
     int miss_count = 0;
     uint32_t chans[] = { 0, 0, 0 };
-    int rtc_base = RTC->CNT;
     for (;;) {
-        uint32_t base = RTC->CNT;
-        while (RTC->CNT - base < touch_count_ticks)
-            ;
+        get_touch_count(0, 0); // clear any nonsense value
+        delay_ms_cyc(PAD_COUNT_MS);
 
         uint32_t count, chan;
         get_touch_count(&count, &chan);
@@ -558,7 +560,7 @@ press get_pad_press(touch_position touch_pos)
             }
         }
 
-        if (RTC->CNT - rtc_base >= long_press_ticks) {
+        if (RTC->CNT >= long_press_ticks) {
             p = PRESS_HOLD;
             break;
         }
@@ -567,7 +569,6 @@ press get_pad_press(touch_position touch_pos)
     }
 
     RTC->CTRL &= ~RTC_CTRL_EN;
-    disable_capsense();
 
     return p;
 }
@@ -575,19 +576,15 @@ press get_pad_press(touch_position touch_pos)
 press get_pad_press_while_leds_on(touch_position touch_pos)
 {
     const uint32_t long_press_ticks = LONG_PRESS_MS * RTC_RAW_FREQ / 1000;
-    const uint32_t touch_count_ticks = PAD_COUNT_MS * RTC_RAW_FREQ / 1000;
 
     press p;
-
-    get_touch_count(0, 0); // clear any nonsense value
 
     int miss_count = 0;
     uint32_t chans[] = { 0, 0, 0 };
     uint32_t base_touch_count = leds_on_for_cycles;
     for (;;) {
-        uint32_t base = leds_on_for_cycles;
-        while (leds_on_for_cycles - base < touch_count_ticks)
-            ;
+        get_touch_count(0, 0); // clear any nonsense value
+        delay_ms_cyc(PAD_COUNT_MS);
 
         uint32_t count, chan;
         get_touch_count(&count, &chan);

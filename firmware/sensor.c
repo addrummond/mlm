@@ -190,7 +190,6 @@ break_outer:
             *itime_key = ITIME_400;
             break;
         default:
-            SEGGER_RTT_printf(0, "ERROR: SHOULD NOT GET HERE! [1] (val = %u)\n", i);
             break;
     }
 
@@ -214,7 +213,6 @@ break_outer:
             *gain_key = GAIN_96X;
             break;
         default:
-            SEGGER_RTT_printf(0, "ERROR: SHOULD NOT GET HERE! [2] (val = %u)\n", j);
             break;
     }
 }
