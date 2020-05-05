@@ -22,12 +22,13 @@ void delay_ms(int ms)
     RTC->CTRL &= ~RTC_CTRL_EN;
 }
 
-static uint32_t clock_freq;
 volatile uint32_t *DWT_CONTROL = (uint32_t *)0xE0001000;
 volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004;
 
 void delay_ms_cyc(uint32_t ms)
 {
+    static uint32_t clock_freq;
+
     // Can't count much more than 256ms without overflow (assuming 14MHz clock)
     uint32_t tocks = ms / 256;
     uint32_t ticks = ms % 256;
