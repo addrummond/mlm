@@ -12,8 +12,6 @@
 
 void tempsensor_init()
 {
-    SEGGER_RTT_printf(0, "Starting temperature sensor initialization..\n");
-
     CMU_ClockEnable(cmuClock_I2C0, true);
 
     GPIO_PinModeSet(TEMPSENSOR_I2C_PORT, TEMPSENSOR_I2C_SCL_PIN, gpioModeWiredAndFilter, 1); // configure SCL pin as open drain output

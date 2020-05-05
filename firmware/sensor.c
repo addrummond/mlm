@@ -15,8 +15,6 @@
 
 void sensor_init()
 {
-    SEGGER_RTT_printf(0, "Starting light sensor initialization..\n");
-
     CMU_ClockEnable(cmuClock_I2C0, true);
 
     GPIO_PinModeSet(SENSOR_I2C_PORT, SENSOR_I2C_SCL_PIN, gpioModeWiredAndFilter, 1); // configure SCL pin as open drain output
