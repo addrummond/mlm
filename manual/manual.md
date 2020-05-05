@@ -98,3 +98,15 @@ increase the ISO number slightly).
 When a reading is in progress, one light stays on uninterrupted while the others
 cycle. This light indicates the currently selected ISO (or the nearest full stop
 ISO to it if it is a ⅓ stop ISO and there is no dedicated light).
+
+## Special display of low light exposures
+
+Using two indicator lights (one for aperture and one for shutter speed), the
+wheel can show exposures down to -⅓EV at any given ISO. As the lower range of
+the meter is -3.5EV at ISO 100, this means that at ISOs below 1600, the EV can
+be low enough that no corresponding exposure can be displayed in the usual way.
+In this circumstance, the meter indicates exposures longer than one second by
+turning on three shutter speed lights rather than one. The number corresponding
+to the middle light should be interpreted as a number of seconds. For example,
+if the lights corresponding to 2, 4 and 8 are lit up, this indicates an exposure
+of four seconds.
