@@ -28,23 +28,23 @@ volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004;
 
 void delay_ms_cyc(uint32_t ms)
 {
-    if (ms > 300) {
-        SEGGER_RTT_printf(0, "WARNING: Bad time given to cycle counter\n");
-        ms = 300;
-    }
-
-    *DWT_CONTROL |= 1; // Enable cycle counter
-    *DWT_CYCCNT = 0;
+    // Can't count much more than 256ms without overflow (assuming 14MHz clock)
+    uint32_t tocks = ms / 256;
+    uint32_t ticks = ms % 256;
+    uint32_t tick_cycles = ticks * clock_freq / 1000;
 
     if (clock_freq == 0)
         clock_freq = CMU_ClockFreqGet(cmuClock_CORE);
 
-    uint32_t cycles = ms * clock_freq / 1000;
+    do {
+        *DWT_CONTROL |= 1; // Enable cycle counter
+        *DWT_CYCCNT = 0;
 
-    while (*DWT_CYCCNT < cycles)
-        __NOP(), __NOP(), __NOP(), __NOP();
+        while (*DWT_CYCCNT < tick_cycles)
+            __NOP(), __NOP(), __NOP(), __NOP();
 
-    *DWT_CONTROL &= ~1U;
+        *DWT_CONTROL &= ~1U;
+    } while (tocks-- > 0);
 }
 
 void set_rtc_clock_div(CMU_ClkDiv_TypeDef div)

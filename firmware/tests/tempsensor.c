@@ -11,7 +11,7 @@ int test_main()
     delay_ms(100);
 
     for (;;) {
-        int32_t reading = tempsensor_get_reading(delay_ms);
+        int32_t reading = tempsensor_get_reading();
         SEGGER_RTT_printf(0, "TEMP READING %s%u, %s%uC\n", sign_of(reading), iabs(reading), sign_of(reading), iabs(reading >> 8));
         delay_ms(500);
     }

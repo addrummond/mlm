@@ -18,7 +18,7 @@ int test_main()
     for (;;) {
         int32_t gain, itime;
         sensor_wait_till_ready(delay_ms);
-        sensor_reading sr = sensor_get_reading_auto(delay_ms, &gain, &itime);
+        sensor_reading sr = sensor_get_reading_auto(&gain, &itime);
         int32_t lux = sensor_reading_to_lux(sr, gain, itime);
         int32_t ev = lux_to_reflective_ev(lux);
         int ap_index, ss_index, third;

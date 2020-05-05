@@ -215,14 +215,14 @@ break_outer:
     }
 }
 
-sensor_reading sensor_get_reading_auto(delay_func delayf, int32_t *gain, int32_t *itime)
+sensor_reading sensor_get_reading_auto(int32_t *gain, int32_t *itime)
 {
     sensor_standby();
     uint8_t measrate = sensor_read_reg(SENSOR_I2C_ADDR, REG_ALS_MEAS_RATE);
     sensor_write_reg(SENSOR_I2C_ADDR, REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | ITIME_50);
     sensor_turn_on(GAIN_1X);
-    delayf(65); // don't poll the sensor until it's likely to be ready (saves i2c current)
-    sensor_wait_till_ready(delayf);
+    delay_ms_cyc(65); // don't poll the sensor until it's likely to be ready (saves i2c current)
+    sensor_wait_till_ready();
     sensor_reading r = sensor_get_reading();
 
     int itime_key, gain_key;
@@ -231,9 +231,9 @@ sensor_reading sensor_get_reading_auto(delay_func delayf, int32_t *gain, int32_t
     sensor_standby();
     sensor_write_reg(SENSOR_I2C_ADDR, REG_ALS_MEAS_RATE, (measrate & ~ITIME_MASK) | itime_key);
     sensor_turn_on(gain_key);
-    delayf((*itime) * 6 / 5);
+    delay_ms_cyc((*itime) * 6 / 5);
 
-    sensor_wait_till_ready(delayf);
+    sensor_wait_till_ready();
     return sensor_get_reading();
 }
 
@@ -248,12 +248,12 @@ void sensor_standby()
     sensor_write_reg(SENSOR_I2C_ADDR, REG_ALS_CONTR, 0);
 }
 
-void sensor_wait_till_ready(delay_func delayf)
+void sensor_wait_till_ready()
 {
     uint8_t status;
     do {
         status = sensor_read_reg(SENSOR_I2C_ADDR, REG_ALS_STATUS);
-        delayf(10); // save some current (less i2c communication)
+        delay_ms_cyc(10); // save some current (less i2c communication)
     } while (!(status & 0b100));
 }
 

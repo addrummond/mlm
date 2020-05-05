@@ -473,20 +473,20 @@ static void handle_MODE_DOING_READING()
     SEGGER_RTT_printf(0, "Turning on LDO.\n");
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
-    delay_ms_with_led_rtc(10); // make sure LDO has time to start up (datasheet says 1ms startup time is typical, so 10 is more than enough)
+    delay_ms_cyc(10); // make sure LDO has time to start up (datasheet says 1ms startup time is typical, so 10 is more than enough)
     sensor_init();
-    delay_ms_with_led_rtc(100); // sensor requires 100ms initial startup time.
+    delay_ms_cyc(100); // sensor requires 100ms initial startup time.
 
     // Turn the sensor on and give it time to wake up from standby.
     sensor_turn_on(GAIN_1X);
-    delay_ms_with_led_rtc(10);
+    delay_ms_cyc(10);
 
     // Get the raw sensor reading.
     int32_t gain, itime;
     SEGGER_RTT_printf(0, "Waiting for sensor\n");
-    sensor_wait_till_ready(delay_ms_with_led_rtc);
+    sensor_wait_till_ready();
     SEGGER_RTT_printf(0, "Sensor ready\n");
-    sensor_reading sr = sensor_get_reading_auto(delay_ms_with_led_rtc, &gain, &itime);
+    sensor_reading sr = sensor_get_reading_auto(&gain, &itime);
     g_state.last_reading = sr;
     g_state.last_reading_itime = itime;
     g_state.last_reading_gain = gain;

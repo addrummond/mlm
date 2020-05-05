@@ -386,11 +386,3 @@ void leds_on_for_reading(int ap_index, int ss_index, int third)
     set_led_throb_mask(0);
     leds_on(mask);
 }
-
-void delay_ms_with_led_rtc(int ms)
-{
-    uint32_t start = leds_on_for_cycles;
-    uint32_t cycles = (ms * RTC_RAW_FREQ) / 1000;
-    while (leds_on_for_cycles - start < cycles)
-        ;
-}

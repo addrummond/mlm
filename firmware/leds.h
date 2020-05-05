@@ -143,7 +143,6 @@ void leds_change_mask(uint32_t mask);
 void led_fully_on(unsigned n);
 void leds_all_off();
 void leds_on_for_reading(int ap_index, int ss_index, int third);
-void delay_ms_with_led_rtc(int ms);
 void set_led_throb_mask(uint32_t mask);
 bool rtc_borked_for_led_cycling(void);
 

@@ -4,6 +4,7 @@
 #include <rtt.h>
 #include <stdint.h>
 #include <tempsensor.h>
+#include <time.h>
 
 #define TEMPSENSOR_I2C_PORT    gpioPortE
 #define TEMPSENSOR_I2C_SDA_PIN 12
@@ -64,7 +65,7 @@ static uint16_t read_reg16(uint16_t addr)
     return ((uint16_t)(rbuf[0]) << 8) | ((uint16_t)rbuf[1]);
 }
 
-int32_t tempsensor_get_reading(delay_func delayf)
+int32_t tempsensor_get_reading()
 {
     // Default precision is 9 bits (0.5C). That's fine for us,
     // so we don't change it.
@@ -72,11 +73,9 @@ int32_t tempsensor_get_reading(delay_func delayf)
     int16_t reading = 0;
     int tries = 0;
     do {
-        delayf(25);
+        delay_ms_cyc(25);
         reading = read_reg16(TEMPSENSOR_I2C_ADDR);
     } while (reading == 0 && ++tries < 11);
 
-    int32_t reading32 = (int32_t)reading;
-
-    return reading;
+    return (int32_t)reading;
 }
