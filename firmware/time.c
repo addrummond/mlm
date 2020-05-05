@@ -29,13 +29,13 @@ void delay_ms_cyc(uint32_t ms)
 {
     static uint32_t clock_freq;
 
+    if (clock_freq == 0)
+        clock_freq = CMU_ClockFreqGet(cmuClock_CORE);
+
     // Can't count much more than 256ms without overflow (assuming 14MHz clock)
     uint32_t tocks = ms / 256;
     uint32_t ticks = ms % 256;
     uint32_t tick_cycles = ticks * clock_freq / 1000;
-
-    if (clock_freq == 0)
-        clock_freq = CMU_ClockFreqGet(cmuClock_CORE);
 
     do {
         *DWT_CONTROL |= 1; // Enable cycle counter
