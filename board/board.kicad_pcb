@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 104)
+    (drawings 105)
     (tracks 1254)
     (modules 93)
     (nets 56)
@@ -311,7 +311,7 @@
     (tags "SOT-23-5")
     (path "/1f5542b7-7570-4c47-92ba-0255ef848716")
     (attr smd)
-    (fp_text reference "U2" (at 0 -2.388 90) (layer "F.SilkS")
+    (fp_text reference "U2" (at 0.64 -2.37 90) (layer "F.SilkS")
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value "TLV70245_SOT23-5" (at 0 2.9 90) (layer "F.Fab")
@@ -2828,6 +2828,9 @@
       (net 10 "VREG") (tstamp a63dae2b-18de-4391-8c54-fce4dc692279))
   )
 
+  (gr_text "5V" (at 111.93 136.89) (layer "F.SilkS") (tstamp 513baca2-f858-48ed-827a-bc42bec0e91d)
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
   (gr_text "DNF→" (at 123.976 136.298 90) (layer "F.SilkS") (tstamp b3938b92-bfc1-4904-84c8-219cd32005a2)
     (effects (font (size 1 1) (thickness 0.15)))
   )
