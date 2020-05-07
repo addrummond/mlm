@@ -1,4 +1,4 @@
-update=Thursday, 07 May 2020 at 09:50:26
+update=Thursday, 07 May 2020 at 17:14:52
 version=1
 last_client=kicad
 [general]
@@ -33,12 +33,14 @@ ERC_CheckBusDriverConflicts=1
 ERC_CheckBusEntryConflicts=1
 ERC_CheckBusToBusConflicts=1
 ERC_CheckBusToNetConflicts=1
-[ModEditFrame]
-version=1
 [SchematicFrame]
 version=1
 [LibeditFrame]
 version=1
+[ModEditFrame]
+version=1
+[sheetnames]
+1=77800ab4-d17f-4f90-9d9f-c57b41ffa0ce:
 [pcbnew]
 version=1
 PageLayoutDescrFile=
@@ -53,7 +55,7 @@ BoardThickness=1.6
 AllowMicroVias=0
 AllowBlindVias=0
 MinClearance=0
-MinTrackWidth=0.14
+MinTrackWidth=0
 MinViaDiameter=0.4
 MinThroughDrill=0.3
 MinMicroViaDiameter=0.2
@@ -292,5 +294,3 @@ uViaDrill=0.1
 dPairWidth=0.2
 dPairGap=0.25
 dPairViaGap=0.25
-[sheetnames]
-1=96f9849c-df5a-4085-9fc6-6d372cd8a9b8:
