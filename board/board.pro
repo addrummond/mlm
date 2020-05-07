@@ -39,8 +39,6 @@ version=1
 version=1
 [LibeditFrame]
 version=1
-[sheetnames]
-1=96f9849c-df5a-4085-9fc6-6d372cd8a9b8:
 [pcbnew]
 version=1
 PageLayoutDescrFile=
@@ -294,3 +292,5 @@ uViaDrill=0.1
 dPairWidth=0.2
 dPairGap=0.25
 dPairViaGap=0.25
+[sheetnames]
+1=96f9849c-df5a-4085-9fc6-6d372cd8a9b8:
