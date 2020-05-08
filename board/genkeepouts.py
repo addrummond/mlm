@@ -41,8 +41,10 @@ for i in range(N):
     zones.append(pts_to_zone(LAYER, pts))
 
 # +/- 1/3 leds
-zones.append(pts_to_zone(LAYER, [(x + 92.5, y + 91) for (x, y) in pts_for((3/N) * math.pi * 2.0)]))
-zones.append(pts_to_zone(LAYER, [(x + 107.5, y + 91) for (x, y) in pts_for((-3/N) * math.pi * 2.0)]))
+langle = (140.19442890773481 + 90) * math.pi / 180.0
+rangle = -langle
+zones.append(pts_to_zone(LAYER, [(x + 92.5, y + 91) for (x, y) in pts_for(langle)]))
+zones.append(pts_to_zone(LAYER, [(x + 107.5, y + 91) for (x, y) in pts_for(rangle)]))
 
 for z in zones:
     print(z)
