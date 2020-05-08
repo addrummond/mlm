@@ -322,7 +322,7 @@
     (at 112.33 138.4 180)
     (path "/0b4cde9a-3d1c-4fd2-a3f3-1dab0a46c59a")
     (attr smd)
-    (fp_text reference "C19" (at 0.03 -1.56) (layer "F.SilkS")
+    (fp_text reference "C19" (at 0.13 -1.56) (layer "F.SilkS")
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value "10u" (at 0 1.9) (layer "F.Fab")
