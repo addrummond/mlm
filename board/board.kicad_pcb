@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 122)
+    (drawings 114)
     (tracks 1316)
     (modules 95)
     (nets 56)
@@ -2888,18 +2888,6 @@
       (net 10 "VREG") (tstamp a63dae2b-18de-4391-8c54-fce4dc692279))
   )
 
-  (gr_text "1/3" (at 94.46 93.42 -320.2) (layer "B.SilkS") (tstamp 37a51c01-8c95-4a2f-9fd8-6452c4644230)
-    (effects (font (size 1.25 1.25) (thickness 0.3125)) (justify mirror))
-  )
-  (gr_text "1/3" (at 105.54 93.42 320.2) (layer "B.SilkS") (tstamp 925ec707-e415-47a5-8443-d242d9069b69)
-    (effects (font (size 1.25 1.25) (thickness 0.3125)) (justify mirror))
-  )
-  (gr_line (start 91.169873 94.705771) (end 92.2 94.38) (layer "B.SilkS") (width 0.5) (tstamp b1e19c50-6153-4554-bafa-667b32246ef5))
-  (gr_line (start 90.95 93.63) (end 91.169873 94.705771) (layer "B.SilkS") (width 0.5) (tstamp 5b744aaa-8093-4f22-b76c-f147b4c21157))
-  (gr_arc (start 100 100) (end 95 91) (angle -30) (layer "B.SilkS") (width 0.5) (tstamp d89e11f0-a047-45d2-a1d5-1927c6c818c2))
-  (gr_line (start 108.830127 94.705771) (end 107.8 94.38) (layer "B.SilkS") (width 0.5) (tstamp 770c68a8-d113-4006-bbf3-8974d247deaa))
-  (gr_line (start 108.830127 94.705771) (end 109.05 93.63) (layer "B.SilkS") (width 0.5) (tstamp d829a8a0-b9e0-4592-9f50-296843b34295))
-  (gr_arc (start 100 100) (end 105 91) (angle 30) (layer "B.SilkS") (width 0.5) (tstamp bd1924ca-fc7c-438a-801a-dc2b6974a224))
   (gr_line (start 117.55 137.13) (end 114.28 137.13) (layer "F.SilkS") (width 0.3) (tstamp 7dc7dcc8-6be5-422e-95af-9b5a11492575))
   (gr_line (start 118.05 134.88) (end 117.55 137.13) (layer "F.SilkS") (width 0.3) (tstamp f06af146-b60f-43d1-9a3b-d70d94a7efcc))
   (gr_line (start 119.3 133.88) (end 118.05 134.88) (layer "F.SilkS") (width 0.3) (tstamp 3610c8e3-2bd2-4b82-986c-6eded8115841))
