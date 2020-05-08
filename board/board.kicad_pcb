@@ -33,7 +33,7 @@
   )
 
   (setup
-    (last_trace_width 0.2)
+    (last_trace_width 0.25)
     (user_trace_width 0.14)
     (user_trace_width 0.18)
     (user_trace_width 0.2)
@@ -917,7 +917,7 @@
     (path "/e15d12ed-9d9d-4cea-84a4-8512c6c2646b")
     (solder_paste_margin -0.05)
     (attr smd)
-    (fp_text reference "IC2" (at 0 -2.325 180) (layer "F.SilkS") hide
+    (fp_text reference "IC2" (at -6.69 0.025 180) (layer "F.SilkS")
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value "LTR-303ALS-01" (at 2 -0.2 270) (layer "F.Fab")
@@ -2742,7 +2742,7 @@
     (at 83 70.57)
     (path "/2f677b12-9362-4312-a1be-6f38f913537a")
     (attr smd)
-    (fp_text reference "C5" (at 4.46 -4.16) (layer "F.SilkS")
+    (fp_text reference "C5" (at -6.88 0.03) (layer "F.SilkS")
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value "1u" (at 0 1.9) (layer "F.Fab")
