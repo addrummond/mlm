@@ -2891,7 +2891,7 @@
   (gr_text "CUR" (at 123.8 129.72 90) (layer "F.SilkS") (tstamp cb64671f-3665-4cdf-a751-496961d97de7)
     (effects (font (size 1 1) (thickness 0.15)))
   )
-  (gr_text "REF" (at 114.29 127.41) (layer "F.SilkS") (tstamp 3e92e36b-1885-42ab-a975-9201b57eb9dd)
+  (gr_text "REF" (at 114.67 123.86) (layer "F.SilkS") (tstamp 3e92e36b-1885-42ab-a975-9201b57eb9dd)
     (effects (font (size 1 1) (thickness 0.15)))
   )
   (gr_line (start 117.55 137.13) (end 114.28 137.13) (layer "F.SilkS") (width 0.3) (tstamp 7dc7dcc8-6be5-422e-95af-9b5a11492575))
