@@ -14,7 +14,7 @@ void delay_ms_cyc_func(uint32_t tocks, uint32_t tick_cycles);
 void set_rtc_clock_div(CMU_ClkDiv_TypeDef div);
 int get_rtc_freq(void);
 
-// Can't count much more than 8192ms in one go without overflow (given 14MHz clock).
-#define delay_ms_cyc(ms) delay_ms_cyc_func((ms) / 8192, (((ms) % 8192) * (14000000 / 1000)))
+// Counting too high on DWT_CYCCNT seems to lead to obscure problems.
+#define delay_ms_cyc(ms) delay_ms_cyc_func((ms) / 256, (((ms) % 256) * (14000000 / 1000)))
 
 #endif

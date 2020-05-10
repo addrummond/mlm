@@ -29,9 +29,9 @@ void delay_ms_cyc_func(uint32_t tocks, uint32_t tick_cycles)
 {
     do {
         *DWT_CONTROL |= 1; // Enable cycle counter
-        uint32_t base = *DWT_CYCCNT;
+        *DWT_CYCCNT = 0;
 
-        while (*DWT_CYCCNT - base < tick_cycles)
+        while (*DWT_CYCCNT < tick_cycles)
             __NOP(), __NOP(), __NOP(), __NOP();
 
         *DWT_CONTROL &= ~1U;
