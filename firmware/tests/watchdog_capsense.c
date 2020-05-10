@@ -18,7 +18,7 @@ int test_main()
     setup_le_capsense(LE_CAPSENSE_SENSE);
     //EMY_EnterEM2(true);
     WDOGn_Feed(WDOG);
-    EMU_EnterEM1();
+    my_emu_enter_em2();
 
     SEGGER_RTT_printf(0, "RES %u\n", lesense_result);
     if (le_center_pad_is_touched(lesense_result)) {
@@ -48,7 +48,7 @@ int test_main()
 
     SEGGER_RTT_printf(0, "SLEEP %u\n", lesense_result);
 
-    EMU_EnterEM1();
+    my_emu_enter_em1();
 
     // EM3 will be terminated by a reset, so we'll never get here.
 

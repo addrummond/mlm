@@ -17,7 +17,7 @@ int test_main()
         RTC_CompareSet(0, RTC->CNT + RTC_RAW_FREQ*5);
         RTC_IntClear(RTC_IFC_COMP0);
 
-        EMU_EnterEM2(true);
+        my_emu_enter_em2(true);
     }
 
     return 0;

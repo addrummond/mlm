@@ -8,6 +8,7 @@
 #include <em_timer.h>
 #include <em_wdog.h>
 #include <leds.h>
+#include <myemu.h>
 #include <rtt.h>
 #include <time.h>
 
@@ -58,7 +59,7 @@ static void low_power_init_wait()
     RTC_CompareSet(0, RTC->CNT + RTC_RAW_FREQ/5/2048);
     RTC_IntClear(RTC_IFC_COMP0);
 
-    EMU_EnterEM2(false);
+    my_emu_enter_em2(false);
 }
 
 void rtc_init()

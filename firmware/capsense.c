@@ -9,6 +9,7 @@
 #include <em_prs.h>
 #include <em_rtc.h>
 #include <leds.h>
+#include <myemu.h>
 #include <rtc.h>
 #include <rtt.h>
 #include <stdbool.h>
@@ -167,7 +168,7 @@ void calibrate_capsense()
 void calibrate_le_capsense()
 {
     setup_le_capsense(LE_CAPSENSE_SENSE);
-    EMU_EnterEM2(true);
+    my_emu_enter_em2(true);
     le_calibration_center_pad_value = lesense_result;
     disable_le_capsense();
 

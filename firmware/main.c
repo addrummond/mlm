@@ -17,6 +17,7 @@
 #include <init.h>
 #include <iso.h>
 #include <leds.h>
+#include <myemu.h>
 #include <rtc.h>
 #include <rtt.h>
 #include <sensor.h>
@@ -59,9 +60,9 @@ static void go_into_deep_sleep()
     SEGGER_RTT_printf(0, "Going into deep sleep.\n");
 
 #ifdef DEBUG
-    EMU_EnterEM2(false);
+    my_emu_enter_em2(false);
 #else
-    EMU_EnterEM3(false);
+    my_emu_enter_em3(false);
 #endif
 }
 
@@ -102,7 +103,7 @@ static void handle_MODE_JUST_WOKEN()
             recalibrate_le_capsense();
             setup_le_capsense(LE_CAPSENSE_SLEEP);
             SEGGER_RTT_printf(0, "Entering EM2 for snooze following calibration\n");
-            EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
+            my_emu_enter_em2(true); // true = restore oscillators, clocks and voltage scaling
             disable_le_capsense();
             SEGGER_RTT_printf(0, "Woken up [2]!\n");
         }
@@ -155,7 +156,7 @@ static void handle_MODE_SNOOZE()
     setup_le_capsense(LE_CAPSENSE_SLEEP);
 
     SEGGER_RTT_printf(0, "Entering EM2 for snooze\n");
-    EMU_EnterEM2(true); // true = restore oscillators, clocks and voltage scaling
+    my_emu_enter_em2(true); // true = restore oscillators, clocks and voltage scaling
 
     disable_le_capsense();
 
@@ -640,8 +641,12 @@ int main()
         calibrate_capsense();
         calibrate_le_capsense();
     } else {
+        // So that we can use CYCCNT.
+        CoreDebug->DHCSR |= CoreDebug_DHCSR_C_DEBUGEN_Msk;
+        CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+
         setup_le_capsense(LE_CAPSENSE_SENSE);
-        EMU_EnterEM2(true);
+        my_emu_enter_em2(true);
 
         if (! le_center_pad_is_touched(lesense_result)) {
             if (deep_sleep_capsense_recalibration_counter++ >= LE_CAPSENSE_DEEP_SLEEP_CALIBRATION_INTERVAL_SECONDS) {

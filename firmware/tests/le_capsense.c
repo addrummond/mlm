@@ -5,7 +5,7 @@ int test_main()
     for (;;) {
         SEGGER_RTT_printf(0, "LOOP\n");
         setup_le_capsense(LE_CAPSENSE_SLEEP);
-        EMU_EnterEM2(true);
+        my_emu_enter_em2(true);
         disable_le_capsense();
         setup_capsense();
         press p = get_pad_press(CENTER_BUTTON);
