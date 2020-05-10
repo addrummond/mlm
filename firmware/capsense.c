@@ -532,17 +532,11 @@ static const int MAX_MISS_COUNT = 2;
 
 press get_pad_press(touch_position touch_pos)
 {
-    int rtc_freq = get_rtc_freq();
-    int long_press_ticks = LONG_PRESS_MS * rtc_freq / 1000;
-
     press p;
-
-    RTC->CTRL |= RTC_CTRL_EN;
-    RTC->CNT = 0;
 
     int miss_count = 0;
     uint32_t chans[] = { 0, 0, 0 };
-    for (;;) {
+    for (uint32_t i = 0;; ++i) {
         get_touch_count(0, 0); // clear any nonsense value
         delay_ms_cyc(PAD_COUNT_MS);
 
@@ -561,48 +555,9 @@ press get_pad_press(touch_position touch_pos)
             }
         }
 
-        if (RTC->CNT >= long_press_ticks) {
-            p = PRESS_HOLD;
-            break;
-        }
-
-        cycle_capsense();
-    }
-
-    RTC->CTRL &= ~RTC_CTRL_EN;
-
-    return p;
-}
-
-press get_pad_press_while_leds_on(touch_position touch_pos)
-{
-    const uint32_t long_press_ticks = LONG_PRESS_MS * RTC_RAW_FREQ / 1000;
-
-    press p;
-
-    int miss_count = 0;
-    uint32_t chans[] = { 0, 0, 0 };
-    uint32_t base_touch_count = leds_on_for_cycles;
-    for (;;) {
-        get_touch_count(0, 0); // clear any nonsense value
-        delay_ms_cyc(PAD_COUNT_MS);
-
-        uint32_t count, chan;
-        get_touch_count(&count, &chan);
-        chans[chan] = count;
-
-        if (chans[0] != 0 && chans[1] != 0 && chans[2] != 0) {
-            touch_position tp = get_touch_position(chans[0], chans[1], chans[2]);
-            if (tp != touch_pos) {
-                ++miss_count;
-                if (miss_count > MAX_MISS_COUNT) {
-                    p = PRESS_TAP;
-                    break;
-                }
-            }
-        }
-
-        if (leds_on_for_cycles - base_touch_count >= long_press_ticks) {
+        // The time it takes to execute the code in this loop short compared to
+        // PAD_COUNT_MS, so this is tolerably accurate.
+        if (i >= LONG_PRESS_MS / PAD_COUNT_MS) {
             p = PRESS_HOLD;
             break;
         }

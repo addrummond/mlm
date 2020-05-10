@@ -114,8 +114,6 @@ static void handle_MODE_JUST_WOKEN()
     g_state.watchdog_wakeup = false;
     g_state.deep_sleep_counter = 0;
 
-    rtc_init();
-
     // If it was a brief tap on the button, go to AWAKE_AT_REST.
     // If they've held the button down for a little bit,
     // start doing a reading. If it was a double tap, go to
@@ -123,6 +121,8 @@ static void handle_MODE_JUST_WOKEN()
     setup_capsense();
     press p = get_pad_press(CENTER_BUTTON);
     disable_capsense();
+
+    rtc_init();
 
     if (p == PRESS_HOLD) {
         g_state.mode = MODE_DOING_READING;
@@ -363,7 +363,7 @@ static void handle_MODE_SETTING_ISO()
                                 cycle_capsense();
                             }
                         
-                            p = get_pad_press_while_leds_on(tp);
+                            p = get_pad_press(tp);
                         }
 
                         leds_all_off();
