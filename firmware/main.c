@@ -599,7 +599,7 @@ static void state_loop()
 
 static int real_main(bool watchdog_wakeup)
 {
-    set_state_to_default();
+    set_state_to_default(watchdog_wakeup ? MODE_JUST_WOKEN : MODE_SNOOZE);
     g_state.watchdog_wakeup = watchdog_wakeup;
 
     state_loop();

@@ -53,7 +53,7 @@ typedef struct state {
 
 extern state g_state;
 
-void set_state_to_default(void);
+void set_state_to_default(mode initial_mode);
 bool fresh_reading_is_saved(void);
 
 #endif

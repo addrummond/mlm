@@ -8,9 +8,9 @@
 
 state g_state;
 
-void set_state_to_default()
+void set_state_to_default(mode initial_mode)
 {
-    g_state.mode = MODE_JUST_WOKEN;
+    g_state.mode = initial_mode;
     g_state.id = 0;
     g_state.last_reading.chan0 = 0;
     g_state.last_reading.chan1 = 0;

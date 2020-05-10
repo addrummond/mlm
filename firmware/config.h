@@ -3,7 +3,7 @@
 
 #define LONG_PRESS_MS                                       300
 #define DOUBLE_BUTTON_SLOP_MS                               300
-#define CENTER_BUTTON_DEAD_ZONE_MS                          300
+#define CENTER_BUTTON_DEAD_ZONE_MS                          200
 
 #define LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS            10
 #define DEEP_SLEEP_TIMEOUT_SECONDS                          (6*60*60)
