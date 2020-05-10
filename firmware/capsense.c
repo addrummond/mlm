@@ -180,24 +180,25 @@ static const uint32_t THRESHOLD_DENOM = 100;
 
 touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2)
 {
-    if (chan0 > calibration_values[0] * 2 || chan1 > calibration_values[1] * 2 || chan2 > calibration_values[2] * 2)
+    // Generous margin here because temperature changes can have quite a large effect.
+    if (chan0 > calibration_values[0] * 3 || chan1 > calibration_values[1] * 3 || chan2 > calibration_values[2] * 3)
         return NO_TOUCH_DETECTED;
 
-    uint32_t rat0nopress = (calibration_values[0] << 8) / (calibration_values[1] + calibration_values[2]);
-    uint32_t rat1nopress = (calibration_values[1] << 8) / (calibration_values[0] + calibration_values[2]);
+    uint32_t rat0nopress = (calibration_values[0] << 9) / (calibration_values[1]*2 + calibration_values[2]);
+    uint32_t rat1nopress = (calibration_values[1] << 9) / (calibration_values[0]*2 + calibration_values[2]);
     uint32_t rat2nopress = (calibration_values[2] << 8) / (calibration_values[0] + calibration_values[1]);
 
-    uint32_t rat0 = (chan0 << 8) / (chan1 + chan2);
-    uint32_t rat1 = (chan1 << 8) / (chan0 + chan2);
+    uint32_t rat0 = (chan0 << 9) / (chan1*2 + chan2);
+    uint32_t rat1 = (chan1 << 9) / (chan0*2 + chan2);
     uint32_t rat2 = (chan2 << 8) / (chan0 + chan1);
 
     if (rat0 < (85 * rat0nopress) / 100 && rat1 < (85 * rat1nopress) / 100 && chan2 >= calibration_values[2] * THRESHOLD_NUM / THRESHOLD_DENOM) {
         return LEFT_AND_RIGHT_BUTTONS;
-    } else if (rat2 < (80 * rat2nopress) / 100) {
+    } else if (rat2 < (85 * rat2nopress) / 100) {
         return CENTER_BUTTON;
-    } else if (rat0 < (80 * rat0nopress) / 100) {
+    } else if (rat0 < (85 * rat0nopress) / 100) {
         return RIGHT_BUTTON;
-    } else if (rat1 < (80 * rat1nopress) / 100) {
+    } else if (rat1 < (85 * rat1nopress) / 100) {
         return LEFT_BUTTON;
     }
 

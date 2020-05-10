@@ -10,6 +10,7 @@
 #include <state.h>
 #include <stdint.h>
 #include <time.h>
+#include <units.h>
 #include <util.h>
 
 #define M(n) MACROUTILS_CONCAT3(DPIN, LED ## n ## _CAT_DPIN, _GPIO_PORT) ,
@@ -61,8 +62,8 @@ static const uint32_t led_cat_location[] = {
 #undef M
 
 static const uint32_t COUNT = 50;
-static const int32_t DUTY_CYCLE_MIN = 3;
-static const int32_t DUTY_CYCLE_MAX = 100   ;
+static const int32_t DUTY_CYCLE_MIN = 10;
+static const int32_t DUTY_CYCLE_MAX = 50;
 
 static const int CYCLES_PER_THROB_STEP = RTC_RAW_FREQ / 60;
 
@@ -86,13 +87,21 @@ static unsigned normalize_led_number(unsigned n)
 
 static uint32_t duty_cycle_for_ev(int32_t ev)
 {
-    // dc = (37/5)ev - 32
+    if (ev < 0)
+        return DUTY_CYCLE_MIN;
 
-    int32_t dc = (37 * ev)/5 - 32;
+    // Go to full brightness by EV 10 @ ISO 100.
+    int32_t dc = ev * (COUNT/10);
+    int32_t dcr = dc & ((1 << EV_BPS)-1);
+    dc >>= EV_BPS;
+    if (dcr >= (1 << EV_BPS)/2)
+        ++dc;
+
     if (dc < DUTY_CYCLE_MIN)
         return DUTY_CYCLE_MIN;
     if (dc > DUTY_CYCLE_MAX)
         return DUTY_CYCLE_MAX;
+
     return (uint32_t)dc;
 }
 
@@ -103,8 +112,6 @@ static uint32_t get_duty_cycle()
         duty_cycle = 1;
     else if (duty_cycle > DUTY_CYCLE_MAX)
         duty_cycle = DUTY_CYCLE_MAX;
-
-    duty_cycle = DUTY_CYCLE_MAX;
 
     return COUNT - duty_cycle;
 }
