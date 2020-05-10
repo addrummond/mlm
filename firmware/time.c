@@ -32,6 +32,9 @@ void delay_ms_cyc(uint32_t ms)
     if (clock_freq == 0)
         clock_freq = CMU_ClockFreqGet(cmuClock_CORE);
 
+    CoreDebug->DHCSR |= CoreDebug_DHCSR_C_DEBUGEN_Msk;
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+
     // Can't count much more than 256ms without overflow (assuming 14MHz clock)
     uint32_t tocks = ms / 256;
     uint32_t ticks = ms % 256;
@@ -39,9 +42,9 @@ void delay_ms_cyc(uint32_t ms)
 
     do {
         *DWT_CONTROL |= 1; // Enable cycle counter
-        *DWT_CYCCNT = 0;
+        uint32_t base = *DWT_CYCCNT;
 
-        while (*DWT_CYCCNT < tick_cycles)
+        while (*DWT_CYCCNT - base < tick_cycles)
             __NOP(), __NOP(), __NOP(), __NOP();
 
         *DWT_CONTROL &= ~1U;
