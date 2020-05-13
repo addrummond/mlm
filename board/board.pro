@@ -1,4 +1,4 @@
-update=Tuesday, 12 May 2020 at 20:13:54
+update=Wednesday, 13 May 2020 at 14:28:13
 version=1
 last_client=kicad
 [general]
@@ -15,8 +15,6 @@ LibDir=
 [SchematicFrame]
 version=1
 [LibeditFrame]
-version=1
-[ModEditFrame]
 version=1
 [schematic_editor]
 version=1
@@ -40,8 +38,8 @@ ERC_CheckBusDriverConflicts=1
 ERC_CheckBusEntryConflicts=1
 ERC_CheckBusToBusConflicts=1
 ERC_CheckBusToNetConflicts=1
-[sheetnames]
-1=7c13ea7e-f005-4417-a912-9df1ff7ad77a:
+[ModEditFrame]
+version=1
 [pcbnew]
 version=1
 PageLayoutDescrFile=
@@ -295,3 +293,5 @@ uViaDrill=0.1
 dPairWidth=0.2
 dPairGap=0.25
 dPairViaGap=0.25
+[sheetnames]
+1=f24ae2c6-3b6a-4b62-8aa6-0a2ce538987f:
