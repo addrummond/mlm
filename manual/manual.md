@@ -16,8 +16,8 @@ conditions. It does not have flash metering functionality.
 ## Battery
 
 The meter is powered by a single CR2032 coin cell. The cell should be inserted
-with the positive side facing away from the circuit board. The meter will not
-work with the cell inserted the wrong way round, but won't be damaged either.
+with the positive side facing away from the circuit board. The meter won't be damaged
+if the cell is inserted the wrong way round, but will not function.
 
 ## Turning the meter on
 
