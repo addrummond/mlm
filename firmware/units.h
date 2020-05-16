@@ -6,10 +6,11 @@
 
 #define EV_BPS 10 // ev and lux values stored with this number of binary places
 
-#define AP_INDEX_MIN  0
-#define AP_INDEX_MAX  11
-#define SS_INDEX_MIN  0
-#define SS_INDEX_MAX  11
+#define AP_INDEX_MIN      0
+#define AP_INDEX_MAX      11
+#define SS_INDEX_LONG_MIN (-10)
+#define SS_INDEX_MIN      0
+#define SS_INDEX_MAX      11
 
 #define F1_AP_INDEX   0
 #define F1_4_AP_INDEX 1

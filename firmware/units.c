@@ -243,13 +243,25 @@ void ev_iso_aperture_to_shutter(int32_t ev, int32_t iso, int32_t ap, int *ap_ind
     // Adjust shutter speed to get desired aperture.
     ss_index -= ap - F8_AP_INDEX;
 
+    SEGGER_RTT_printf(0, "SSINDEX %s%u APINDEX %s%u\n", sign_of(ss_index), iabs(ss_index), sign_of(ap), iabs(ap));
+
     // Make adjustments if the shutter speed is out of range.
     if (ss_index < SS_INDEX_MIN) {
         ap -= SS_INDEX_MIN - ss_index;
         ss_index = SS_INDEX_MIN;
+        SEGGER_RTT_printf(0, "AP AT SS 0 %s%u\n", sign_of(ap), iabs(ap));
         if (ap < AP_INDEX_MIN) {
-            // We can't display this exposure at the given ISO.
-            goto error_set;
+            SEGGER_RTT_printf(0, "%s%u <= %s%u\n", sign_of(AP_INDEX_MIN - ap), iabs(AP_INDEX_MIN - ap), sign_of(SS_INDEX_MIN - SS_INDEX_LONG_MIN), iabs(SS_INDEX_MIN - SS_INDEX_LONG_MIN));
+            if (AP_INDEX_MIN - ap <= SS_INDEX_MIN - SS_INDEX_LONG_MIN) {
+                // We can display the exposure using a long shutter speed (three lights).
+                ss_index -= (AP_INDEX_MIN - ap);
+                ap = AP_INDEX_MIN;
+                SEGGER_RTT_printf(0, "COMP SUCCEEDED SS %s%u ap %s%u\n", sign_of(ss_index), iabs(ss_index), sign_of(ap), iabs(ap));
+                goto default_set;
+            } else {
+                // We can't display this exposure at the given ISO.
+                goto error_set;
+            }
         } else {
             goto default_set;
         }

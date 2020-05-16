@@ -371,20 +371,34 @@ void leds_all_off()
 void leds_on_for_reading(int ap_index, int ss_index, int third)
 {
     // out of range case
-    if (ap_index < 0 || ss_index < 0) {
+    if (ap_index == -1) {
         leds_on(LED_OUT_OF_RANGE_MASK);
         return;
     }
 
-    // calculated as if leds were numbered clockwise
-    unsigned ss_led_n = (LED_1S_N + ss_index) % LED_N_IN_WHEEL;
-    unsigned ap_led_n = (LED_F1_N + ap_index) % LED_N_IN_WHEEL;
+    // calculated as if leds were numbered clockwise with f8 LED as 0.
+    int_fast32_t ss_led_n;
+    if (ss_index >= SS_INDEX_MIN) {
+        ss_led_n = (LED_1S_N + ss_index) % LED_N_IN_WHEEL;
+    } else {
+        ss_led_n = LED_2_N + SS_INDEX_MIN - ss_index;
+    }
+
+    int ap_led_n = (LED_F1_N + ap_index) % LED_N_IN_WHEEL;
 
     // convert to counterclockwise numbering
-    ss_led_n = (LED_N_IN_WHEEL - ss_led_n) % LED_N_IN_WHEEL;
-    ap_led_n = (LED_N_IN_WHEEL - ap_led_n) % LED_N_IN_WHEEL;
+    int cc_ss_led_n = (LED_N_IN_WHEEL - ss_led_n) % LED_N_IN_WHEEL;
+    int cc_ap_led_n = (LED_N_IN_WHEEL - ap_led_n) % LED_N_IN_WHEEL;
 
-    uint32_t mask = (1 << ap_led_n) | (1 << ss_led_n);
+    uint32_t mask = (1 << cc_ap_led_n) | (1 << cc_ss_led_n);
+
+    // if it's a long shutter speed, add the lights on either side.
+    if (ss_index < SS_INDEX_MIN) {
+        int left = (LED_N_IN_WHEEL - ss_led_n - 1) % LED_N_IN_WHEEL;
+        int right = (LED_N_IN_WHEEL - ss_led_n + 1) % LED_N_IN_WHEEL;
+        mask |= (1 << left) | (1 << right);
+    }
+
     if (third == 1)
         mask |= (1 << LED_PLUS_1_3_N);
     else if (third == -1)

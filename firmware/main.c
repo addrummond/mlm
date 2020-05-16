@@ -164,7 +164,7 @@ static void handle_MODE_SNOOZE()
     g_state.mode = MODE_JUST_WOKEN;
 }
 
-static void shift_exposure_wheel(int n, int *ap_index, int *ss_index)
+static void shift_exposure_wheel(int n, int *ap_index, int *ss_index, bool using_long_ss)
 {
     int ap = *ap_index;
     int ss = *ss_index;
@@ -172,7 +172,7 @@ static void shift_exposure_wheel(int n, int *ap_index, int *ss_index)
         if (n > 0) {
             if (ap == AP_INDEX_MAX)
                 break;
-            if (ss == SS_INDEX_MIN)
+            if ((using_long_ss && ss == SS_INDEX_LONG_MIN) || (!using_long_ss && ss == SS_INDEX_MIN))
                 break;
             ++ap;
             --ss;
@@ -196,14 +196,11 @@ static void handle_MODE_DISPLAY_READING()
     int32_t iso = iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third);
     int ap_index, ss_index, third;
     ev_iso_aperture_to_shutter(g_state.last_reading_ev, iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
+    bool using_long_ss = ss_index < SS_INDEX_MIN;
     SEGGER_RTT_printf(0, "ISOi=%u, api=%s%u, ssi=%s%u\n", iso, sign_of(ap_index), iabs(ap_index), sign_of(ss_index), iabs(ss_index));
 
     leds_all_off();
-
-    if (ap_index == -1)
-        leds_on(LED_OUT_OF_RANGE_MASK);
-    else
-        leds_on_for_reading(ap_index, ss_index, third);
+    leds_on_for_reading(ap_index, ss_index, third);
 
     setup_capsense();
 
@@ -275,7 +272,7 @@ static void handle_MODE_DISPLAY_READING()
                         }
                         else {
                             leds_all_off();
-                            shift_exposure_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index);
+                            shift_exposure_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index, using_long_ss);
                             leds_on_for_reading(ap_index, ss_index, third);
                         }
                     } else if (tp == CENTER_BUTTON && ! in_center_button_dead_zone) {
@@ -522,10 +519,7 @@ static void handle_MODE_DOING_READING()
         int ap_index, ss_index, third;
         ev_iso_aperture_to_shutter(g_state.last_reading_ev, iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
         SEGGER_RTT_printf(0, "Third: %s%u\n", sign_of(third), iabs(third));
-        if (ap_index == -1)
-            leds_on(LED_OUT_OF_RANGE_MASK);
-        else
-            leds_on_for_reading(ap_index, ss_index, third);
+        leds_on_for_reading(ap_index, ss_index, third);
 
         chans[0] = 0, chans[1] = 0, chans[2] = 0;
         get_touch_count(0, 0, 0); // clear any nonsense value
