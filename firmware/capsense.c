@@ -544,8 +544,8 @@ press get_pad_press(touch_position touch_pos)
             }
         }
 
-        // The time it takes to execute the code in this loop short compared to
-        // PAD_COUNT_MS, so this is tolerably accurate.
+        // The time it takes to execute the code in this loop is short compared
+        // to PAD_COUNT_MS, so this is tolerably accurate.
         if (i >= LONG_PRESS_MS / PAD_COUNT_MS) {
             p = PRESS_HOLD;
             break;
