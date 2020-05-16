@@ -26,7 +26,7 @@ int get_rtc_freq(void);
 #define RTC_CLOCK_DIV_RIGHTSHIFT_32768 15
 
 // Need two layers of macro expansion so that e.g. cmuClkDiv_32768 has the opportunity to expand to 32768.
-#define set_rtc_clock_div_(div) set_rtc_clock_div_func(MACROUTILS_EVAL(div), MACROUTILS_EVAL(RTC_CLOCK_DIV_RIGHTSHIFT_ ## div))
+#define set_rtc_clock_div_(div) set_rtc_clock_div_func(div, MACROUTILS_EVAL(RTC_CLOCK_DIV_RIGHTSHIFT_ ## div))
 #define set_rtc_clock_div(div) set_rtc_clock_div_(div)
 
 #endif
