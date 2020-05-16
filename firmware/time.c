@@ -29,24 +29,23 @@ volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004;
 // Returns the actual time delayed for in 16ths of a millisecond.
 uint32_t delay_ms_cyc_func(uint32_t tocks, uint32_t tick_cycles)
 {
+    *DWT_CONTROL |= 1U; // Enable cycle counter
+
     for (; tocks > 0; --tocks) {
-        *DWT_CONTROL |= 1; // Enable cycle counter
         *DWT_CYCCNT = 0;
 
         while (*DWT_CYCCNT < CPU_CLOCK_FREQ_HZ/1000)
             __NOP(), __NOP(), __NOP(), __NOP();
-
-        *DWT_CONTROL &= ~1U;
     }
 
     uint32_t last;
 
-    *DWT_CONTROL |= 1;
     *DWT_CYCCNT = 0;
     while ((last = *DWT_CYCCNT) < tick_cycles) {
         __NOP(), __NOP(), __NOP(), __NOP();
     }
-    *DWT_CONTROL &= ~1U;
+
+    *DWT_CONTROL ^= 1U;
 
     return ((tocks * 256) * 16) + ((last * 16) / (CPU_CLOCK_FREQ_HZ/1000));
 }
