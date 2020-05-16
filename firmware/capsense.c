@@ -174,13 +174,13 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
     uint32_t rat1 = (chan1 << 9) / (chan0*2 + chan2);
     uint32_t rat2 = (chan2 << 8) / (chan0 + chan1);
 
-    if (rat0 < (85 * rat0nopress) / 100 && rat1 < (85 * rat1nopress) / 100 && chan2 >= calibration_values[2] * THRESHOLD_NUM / THRESHOLD_DENOM) {
+    if (rat0 < (80 * rat0nopress) / 100 && rat1 < (80 * rat1nopress) / 100 && chan2 >= calibration_values[2] * THRESHOLD_NUM / THRESHOLD_DENOM) {
         return LEFT_AND_RIGHT_BUTTONS;
-    } else if (rat2 < (85 * rat2nopress) / 100) {
+    } else if (rat2 < (80 * rat2nopress) / 100) {
         return CENTER_BUTTON;
-    } else if (rat0 < (85 * rat0nopress) / 100) {
+    } else if (rat0 < (80 * rat0nopress) / 100) {
         return RIGHT_BUTTON;
-    } else if (rat1 < (85 * rat1nopress) / 100) {
+    } else if (rat1 < (80 * rat1nopress) / 100) {
         return LEFT_BUTTON;
     }
 
@@ -325,7 +325,7 @@ static le_capsense_mode le_mode;
 
 static uint32_t le_center_pad_count_to_threshold(uint32_t count)
 {
-    return count * 85 / 100;
+    return count * 80 / 100;
 }
 
 void setup_le_capsense(le_capsense_mode mode)
