@@ -211,13 +211,13 @@ static void handle_MODE_DISPLAY_READING()
     int zero_touch_position = INVALID_TOUCH_POSITION;
     uint32_t touch_counts[] = { 0, 0, 0 };
     bool in_center_button_dead_zone = true;
+    uint32_t ellapsed;
     for (unsigned i = 0;; ++i) {
-        get_touch_count(0, 0);
-
-        delay_ms_cyc(PAD_COUNT_MS);
+        get_touch_count(0, 0, 0);
+        ellapsed = delay_ms_cyc(PAD_COUNT_MS);
 
         uint32_t count, chan;
-        get_touch_count(&count, &chan);
+        get_touch_count(&count, &chan, ellapsed);
         touch_counts[chan] = count;
 
         if (leds_on_for_cycles - base_cycles > (CENTER_BUTTON_DEAD_ZONE_MS * RTC_RAW_FREQ) / 1000)
@@ -240,11 +240,11 @@ static void handle_MODE_DISPLAY_READING()
                             int misses = 0;
                             touch_counts[0] = 0, touch_counts[1] = 0, touch_counts[2] = 0;
                             for (unsigned j = 0;; ++j) {
-                                get_touch_count(0, 0);
+                                get_touch_count(0, 0, 0);
 
-                                delay_ms_cyc(PAD_COUNT_MS);
+                                ellapsed = delay_ms_cyc(PAD_COUNT_MS);
 
-                                get_touch_count(&count, &chan);
+                                get_touch_count(&count, &chan, ellapsed);
                                 touch_counts[chan] = count;
 
                                 if (touch_counts[0] != 0 && touch_counts[1] != 0 && touch_counts[2] != 0) {
@@ -337,13 +337,14 @@ static void handle_MODE_SETTING_ISO()
     uint32_t base_cycles = leds_on_for_cycles;
     int zero_touch_position = INVALID_TOUCH_POSITION;
     uint32_t touch_counts[] = { 0, 0, 0 };
-    get_touch_count(0, 0);
-    for (unsigned i = 0;; ++i) {
+    get_touch_count(0, 0, 0);
+    for (;;) {
+        uint32_t ellapsed = delay_ms_cyc(PAD_COUNT_MS);
         uint32_t count, chan;
-        get_touch_count(&count, &chan);
+        get_touch_count(&count, &chan, ellapsed);
         touch_counts[chan] = count;
 
-        if (i != 0 && i % 3 == 0) {
+        if (touch_counts[0] != 0 && touch_counts[1] != 0 && touch_counts[2] != 0) {
             int tp = get_touch_position(touch_counts[0], touch_counts[1], touch_counts[2]);
             
             if (tp == NO_TOUCH_DETECTED) {
@@ -410,15 +411,12 @@ static void handle_MODE_SETTING_ISO()
             }            
         }
 
-        cycle_capsense();
-
-        for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles - base < RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
-            ;
-
         if (leds_on_for_cycles - base_cycles >= DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
             SEGGER_RTT_printf(0, "Reading display timeout (in ISO set mode)\n");
             break;
         }
+
+        cycle_capsense();
     }
 
     leds_all_off();
@@ -511,11 +509,11 @@ static void handle_MODE_DOING_READING()
     // regular display reading mode.
     setup_capsense();
     uint32_t chans[] = { 0, 0, 0 };
-    get_touch_count(0, 0); // clear any nonsense value
+    get_touch_count(0, 0, 0); // clear any nonsense value
     do {
-        delay_ms_cyc(PAD_COUNT_MS);
+        uint32_t ellapsed = delay_ms_cyc(PAD_COUNT_MS);
         uint32_t count, chan;
-        get_touch_count(&count, &chan);
+        get_touch_count(&count, &chan, ellapsed);
         chans[chan] = count;
         cycle_capsense();
     } while (chans[0] == 0 || chans[1] == 0 || chans[2] == 0);
@@ -530,13 +528,12 @@ static void handle_MODE_DOING_READING()
             leds_on_for_reading(ap_index, ss_index, third);
 
         chans[0] = 0, chans[1] = 0, chans[2] = 0;
-        get_touch_count(0, 0); // clear any nonsense value
+        get_touch_count(0, 0, 0); // clear any nonsense value
         int misses = 0;
         for (;;) {
-            for (uint32_t base = leds_on_for_cycles; leds_on_for_cycles - base < RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT;)
-                ;
+            uint32_t ellapsed = delay_ms_cyc(PAD_COUNT_MS);
             uint32_t count, chan;
-            get_touch_count(&count, &chan);
+            get_touch_count(&count, &chan, ellapsed);
             chans[chan] = count;
 
             if (chans[0] != 0 && chans[1] != 0 && chans[2] != 0) {

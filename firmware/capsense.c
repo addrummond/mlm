@@ -126,41 +126,23 @@ void calibrate_capsense()
 {
     setup_capsense();
 
-    uint32_t count, chan;
-    get_touch_count(&count, &chan);
-    delay_ms(PAD_COUNT_MS);
+    get_touch_count(0, 0, 0); // clear any nonsense values
+    uint32_t ellapsed = delay_ms(PAD_COUNT_MS);
 
+    uint32_t count, chan;
     uint32_t chans_done = 0;
     do {
-        get_touch_count(&count, &chan);
+        get_touch_count(&count, &chan, ellapsed);
         if (! (chans_done & (1 << chan))) {
             calibration_values[chan] = count;
             chans_done |= (1 << chan);
         }
         
         cycle_capsense();
-        get_touch_count(&count, &chan);
+        get_touch_count(0, 0, 0); // clear any nonsense value
 
-        delay_ms(PAD_COUNT_MS);
+        ellapsed = delay_ms(PAD_COUNT_MS);
     } while (chans_done != 0b111);
-
-    chans_done = 0;
-
-    RTC_Enable(false);
-    set_rtc_clock_div(cmuClkDiv_1);
-    RTC_Enable(true);
-
-    cycle_capsense();
-    get_touch_count(&count, &chan);
-    RTC->CNT = 0;
-    while (RTC->CNT < LE_PAD_CLOCK_COUNT)
-        ;
-
-    RTC_Enable(false);
-    set_rtc_clock_div(RTC_CMU_CLK_DIV);
-    RTC_Enable(true);
-
-    disable_capsense();
 
     SEGGER_RTT_printf(0, "Capsense calibration: %u %u %u\n", calibration_values[0], calibration_values[1], calibration_values[2]);
 }
@@ -210,22 +192,27 @@ bool le_center_pad_is_touched(uint32_t chan2)
     return chan2 != 0 && chan2 < le_calibration_center_pad_value * THRESHOLD_NUM / THRESHOLD_DENOM;
 }
 
-uint32_t get_touch_count_func(uint32_t *chan_value, uint32_t *chan, const char *src_pos)
+uint32_t get_touch_count_func(uint32_t *chan_value, uint32_t *chan, uint32_t millisecond_sixteenths, const char *src_pos)
 {
     if (chan != 0)
         *chan = (touch_acmp << 1) | touch_chan;
 
     uint32_t raw_count = PCNT0->CNT;
 
+    uint32_t uncompensated_count;
     if (chan_value != 0) {
         if (raw_count >= old_count)
-            *chan_value = raw_count - old_count;
+            uncompensated_count = raw_count - old_count;
         else
-            *chan_value = (1 << PCNT0_CNT_SIZE) - old_count + raw_count;
+            uncompensated_count = (1 << PCNT0_CNT_SIZE) - old_count + raw_count;
 
         // An issue that (I think/hope) only arises when the debugger is attached.
-        if (*chan_value > 60000)
+        if (uncompensated_count > 60000)
             SEGGER_RTT_printf(0, "[%s] c=%u WEIRD %u %u -> %u\n", src_pos, *chan, *chan_value, old_count, raw_count);
+
+        // Note that millisecond_sixteenths should always be >= (PAD_COUNT_MS * 16)
+        uint32_t compensated_count = uncompensated_count * (PAD_COUNT_MS * 16) / millisecond_sixteenths;
+        *chan_value = compensated_count;
     }
 
     old_count = raw_count;
@@ -537,12 +524,13 @@ press get_pad_press(touch_position touch_pos)
 
     int miss_count = 0;
     uint32_t chans[] = { 0, 0, 0 };
+    uint32_t ellapsed;
     for (uint32_t i = 0;; ++i) {
-        get_touch_count(0, 0); // clear any nonsense value
-        delay_ms_cyc(PAD_COUNT_MS);
+        get_touch_count(0, 0, 0); // clear any nonsense value
+        ellapsed = delay_ms_cyc(PAD_COUNT_MS);
 
         uint32_t count, chan;
-        get_touch_count(&count, &chan);
+        get_touch_count(&count, &chan, ellapsed);
         chans[chan] = count;
 
         if (chans[0] != 0 && chans[1] != 0 && chans[2] != 0) {

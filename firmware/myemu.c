@@ -1,5 +1,6 @@
 #include <em_cmu.h>
 #include <em_dbg.h>
+#include <em_emu.h>
 #include <myemu.h>
 
 static void before_sleep()
