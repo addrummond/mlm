@@ -4,15 +4,12 @@
 #include <rtt.h>
 #include <time.h>
 
-static int clock_div;
+static int clock_div_rightshift;
 
 // Returns the actual time delayed for in 16ths of a millisecond.
 uint32_t delay_ms(int ms)
 {
-    if (clock_div == 0)
-        clock_div = 1;
-
-    uint32_t endValue = (ms * RTC_RAW_FREQ) / clock_div / 1000;
+    uint32_t endValue = (ms * (RTC_RAW_FREQ >> clock_div_rightshift)) / 1000;
     RTC->CNT = 0;
 
     RTC->CTRL |= RTC_CTRL_EN;
@@ -23,7 +20,7 @@ uint32_t delay_ms(int ms)
 
     RTC->CTRL &= ~RTC_CTRL_EN;
 
-    return ((cnt * 16) * 1000) / (RTC_RAW_FREQ / clock_div);
+    return ((cnt * 16) * 1000) / (RTC_RAW_FREQ >> clock_div_rightshift);
 }
 
 volatile uint32_t *DWT_CONTROL = (uint32_t *)0xE0001000;
@@ -54,14 +51,13 @@ uint32_t delay_ms_cyc_func(uint32_t tocks, uint32_t tick_cycles)
     return ((tocks * 256) * 16) + ((last * 16) / (CPU_CLOCK_FREQ_HZ/1000));
 }
 
-void set_rtc_clock_div(CMU_ClkDiv_TypeDef div)
+void set_rtc_clock_div_func(CMU_ClkDiv_TypeDef div, unsigned rightshift)
 {
     CMU_ClockDivSet(cmuClock_RTC, div);
-    // Note that, e.g., the value of cmuClkDiv_4096 is 4096
-    clock_div = div;
+    clock_div_rightshift = rightshift;
 }
 
 int get_rtc_freq()
 {
-    return RTC_RAW_FREQ / clock_div;
+    return RTC_RAW_FREQ >> clock_div_rightshift;
 }

@@ -10,4 +10,6 @@
 #define MACROUTILS_SYMBOL2(x) # x
 #define MACROUTILS_SYMBOL(x)  MACROUTILS_SYMBOL2(x)
 
+#define MACROUTILS_EVAL(x) x
+
 #endif
