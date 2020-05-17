@@ -647,9 +647,9 @@ int main()
             }
             disable_le_capsense();
             go_into_deep_sleep();
-        } else {
-            disable_le_capsense();
         }
+
+        disable_le_capsense();
     }
 
     return real_main(watchdog_wakeup);
