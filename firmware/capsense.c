@@ -205,8 +205,10 @@ uint32_t get_touch_count_func(uint32_t *chan_value, uint32_t *chan, uint32_t mil
             uncompensated_count = (1 << PCNT0_CNT_SIZE) - old_count + raw_count;
 
         // An issue that (I think/hope) only arises when the debugger is attached.
+#ifdef DEBUG
         if (uncompensated_count > 60000)
             SEGGER_RTT_printf(0, "[%s] c=%u WEIRD %u %u -> %u\n", src_pos, *chan, *chan_value, old_count, raw_count);
+#endif
 
         // Note that millisecond_sixteenths should always be >= (PAD_COUNT_MS * 16)
         uint32_t compensated_count = uncompensated_count * (PAD_COUNT_MS * 16) / millisecond_sixteenths;
