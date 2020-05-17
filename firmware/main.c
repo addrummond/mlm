@@ -62,6 +62,8 @@ static void go_into_deep_sleep()
     // Trying to test watchdog reset with the debugger attached never seems to
     // work reliably.
 #ifndef DEBUG
+    RMU->CTRL &= ~0b111;
+    RMU->CTRL |= 1; // limited watchdog reset
     my_emu_enter_em3(false);
 #endif
 }
