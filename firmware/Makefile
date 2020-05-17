@@ -26,6 +26,10 @@ else
     override ARMCFLAGS += -O2
 endif
 
+ifdef DEBUG_DEEP_SLEEP
+    override ARMCFLAGS += -DDEBUG_DEEP_SLEEP
+endif
+
 ifdef NOGRACE
     override ARMCFLAGS += -DNOGRACE
 endif

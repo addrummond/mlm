@@ -80,8 +80,6 @@ void setup_capsense()
 
 void disable_capsense()
 {
-    remove_rtc_interrupt_handler(recalibrate_le_capsense);
-
     ACMP0->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
     ACMP1->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
     ACMP_Disable(ACMP0);
@@ -404,6 +402,11 @@ uint32_t lesense_result;
 
 static volatile bool irq_handler_triggered;
 
+void reset_lesense_irq_handler_state()
+{
+    irq_handler_triggered = false;
+}
+
 bool check_lesense_irq_handler()
 {
     bool v = irq_handler_triggered;
@@ -413,6 +416,8 @@ bool check_lesense_irq_handler()
 
 void LESENSE_IRQHandler(void)
 {
+    irq_handler_triggered = true;
+
     LESENSE_IntClear(LESENSE_IEN_SCANCOMPLETE);
     LESENSE_IntClear(LESENSE_IF_CH14);
 
@@ -421,8 +426,6 @@ void LESENSE_IRQHandler(void)
     // Stop additional interrupts screwing things up by setting threshold to zero.
     if (le_mode == LE_CAPSENSE_SLEEP)
         LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, 0);
-
-    irq_handler_triggered = true;
 }
 
 static uint32_t get_max_value(volatile uint32_t* A, int N){
@@ -483,8 +486,8 @@ void recalibrate_le_capsense()
         if ((channels_used_mask >> i) & 0x1) {
             channel_max_value[i] = get_max_value(calibration_value[i], NUMBER_OF_LE_CALIBRATION_VALUES);
 
-            nominal_count = channel_max_value[i];
-            LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_center_pad_count_to_threshold(nominal_count));
+            le_calibration_center_pad_value = channel_max_value[i];
+            LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_center_pad_count_to_threshold(le_calibration_center_pad_value));
         }
     }
 }

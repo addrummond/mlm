@@ -39,6 +39,7 @@ void disable_le_capsense(void);
 touch_position get_touch_position(uint32_t chan1, uint32_t chan2, uint32_t chan3);
 bool le_center_pad_is_touched(uint32_t chan2);
 press get_pad_press(touch_position touch_pos);
+void reset_lesense_irq_handler_state(void);
 bool check_lesense_irq_handler(void);
 
 extern uint32_t lesense_result;

@@ -57,20 +57,20 @@ static void go_into_deep_sleep()
     WDOGn_Init(WDOG, &wInit);
     WDOGn_Feed(WDOG);
 
-    SEGGER_RTT_printf(0, "Going into deep sleep.\n");
+    SEGGER_RTT_printf(0, "Going into deep sleep (unless in DEBUG mode).\n");
 
-#ifdef DEBUG
-    my_emu_enter_em2(false);
-#else
+    // Trying to test watchdog reset with the debugger attached never seems to
+    // work reliably.
+#ifndef DEBUG
     my_emu_enter_em3(false);
 #endif
 }
 
-static void go_into_deep_sleep_with_debug_log()
+static void go_into_deep_sleep_with_indication()
 {
     // A visual indication that it's going into deep sleep mode is sometimes
     // useful for debugging.
-#ifdef DEBUG
+#ifdef DEBUG_DEEP_SLEEP
     leds_all_off();
     leds_on(0b111);
     uint32_t start = leds_on_for_cycles;
@@ -85,7 +85,7 @@ static void go_into_deep_sleep_with_debug_log()
 static void handle_MODE_JUST_WOKEN()
 {
     static const int32_t deep_sleep_timeout_seconds =
-#ifdef DEBUG
+#ifdef DEBUG_DEEP_SLEEP
         DEEP_SLEEP_TIMEOUT_SECONDS_DEBUG_MODE;
 #else
         DEEP_SLEEP_TIMEOUT_SECONDS;
@@ -96,7 +96,7 @@ static void handle_MODE_JUST_WOKEN()
             if (g_state.deep_sleep_counter++ > deep_sleep_timeout_seconds/LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS) {
                 // We've been sleeping for a while now and nothing has happened.
                 // Time to go into deep sleep.
-                go_into_deep_sleep_with_debug_log();
+                go_into_deep_sleep_with_indication();
                 return; // not reached
             }
 
@@ -108,6 +108,7 @@ static void handle_MODE_JUST_WOKEN()
             SEGGER_RTT_printf(0, "Woken up [2]!\n");
         }
     } else {
+        reset_lesense_irq_handler_state();
         SEGGER_RTT_printf(0, "Watchdog wakeup.\n");
     }
 
@@ -641,14 +642,14 @@ int main()
 
         if (! le_center_pad_is_touched(lesense_result)) {
             if (deep_sleep_capsense_recalibration_counter++ >= LE_CAPSENSE_DEEP_SLEEP_CALIBRATION_INTERVAL_SECONDS) {
-                recalibrate_le_capsense();
+                calibrate_le_capsense();
                 deep_sleep_capsense_recalibration_counter = 0;
             }
-
+            disable_le_capsense();
             go_into_deep_sleep();
+        } else {
+            disable_le_capsense();
         }
-
-        disable_le_capsense();
     }
 
     return real_main(watchdog_wakeup);
