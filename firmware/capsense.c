@@ -454,7 +454,6 @@ void recalibrate_le_capsense()
     static volatile uint32_t channel_max_value[NUM_LESENSE_CHANNELS];
 
     int i, k;
-    uint16_t nominal_count;
     static uint8_t calibration_value_index = 0;
 
     // Wait for current scan to finish
