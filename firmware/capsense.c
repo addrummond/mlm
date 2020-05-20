@@ -25,7 +25,7 @@ static volatile uint32_t old_count;
 uint32_t calibration_values[3] __attribute__((section (".persistent")));
 uint32_t le_calibration_center_pad_value __attribute__((section (".persistent")));
 
-static const uint32_t THRESHOLD_PERCENT = 83;
+static const uint32_t THRESHOLD_PERCENT = 87;
 
 static const PCNT_Init_TypeDef initPCNT =
 {
@@ -157,30 +157,34 @@ void calibrate_le_capsense()
     SEGGER_RTT_printf(0, "LE capsense calibration: %u\n", le_calibration_center_pad_value);
 }
 
-static const uint32_t THRESHOLD_NUM = 89;
-static const uint32_t THRESHOLD_DENOM = 100;
-
 touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2)
 {
     // Generous margin here because temperature changes can have quite a large effect.
     if (chan0 > calibration_values[0] * 3 || chan1 > calibration_values[1] * 3 || chan2 > calibration_values[2] * 3)
         return NO_TOUCH_DETECTED;
 
-    uint32_t rat0nopress = (calibration_values[0] << 9) / (calibration_values[1]*2 + calibration_values[2]);
-    uint32_t rat1nopress = (calibration_values[1] << 9) / (calibration_values[0]*2 + calibration_values[2]);
+    uint32_t rat0nopress = (calibration_values[0] << 8) / calibration_values[2];
+    uint32_t rat1nopress = (calibration_values[1] << 8) / calibration_values[2];
     uint32_t rat2nopress = (calibration_values[2] << 8) / (calibration_values[0] + calibration_values[1]);
+    
+    uint32_t rat3nopress = (calibration_values[0] << 8) / calibration_values[2];
+    uint32_t rat4nopress = (calibration_values[1] << 8) / calibration_values[2];
 
-    uint32_t rat0 = (chan0 << 9) / (chan1*2 + chan2);
-    uint32_t rat1 = (chan1 << 9) / (chan0*2 + chan2);
+    uint32_t rat0 = (chan0 << 8) / chan2;
+    uint32_t rat1 = (chan1 << 8) / chan2;
     uint32_t rat2 = (chan2 << 8) / (chan0 + chan1);
+    uint32_t rat3 = (chan0 << 8) / chan2;
+    uint32_t rat4 = (chan1 << 8) / chan2;
 
-    if (rat0 < (THRESHOLD_PERCENT * rat0nopress) / 100 && rat1 < (THRESHOLD_PERCENT * rat1nopress) / 100 && chan2 >= calibration_values[2] * THRESHOLD_NUM / THRESHOLD_DENOM) {
+    //SEGGER_RTT_printf(0, "%u %u %u (%u %u %u)\n", chan0, chan1, chan2, calibration_values[0], calibration_values[1], calibration_values[2]);
+
+    if (rat3 < THRESHOLD_PERCENT * rat3nopress / 100 && rat4 < rat4nopress * THRESHOLD_PERCENT / 100) {
         return LEFT_AND_RIGHT_BUTTONS;
-    } else if (rat2 < (THRESHOLD_PERCENT * rat2nopress) / 100) {
+    } else if (rat2 < THRESHOLD_PERCENT * rat2nopress / 100) {
         return CENTER_BUTTON;
-    } else if (rat0 < (THRESHOLD_PERCENT * rat0nopress) / 100) {
+    } else if (rat0 < THRESHOLD_PERCENT * rat0nopress / 100) {
         return RIGHT_BUTTON;
-    } else if (rat1 < (THRESHOLD_PERCENT * rat1nopress) / 100) {
+    } else if (rat1 < THRESHOLD_PERCENT * rat1nopress / 100) {
         return LEFT_BUTTON;
     }
 
@@ -189,7 +193,7 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
 
 bool le_center_pad_is_touched(uint32_t chan2)
 {
-    return chan2 != 0 && chan2 < le_calibration_center_pad_value * THRESHOLD_NUM / THRESHOLD_DENOM;
+    return chan2 != 0 && chan2 < le_calibration_center_pad_value * THRESHOLD_PERCENT / 100;
 }
 
 uint32_t get_touch_count_func(uint32_t *chan_value, uint32_t *chan, uint32_t millisecond_sixteenths, const char *src_pos)
@@ -524,7 +528,7 @@ void disable_le_capsense()
 
 static const int MAX_MISS_COUNT = 2;
 
-press get_pad_press(touch_position touch_pos)
+press get_pad_press_func(touch_position touch_pos, uint32_t nloops)
 {
     press p;
 
@@ -552,7 +556,7 @@ press get_pad_press(touch_position touch_pos)
 
         // The time it takes to execute the code in this loop is short compared
         // to PAD_COUNT_MS, so this is tolerably accurate.
-        if (i >= LONG_PRESS_MS / PAD_COUNT_MS) {
+        if (i >= nloops) {
             p = PRESS_HOLD;
             break;
         }

@@ -2,6 +2,7 @@
 #define CONFIG_H
 
 #define LONG_PRESS_MS                                       300
+#define ISO_LONG_PRESS_MS                                   600
 #define DOUBLE_BUTTON_SLOP_MS                               300
 #define CENTER_BUTTON_DEAD_ZONE_MS                          200
 

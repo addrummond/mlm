@@ -8,7 +8,7 @@ int test_main()
         my_emu_enter_em2(true);
         disable_le_capsense();
         setup_capsense();
-        press p = get_pad_press(CENTER_BUTTON);
+        press p = get_pad_press(CENTER_BUTTON, LONG_PRESS_MS);
         switch (p) {
             case PRESS_TAP:
                 SEGGER_RTT_printf(0, "TAP!\n");

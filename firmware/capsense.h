@@ -26,6 +26,9 @@ typedef enum press {
     PRESS_HOLD
 } press;
 
+#define PAD_COUNT_MS       10 // we count alternations on each touch pad for this number of ms
+#define LE_PAD_CLOCK_COUNT 2
+
 void setup_capsense(void);
 void disable_capsense(void);
 void cycle_capsense(void);
@@ -38,14 +41,12 @@ void recalibrate_le_capsense(void);
 void disable_le_capsense(void);
 touch_position get_touch_position(uint32_t chan1, uint32_t chan2, uint32_t chan3);
 bool le_center_pad_is_touched(uint32_t chan2);
-press get_pad_press(touch_position touch_pos);
+press get_pad_press_func(touch_position touch_pos, uint32_t nloops);
+#define get_pad_press(touch_pos, ms) get_pad_press_func((touch_pos), (ms) / PAD_COUNT_MS)
 void reset_lesense_irq_handler_state(void);
 bool check_lesense_irq_handler(void);
 
 extern uint32_t lesense_result;
-
-#define PAD_COUNT_MS       10 // we count alternations on each touch pad for this number of ms
-#define LE_PAD_CLOCK_COUNT 2
 
 #define RAW_RTC_CYCLES_PER_PAD_TOUCH_COUNT_TIMES_10 \
           ((RTC_RAW_FREQ * PAD_COUNT_MS * 10) / 1000) // * 10 for more precision (so we can then round)

@@ -122,7 +122,7 @@ static void handle_MODE_JUST_WOKEN()
     // start doing a reading. If it was a double tap, go to
     // ISO / exposure set mode.
     setup_capsense();
-    press p = get_pad_press(CENTER_BUTTON);
+    press p = get_pad_press(CENTER_BUTTON, LONG_PRESS_MS);
     disable_capsense();
 
     rtc_init();
@@ -269,7 +269,7 @@ static void handle_MODE_DISPLAY_READING()
                             }
                         }
 
-                        if (tp == LEFT_AND_RIGHT_BUTTONS) {
+                        if (tp == LEFT_AND_RIGHT_BUTTONS && get_pad_press(LEFT_AND_RIGHT_BUTTONS, ISO_LONG_PRESS_MS) == PRESS_HOLD) {
                             SEGGER_RTT_printf(0, "Both left and right buttons pressed.\n");
                             goto handle_double_button_press;
                         }
@@ -306,7 +306,7 @@ static void handle_MODE_DISPLAY_READING()
 handle_center_press:
     SEGGER_RTT_printf(0, "Handle center press\n");
     leds_all_off();
-    press p = get_pad_press(CENTER_BUTTON);
+    press p = get_pad_press(CENTER_BUTTON, LONG_PRESS_MS);
     disable_capsense();
     if (p == PRESS_HOLD)
         g_state.mode = MODE_DOING_READING;
@@ -364,7 +364,7 @@ static void handle_MODE_SETTING_ISO()
                                 cycle_capsense();
                             }
                         
-                            p = get_pad_press(tp);
+                            p = get_pad_press(tp, ISO_LONG_PRESS_MS);
                         }
 
                         leds_all_off();
@@ -433,7 +433,7 @@ handle_center_press:
     leds_all_off();
     disable_capsense();
     setup_capsense();
-    press p = get_pad_press(CENTER_BUTTON);
+    press p = get_pad_press(CENTER_BUTTON, LONG_PRESS_MS);
     disable_capsense();
     if (p == PRESS_HOLD)
         g_state.mode = MODE_DOING_READING;
