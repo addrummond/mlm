@@ -26,6 +26,8 @@ uint32_t calibration_values[3] __attribute__((section (".persistent")));
 uint32_t le_calibration_center_pad_value __attribute__((section (".persistent")));
 
 static const uint32_t THRESHOLD_PERCENT = 87;
+// The left and right buttons are often pressed with the edge of the thumb, so a little more sensitivity is needed.
+static const uint32_t LEFT_RIGHT_THRESHOLD_PERCENT = 93;
 
 static const PCNT_Init_TypeDef initPCNT =
 {
@@ -182,9 +184,9 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
         return LEFT_AND_RIGHT_BUTTONS;
     } else if (rat2 < THRESHOLD_PERCENT * rat2nopress / 100) {
         return CENTER_BUTTON;
-    } else if (rat0 < THRESHOLD_PERCENT * rat0nopress / 100) {
+    } else if (rat0 < LEFT_RIGHT_THRESHOLD_PERCENT * rat0nopress / 100) {
         return RIGHT_BUTTON;
-    } else if (rat1 < THRESHOLD_PERCENT * rat1nopress / 100) {
+    } else if (rat1 < LEFT_RIGHT_THRESHOLD_PERCENT * rat1nopress / 100) {
         return LEFT_BUTTON;
     }
 

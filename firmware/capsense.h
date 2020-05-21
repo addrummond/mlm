@@ -26,7 +26,7 @@ typedef enum press {
     PRESS_HOLD
 } press;
 
-#define PAD_COUNT_MS       10 // we count alternations on each touch pad for this number of ms
+#define PAD_COUNT_MS       15 // we count alternations on each touch pad for this number of ms
 #define LE_PAD_CLOCK_COUNT 2
 
 void setup_capsense(void);
