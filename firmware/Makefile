@@ -42,6 +42,10 @@ ifdef NO_RTT
     override ARMCFLAGS += -DNO_RTT
 endif
 
+ifdef LEDS_WRONG_WAY_ROUND
+    override ARMCFLAGS += -DLEDS_WRONG_WAY_ROUND
+endif
+
 override ARMASMFLAGS += -x assembler-with-cpp -D$(DEVICE) -Wall -Wextra -mcpu=cortex-m3 -mthumb -DDEBUG_EFM
 ifdef DEBUG
     override ARMASMFLAGS += -DDEBUG_EFM
