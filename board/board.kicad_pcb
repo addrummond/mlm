@@ -33,7 +33,7 @@
   )
 
   (setup
-    (last_trace_width 0.3)
+    (last_trace_width 0.2)
     (user_trace_width 0.14)
     (user_trace_width 0.18)
     (user_trace_width 0.2)
@@ -913,7 +913,7 @@
   )
 
   (module "mlm:LTR303ALS01" (layer "F.Cu") (tedit 5E0D099C) (tstamp 00000000-0000-0000-0000-00005e02a2ac)
-    (at 83 68.135)
+    (at 83 68)
     (path "/e15d12ed-9d9d-4cea-84a4-8512c6c2646b")
     (solder_paste_margin -0.05)
     (attr smd)
@@ -3121,6 +3121,9 @@
   (gr_line (start 78 141) (end 122 141) (layer "Edge.Cuts") (width 0.05) (tstamp 4e72c68d-640c-4e2e-b343-89ddb971833a))
   (gr_circle (center 100 100) (end 117.5 100) (layer "B.SilkS") (width 0.5) (tstamp 00000000-0000-0000-0000-00005d23a15e))
 
+  (segment (start 83.65 68.9) (end 83.65 69.52) (width 0.2) (layer "F.Cu") (net 9) (tstamp 7f288be6-c7a5-462d-a2bb-e3ed9617f7c0))
+  (segment (start 83 67.1) (end 83 66.49) (width 0.2) (layer "F.Cu") (net 29) (tstamp 5b73f253-9cb8-4180-977a-5b1f3afe45b3))
+  (segment (start 83 68.9) (end 83 69.52) (width 0.2) (layer "F.Cu") (net 21) (tstamp ad97524b-98c6-4b8e-8f17-07b0941d599b))
   (segment (start 123.72 129.69) (end 123.72 131.2) (width 0.2) (layer "B.Cu") (net 50) (tstamp ee11b94a-091f-4ad3-aa0b-e01d4e9ab2c4))
   (segment (start 123.72 131.2) (end 123.75 131.23) (width 0.25) (layer "B.Cu") (net 50) (tstamp d2e83ce5-61c5-4cc9-85fd-0faf5cd05cdf))
   (segment (start 123.72 129.69) (end 123.72 129.625) (width 0.2) (layer "F.Cu") (net 50) (tstamp 7c486ece-f22e-4fb9-8206-b27c866c6c73))
@@ -4418,10 +4421,7 @@
   (segment (start 81.25 65.51) (end 81.25 62.52) (width 0.2) (layer "F.Cu") (net 8) (tstamp 1d43eb3f-ef72-4bef-b5ee-804d2b1838d5))
   (segment (start 82.35 66.61) (end 81.25 65.51) (width 0.2) (layer "F.Cu") (net 8) (tstamp b87466e2-c097-4cc6-8ead-da2bba9dfc81))
   (segment (start 82.35 67.235) (end 82.35 66.61) (width 0.2) (layer "F.Cu") (net 8) (tstamp 1337a56a-3671-4139-829f-bcff5ef0b96c))
-  (segment (start 83 67.235) (end 83 66.73) (width 0.2) (layer "F.Cu") (net 29) (tstamp 14119465-b693-48e3-bf01-32eb24c5f884))
   (segment (start 83.775 70.255) (end 83.775 70.57) (width 0.2) (layer "F.Cu") (net 9) (tstamp 41a31ae2-de28-4d96-94f6-5fe57cfa4621))
-  (segment (start 83 69.035) (end 83 69.54) (width 0.2) (layer "F.Cu") (net 21) (tstamp 108e15c2-ccdd-43e0-9dcf-34a23142e6ea))
-  (segment (start 83.65 69.035) (end 83.65 69.54) (width 0.2) (layer "F.Cu") (net 9) (tstamp 4476484f-5b9a-4263-9e34-d2e3151c8c08))
   (segment (start 83.65 66.28) (end 83.65 67.235) (width 0.2) (layer "F.Cu") (net 7) (tstamp 4b5d8065-b087-4cba-9b68-75d80312a2af))
   (segment (start 82.005 64.635) (end 83.65 66.28) (width 0.2) (layer "F.Cu") (net 7) (tstamp bd9ade8d-88e5-4cbb-989d-ca856e1d1429))
   (segment (start 82.005 62.97) (end 82.005 64.635) (width 0.2) (layer "F.Cu") (net 7) (tstamp 627b354c-bbd0-4f9b-a295-f70582f5a058))
