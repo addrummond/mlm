@@ -29,7 +29,7 @@ mode. In this mode it may be necessary to press and hold the center pad for up
 to a second before the meter responds.
 
 Due to careful use of low energy sleep modes, the battery drains very slowly
-when the meter is not in use. If the meter is used at least once every couple of
+when the meter is not in use. If you use the meter at least once every couple of
 months then there is no point in removing the battery.
 
 The meter cannot be woken up by pressing the left or right pads.
@@ -74,11 +74,6 @@ After a reading has been displayed for around 20 seconds, the meter will
 automatically sleep. Tap the center pad to wake the meter up and display the
 last reading.
 
-## Out of range indication
-
-If the scene is too bright or too dark for the meter, the three lights at the
-top of the wheel (corresponding to f5.6, f8 and f11) turn on simultaneously.
-
 ## Changing the ISO
 
 The meter is set to ISO 100 by default. To change the ISO, press the left and
@@ -87,8 +82,7 @@ set ISO is indicated by a single pulsing light. Tap the left and right pads to
 adjust, then tap the center pad to confirm and return to the reading display.
 
 All ISO numbers shown on the inside of the wheel are full stop ISOs. Third stop
-ISOs are shown as bullets. Towards the upper end of the ISO range, no third stop
-positions are shown between the full stops. If one of these ISOs is selected,
+ISOs are shown as bullets. If one of these ISOs is selected,
 you can adjust it by ±⅓ stop by pressing and holding the left or right
 pads until one of the ±⅓ stop indication lights turns on. The left light means
 “go one third of a stop counterclockwise” (i.e., decrease the ISO number
@@ -97,7 +91,7 @@ increase the ISO number slightly).
 
 When a reading is in progress, one light stays on uninterrupted while the others
 cycle. This light indicates the currently selected ISO (or the nearest full stop
-ISO to it if it is a ⅓ stop ISO and there is no dedicated light).
+ISO to it).
 
 ## Special display of low light exposures
 
@@ -109,4 +103,10 @@ In this circumstance, the meter indicates exposures longer than one second by
 turning on three shutter speed lights rather than one. The number corresponding
 to the middle light should be interpreted as a number of seconds. For example,
 if the lights corresponding to 2, 4 and 8 are lit up, this indicates an exposure
-of four seconds.
+of four seconds. Note that with film, exposures longer than one second typically
+require compensation for reciprocity failure.
+
+## Out of range indication
+
+If the scene is too bright or too dark for the meter, the three lights at the
+top of the wheel (corresponding to f5.6, f8 and f11) turn on simultaneously.
