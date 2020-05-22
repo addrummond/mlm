@@ -270,7 +270,6 @@ static void handle_MODE_DISPLAY_READING()
                         }
 
                         if (tp == LEFT_AND_RIGHT_BUTTONS && get_pad_press(LEFT_AND_RIGHT_BUTTONS, ISO_LONG_PRESS_MS) == PRESS_HOLD) {
-                            SEGGER_RTT_printf(0, "Both left and right buttons pressed.\n");
                             goto handle_double_button_press;
                         }
                         else {
@@ -304,7 +303,6 @@ static void handle_MODE_DISPLAY_READING()
     return;
 
 handle_center_press:
-    SEGGER_RTT_printf(0, "Handle center press\n");
     leds_all_off();
     press p = get_pad_press(CENTER_BUTTON, LONG_PRESS_MS);
     disable_capsense();
