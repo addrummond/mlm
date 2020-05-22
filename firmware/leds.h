@@ -191,13 +191,15 @@
 
 #define LED_OUT_OF_RANGE_MASK 0b100000000000000000000011
 
+void reset_led_state();
 void led_on(unsigned n);
 void leds_on(uint32_t mask);
 void leds_change_mask(uint32_t mask);
 void led_fully_on(unsigned n);
 void leds_all_off();
-void leds_on_for_reading(int ap_index, int ss_index, int third);
+uint32_t led_mask_for_reading(int ap_index, int ss_index, int third);
 void set_led_throb_mask(uint32_t mask);
+void set_led_flash_mask(uint32_t mask);
 bool rtc_borked_for_led_cycling(void);
 
 extern volatile uint32_t leds_on_for_cycles;

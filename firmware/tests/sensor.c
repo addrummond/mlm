@@ -23,8 +23,6 @@ int test_main()
         int32_t ev = lux_to_reflective_ev(lux);
         int ap_index, ss_index, third;
         ev_iso_aperture_to_shutter(ev, ISO_100, F8_AP_INDEX, &ap_index, &ss_index, &third);
-        //leds_all_off();
-        //leds_on_for_reading(ap_index, ss_index, third);
         int32_t evthird = ev & ((1<<EV_BPS)-1);
         int32_t thirdval = 0;
         if (evthird > (2<<EV_BPS)/3) {

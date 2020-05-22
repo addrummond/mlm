@@ -4,7 +4,7 @@ int test_main()
 {
     leds_all_off();
 
-    leds_on_for_reading(F22_AP_INDEX, SS500_INDEX, 0);
+    leds_on(led_mask_for_reading(F22_AP_INDEX, SS500_INDEX, 0));
 
     for (;;);
 

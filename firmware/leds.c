@@ -66,6 +66,7 @@ static const int32_t DUTY_CYCLE_MIN = 10;
 static const int32_t DUTY_CYCLE_MAX = 50;
 
 static const int CYCLES_PER_THROB_STEP = RTC_RAW_FREQ / 60;
+static const int CYCLES_PER_FLASH = RTC_RAW_FREQ / 15;
 
 // from math import *
 // [round(sin(x/30*2*pi)*20) for x in range(0, 30)]
@@ -168,13 +169,37 @@ static volatile uint32_t orig_mask;
 static volatile uint32_t current_mask;
 static volatile uint32_t throb_mask;
 static volatile uint32_t current_mask_n;
+static volatile uint32_t flash_mask;
 static volatile int current_throb_index;
 static volatile int current_throb_cycles;
-static volatile int next_throb_cycles;
+static volatile int last_throb_cycles;
+static volatile int last_flash_cycles;
+static volatile bool flash_on;
+
+void reset_led_state()
+{
+    orig_mask = 0;
+    current_mask = 0;
+    throb_mask = 0;
+    current_mask_n = 0;
+    flash_mask = 0;
+    current_throb_index = 0;
+    current_throb_cycles = 0;
+    last_throb_cycles = 0;
+    last_flash_cycles = 0;
+    flash_on = false;
+}
 
 void set_led_throb_mask(uint32_t mask)
 {
     throb_mask = mask;
+}
+
+void set_led_flash_mask(uint32_t mask)
+{
+    flash_mask = mask;
+    flash_on = (mask != 0);
+    last_flash_cycles = 0;
 }
 
 volatile uint32_t leds_on_for_cycles;
@@ -197,9 +222,14 @@ static void led_rtc_count_callback()
         }
     }
 
-    if (leds_on_for_cycles >= next_throb_cycles) {
+    if (leds_on_for_cycles - last_throb_cycles >= CYCLES_PER_THROB_STEP) {
         current_throb_index = (current_throb_index + 1) % (sizeof(throb_progression)/sizeof(throb_progression[0]));
-        next_throb_cycles = leds_on_for_cycles + CYCLES_PER_THROB_STEP;
+        last_throb_cycles = leds_on_for_cycles;
+    }
+
+    if (flash_mask != 0 && leds_on_for_cycles - last_flash_cycles >= CYCLES_PER_FLASH) {
+        flash_on = !flash_on;
+        last_flash_cycles = leds_on_for_cycles;
     }
 
     int32_t dc = get_duty_cycle();
@@ -209,12 +239,14 @@ static void led_rtc_count_callback()
         else if (dc + THROB_MAG > DUTY_CYCLE_MAX)
             dc = DUTY_CYCLE_MAX - THROB_MAG;
         dc += throb_progression[current_throb_index];
-    }
 
-    if (dc < DUTY_CYCLE_MIN)
-        dc = DUTY_CYCLE_MIN;
-    else if (dc > DUTY_CYCLE_MAX)
+        if (dc < DUTY_CYCLE_MIN)
+            dc = DUTY_CYCLE_MIN;
+        else if (dc > DUTY_CYCLE_MAX)
+            dc = DUTY_CYCLE_MAX;
+    } else if ((flash_mask & (1 << current_mask_n)) && !flash_on) {
         dc = DUTY_CYCLE_MAX;
+    }
 
     if (last_led_on != -1)
         led_off(last_led_on);
@@ -304,7 +336,7 @@ void leds_on(uint32_t mask)
         leds_on_for_cycles = 0;
         leds_on_for_cycles_initialized = true;
     }
-    next_throb_cycles = CYCLES_PER_THROB_STEP;
+    last_throb_cycles = 0;
 
     RTC_Init(&init);
 
@@ -368,13 +400,10 @@ void leds_all_off()
     CMU_ClockEnable(cmuClock_TIMER1, true);
 }
 
-void leds_on_for_reading(int ap_index, int ss_index, int third)
+uint32_t led_mask_for_reading(int ap_index, int ss_index, int third)
 {
-    // out of range case
-    if (ap_index == -1) {
-        leds_on(LED_OUT_OF_RANGE_MASK);
-        return;
-    }
+    if (ap_index == -1) // out of range
+        return LED_OUT_OF_RANGE_MASK;
 
     // calculated as if leds were numbered clockwise with f8 LED as 0.
     int_fast32_t ss_led_n;
@@ -404,6 +433,5 @@ void leds_on_for_reading(int ap_index, int ss_index, int third)
     else if (third == -1)
         mask |= (1 << LED_MINUS_1_3_N);
 
-    set_led_throb_mask(0);
-    leds_on(mask);
+    return mask;
 }

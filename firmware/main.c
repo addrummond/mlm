@@ -111,6 +111,7 @@ static void handle_MODE_JUST_WOKEN()
         }
     } else {
         reset_lesense_irq_handler_state();
+        reset_led_state();
         SEGGER_RTT_printf(0, "Watchdog wakeup.\n");
     }
 
@@ -167,7 +168,7 @@ static void handle_MODE_SNOOZE()
     g_state.mode = MODE_JUST_WOKEN;
 }
 
-static void shift_exposure_wheel(int n, int *ap_index, int *ss_index, bool using_long_ss)
+static int shift_exposure_wheel(int n, int *ap_index, int *ss_index, bool using_long_ss)
 {
     int ap = *ap_index;
     int ss = *ss_index;
@@ -192,6 +193,8 @@ static void shift_exposure_wheel(int n, int *ap_index, int *ss_index, bool using
         *ap_index = ap;
         *ss_index = ss;
     }
+
+    return n;
 }
 
 static void handle_MODE_DISPLAY_READING()
@@ -203,7 +206,8 @@ static void handle_MODE_DISPLAY_READING()
     SEGGER_RTT_printf(0, "ISOi=%u, api=%s%u, ssi=%s%u\n", iso, sign_of(ap_index), iabs(ap_index), sign_of(ss_index), iabs(ss_index));
 
     leds_all_off();
-    leds_on_for_reading(ap_index, ss_index, third);
+    set_led_throb_mask(0);
+    leds_on(led_mask_for_reading(ap_index, ss_index, third));
 
     setup_capsense();
 
@@ -274,8 +278,15 @@ static void handle_MODE_DISPLAY_READING()
                         }
                         else {
                             leds_all_off();
-                            shift_exposure_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index, using_long_ss);
-                            leds_on_for_reading(ap_index, ss_index, third);
+                            int r = shift_exposure_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index, using_long_ss);
+                            uint32_t mask = led_mask_for_reading(ap_index, ss_index, third);
+                            leds_on(mask);
+                            if (r != 0) {
+                                uint32_t flash_mask = (mask & ~((1 << LED_MINUS_1_3_N) | (1 << LED_PLUS_1_3_N)));
+                                set_led_flash_mask(flash_mask);
+                                delay_ms_cyc(1000);
+                                set_led_flash_mask(0);
+                            }
                         }
                     } else if (tp == CENTER_BUTTON && ! in_center_button_dead_zone) {
                         goto handle_center_press;
@@ -520,7 +531,8 @@ static void handle_MODE_DOING_READING()
         int ap_index, ss_index, third;
         ev_iso_aperture_to_shutter(g_state.last_reading_ev, iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
         SEGGER_RTT_printf(0, "Third: %s%u\n", sign_of(third), iabs(third));
-        leds_on_for_reading(ap_index, ss_index, third);
+        set_led_throb_mask(0);
+        leds_on(led_mask_for_reading(ap_index, ss_index, third));
 
         chans[0] = 0, chans[1] = 0, chans[2] = 0;
         get_touch_count(0, 0, 0); // clear any nonsense value
