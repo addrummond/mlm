@@ -460,10 +460,10 @@ static uint32_t display_reading_interrupt_cycle_mask2;
 static uint32_t display_reading_interrupt_cycle_iso_mask;
 static void display_reading_interrupt_cycle_interrupt_handler()
 {
-    if (leds_on_for_cycles % 16 != 0)
+    if (leds_on_for_cycles % 5 != 0)
         return;
 
-    if (leds_on_for_cycles % 32 != 0) {
+    if (leds_on_for_cycles % 11 != 0) {
         display_reading_interrupt_cycle_mask1 = (display_reading_interrupt_cycle_mask1 + 1) % LED_N_IN_WHEEL;
     }
 
