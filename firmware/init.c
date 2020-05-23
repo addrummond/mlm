@@ -81,6 +81,7 @@ void common_init(bool watchdog_wakeup)
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
+    CMU_ClockEnable(cmuClock_CORELE, true);
     CMU_OscillatorEnable(cmuOsc_LFRCO, true, true);
     CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFRCO);
     CMU_ClockEnable(cmuClock_RTC, true);
