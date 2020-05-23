@@ -23,6 +23,7 @@ void set_state_to_default(mode initial_mode)
     g_state.compensation = 0;
     g_state.deep_sleep_counter = 0;
     g_state.watchdog_wakeup = false;
+    g_state.bat_known_healthy = false;
 }
 
 bool fresh_reading_is_saved()

@@ -99,27 +99,24 @@ static uint32_t duty_cycle_for_ev(int32_t ev)
         ++dc;
 
     if (dc < DUTY_CYCLE_MIN)
-        return DUTY_CYCLE_MIN;
+        dc = DUTY_CYCLE_MIN;
     if (dc > DUTY_CYCLE_MAX)
-        return DUTY_CYCLE_MAX;
+        dc = DUTY_CYCLE_MAX;
 
-    return (uint32_t)dc;
+    return 0;
+    return COUNT - (uint32_t)dc;
 }
 
 static uint32_t get_duty_cycle()
 {
-    uint32_t duty_cycle = duty_cycle_for_ev(g_state.led_brightness_ev_ref);
-    if (duty_cycle < 1)
-        duty_cycle = 1;
-    else if (duty_cycle > DUTY_CYCLE_MAX)
-        duty_cycle = DUTY_CYCLE_MAX;
-
-    return COUNT - duty_cycle;
+    return duty_cycle_for_ev(g_state.led_brightness_ev_ref);
 }
 
 
 static void led_on_with_dc(unsigned n, uint32_t duty_cycle)
 {
+    GPIO_Mode_TypeDef pushPull = (g_state.bat_known_healthy ? gpioModePushPullDrive : gpioModePushPull);
+
     GPIO_Port_TypeDef cat_port = led_cat_ports[n];
     int cat_pin = led_cat_pins[n];
     GPIO_Port_TypeDef an_port = led_an_ports[n];
@@ -128,8 +125,8 @@ static void led_on_with_dc(unsigned n, uint32_t duty_cycle)
     int cat_chan = led_cat_chan[n];
     uint32_t cat_route = led_cat_route[n];
     uint32_t cat_location = led_cat_location[n];
-    GPIO_PinModeSet(cat_port, cat_pin, gpioModePushPull, 1);
-    GPIO_PinModeSet(an_port, an_pin, gpioModePushPull, 1);
+    GPIO_PinModeSet(cat_port, cat_pin, pushPull, 1);
+    GPIO_PinModeSet(an_port, an_pin, pushPull, 1);
     cat_timer->ROUTE = (cat_route | cat_location);
     TIMER_CompareBufSet(cat_timer, cat_chan, duty_cycle); // duty cycle
 }
@@ -169,6 +166,8 @@ static volatile int current_throb_cycles;
 static volatile int last_throb_cycles;
 static volatile int last_flash_cycles;
 static volatile bool flash_on;
+static volatile uint32_t target_duty_cycle;
+static volatile uint32_t current_duty_cycle;
 
 void reset_led_state()
 {
@@ -182,6 +181,8 @@ void reset_led_state()
     last_throb_cycles = 0;
     last_flash_cycles = 0;
     flash_on = false;
+    target_duty_cycle = 0;
+    current_duty_cycle = 0;
 }
 
 void set_led_throb_mask(uint32_t mask)
@@ -226,7 +227,9 @@ static void led_rtc_count_callback()
         last_flash_cycles = leds_on_for_cycles;
     }
 
-    int32_t dc = get_duty_cycle();
+    int32_t dc = current_duty_cycle;
+    if (dc > target_duty_cycle)
+        --current_duty_cycle;
     if (throb_mask & (1 << current_mask_n)) {
         if (dc - THROB_MAG < DUTY_CYCLE_MIN)
             dc = THROB_MAG + DUTY_CYCLE_MIN;
@@ -295,6 +298,17 @@ void leds_on(uint32_t mask)
 {
     static bool leds_on_for_cycles_initialized;
 
+#ifndef DEBUG
+    if (g_state.bat_known_healthy) {
+#define M(n) GPIO_DriveModeSet(MACROUTILS_CONCAT3(DPIN, n, _GPIO_PORT), gpioDriveModeHigh);
+        DPIN_FOR_EACH(M)
+#undef M
+    }
+#endif
+
+    current_duty_cycle = COUNT;
+    target_duty_cycle = get_duty_cycle();
+
     RTC_Enable(false);
 
     mask &= (1<<LED_N)-1;
@@ -349,6 +363,10 @@ void leds_change_mask(uint32_t mask)
 void leds_all_off()
 {
     turnoff();
+
+    #define M(n) GPIO_DriveModeSet(MACROUTILS_CONCAT3(DPIN, n, _GPIO_PORT), gpioDriveModeStandard);
+        DPIN_FOR_EACH(M)
+    #undef M
 
     if (rtc_has_been_borked_for_led_cycling)
         RTC_Enable(false);

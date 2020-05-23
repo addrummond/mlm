@@ -109,6 +109,14 @@ static void handle_MODE_JUST_WOKEN()
             disable_le_capsense();
             SEGGER_RTT_printf(0, "Woken up [2]!\n");
         }
+
+        int v = battery_voltage_in_10th_volts();
+#ifndef DEBUG
+        g_state.bat_known_healthy = (v >= 27);
+#else
+        g_state.bat_known_healthy = false;
+#endif
+
     } else {
         reset_lesense_irq_handler_state();
         reset_led_state();
@@ -277,10 +285,9 @@ static void handle_MODE_DISPLAY_READING()
                             goto handle_double_button_press;
                         }
                         else {
-                            leds_all_off();
                             int r = shift_exposure_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index, using_long_ss);
                             uint32_t mask = led_mask_for_reading(ap_index, ss_index, third);
-                            leds_on(mask);
+                            leds_change_mask(mask);
                             if (r != 0) {
                                 uint32_t flash_mask = (mask & ~((1 << LED_MINUS_1_3_N) | (1 << LED_PLUS_1_3_N)));
                                 set_led_flash_mask(flash_mask);
@@ -376,8 +383,6 @@ static void handle_MODE_SETTING_ISO()
                             p = get_pad_press(tp, ISO_LONG_PRESS_MS);
                         }
 
-                        leds_all_off();
-
                         int mag = (tp == RIGHT_BUTTON ? 1 : -1);
                         if (p == PRESS_TAP) {
                             g_state.iso_third = 0;
@@ -402,7 +407,7 @@ static void handle_MODE_SETTING_ISO()
                             leds |= 1 << LED_MINUS_1_3_N;
                         else if (g_state.iso_third == 1)
                             leds |= 1 << LED_PLUS_1_3_N;
-                        leds_on(leds);
+                        leds_change_mask(leds);
 
                         SEGGER_RTT_printf(0, "ISO set to raw val of %u\n", iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third));
 

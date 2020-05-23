@@ -2,7 +2,7 @@
 #define BATSENSE_H
 
 
-int battery_voltage_in_10th_volts();
+int battery_voltage_in_10th_volts(void);
 
 
 #endif

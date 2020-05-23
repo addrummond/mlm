@@ -37,6 +37,7 @@ typedef struct state {
     int32_t led_brightness_ev_ref;
     int32_t deep_sleep_counter;
     bool watchdog_wakeup;
+    bool bat_known_healthy;
 } state;
 
 // Don't trust sizeof here because of possible padding.
