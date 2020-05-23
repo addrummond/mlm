@@ -147,12 +147,6 @@ static void led_off(unsigned n)
     GPIO_PinModeSet(an_port, an_pin, gpioModeInput, 1);
 }
 
-void led_on(unsigned n)
-{
-    uint32_t duty_cycle = get_duty_cycle();
-    led_on_with_dc(normalize_led_number(n), duty_cycle);
-}
-
 static void turnoff()
 {
 #define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeInput, 0);
@@ -350,21 +344,6 @@ void leds_change_mask(uint32_t mask)
     orig_mask = mask;
     current_mask = mask;
     current_mask_n = 0;
-}
-
-void led_fully_on(unsigned n)
-{
-    --n;
-    n %= LED_N;
-    uint8_t nn = (uint8_t)n;
-
-    GPIO_Port_TypeDef cat_port = led_cat_ports[nn];
-    int cat_pin = led_cat_pins[nn];
-    GPIO_Port_TypeDef an_port = led_an_ports[nn];
-    int an_pin = led_an_pins[nn];
-
-    GPIO_PinModeSet(cat_port, cat_pin, gpioModePushPull, 0);
-    GPIO_PinModeSet(an_port, an_pin, gpioModePushPull, 1);
 }
 
 void leds_all_off()
