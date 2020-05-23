@@ -103,7 +103,6 @@ static uint32_t duty_cycle_for_ev(int32_t ev)
     if (dc > DUTY_CYCLE_MAX)
         dc = DUTY_CYCLE_MAX;
 
-    return 0;
     return COUNT - (uint32_t)dc;
 }
 
