@@ -620,6 +620,8 @@ int32_t deep_sleep_capsense_recalibration_counter __attribute__((section (".pers
 
 int main()
 {
+    CHIP_Init();
+
 #ifdef TEST_MAIN
     bool watchdog_wakeup = false;
 #else

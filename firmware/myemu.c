@@ -1,6 +1,7 @@
 #include <em_cmu.h>
 #include <em_dbg.h>
 #include <em_emu.h>
+#include <init.h>
 #include <myemu.h>
 
 static void before_sleep()
@@ -9,6 +10,7 @@ static void before_sleep()
         CoreDebug->DHCSR &= ~CoreDebug_DHCSR_C_DEBUGEN_Msk;
         CoreDebug->DEMCR &= ~CoreDebug_DEMCR_TRCENA_Msk;
     }
+    gpio_pins_to_initial_states(false);
 }
 
 static void on_awake()
