@@ -25,9 +25,9 @@ static volatile uint32_t old_count;
 uint32_t calibration_values[3] __attribute__((section (".persistent")));
 uint32_t le_calibration_center_pad_value __attribute__((section (".persistent")));
 
-static const uint32_t THRESHOLD_PERCENT = 87;
+static const uint32_t THRESHOLD_FRAC = 223;
 // The left and right buttons are often pressed with the edge of the thumb, so a little more sensitivity is needed.
-static const uint32_t LEFT_RIGHT_THRESHOLD_PERCENT = 93;
+static const uint32_t LEFT_RIGHT_THRESHOLD_FRAC = 238;
 
 static const PCNT_Init_TypeDef initPCNT =
 {
@@ -180,13 +180,13 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
 
     //SEGGER_RTT_printf(0, "%u %u %u (%u %u %u)\n", chan0, chan1, chan2, calibration_values[0], calibration_values[1], calibration_values[2]);
 
-    if (rat3 < THRESHOLD_PERCENT * rat3nopress / 100 && rat4 < rat4nopress * THRESHOLD_PERCENT / 100) {
+    if (rat3 < THRESHOLD_FRAC * rat3nopress / 256 && rat4 < rat4nopress * THRESHOLD_FRAC / 256) {
         return LEFT_AND_RIGHT_BUTTONS;
-    } else if (rat2 < THRESHOLD_PERCENT * rat2nopress / 100) {
+    } else if (rat2 < THRESHOLD_FRAC * rat2nopress / 256) {
         return CENTER_BUTTON;
-    } else if (rat0 < LEFT_RIGHT_THRESHOLD_PERCENT * rat0nopress / 100) {
+    } else if (rat0 < LEFT_RIGHT_THRESHOLD_FRAC * rat0nopress / 256) {
         return RIGHT_BUTTON;
-    } else if (rat1 < LEFT_RIGHT_THRESHOLD_PERCENT * rat1nopress / 100) {
+    } else if (rat1 < LEFT_RIGHT_THRESHOLD_FRAC * rat1nopress / 256) {
         return LEFT_BUTTON;
     }
 
@@ -195,7 +195,7 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
 
 bool le_center_pad_is_touched(uint32_t chan2)
 {
-    return chan2 != 0 && chan2 < le_calibration_center_pad_value * THRESHOLD_PERCENT / 100;
+    return chan2 != 0 && chan2 < le_calibration_center_pad_value * THRESHOLD_FRAC / 256;
 }
 
 uint32_t get_touch_count_func(uint32_t *chan_value, uint32_t *chan, uint32_t millisecond_sixteenths, const char *src_pos)
@@ -333,7 +333,7 @@ static le_capsense_mode le_mode;
 
 static uint32_t le_center_pad_count_to_threshold(uint32_t count)
 {
-    return count * THRESHOLD_PERCENT / 100;
+    return count * THRESHOLD_FRAC / 256;
 }
 
 void setup_le_capsense(le_capsense_mode mode)
@@ -466,9 +466,13 @@ void recalibrate_le_capsense()
     int i, k;
     static uint8_t calibration_value_index = 0;
 
-    // Wait for current scan to finish
-    while (LESENSE->STATUS & LESENSE_STATUS_SCANACTIVE)
-        ;
+    // This doesn't seem to be necessary, and it may somewhat increase the
+    // amount of time we spend in EM0 (which significantly increases average
+    // current consumption in sleep mode).
+    //
+    // Wait for current scan to finish while (LESENSE->STATUS &
+    // LESENSE_STATUS_SCANACTIVE)
+    //    ;
 
     // Get position for first channel data in count buffer from lesense write pointer
     k = ((LESENSE->PTR & _LESENSE_PTR_WR_MASK) >> _LESENSE_PTR_WR_SHIFT);

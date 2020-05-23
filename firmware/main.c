@@ -103,12 +103,11 @@ static void handle_MODE_JUST_WOKEN()
             }
 
             recalibrate_le_capsense();
-            setup_le_capsense(LE_CAPSENSE_SLEEP);
             SEGGER_RTT_printf(0, "Entering EM2 for snooze following calibration\n");
             my_emu_enter_em2(true); // true = restore oscillators, clocks and voltage scaling
-            disable_le_capsense();
             SEGGER_RTT_printf(0, "Woken up [2]!\n");
         }
+        disable_le_capsense();
 
         int v = battery_voltage_in_10th_volts();
 #ifndef DEBUG
@@ -169,8 +168,6 @@ static void handle_MODE_SNOOZE()
 
     SEGGER_RTT_printf(0, "Entering EM2 for snooze\n");
     my_emu_enter_em2(true); // true = restore oscillators, clocks and voltage scaling
-
-    disable_le_capsense();
 
     SEGGER_RTT_printf(0, "Woken up!\n");
     g_state.mode = MODE_JUST_WOKEN;
