@@ -91,7 +91,9 @@ $(STARTUP).out: $(STARTUP).S
 -include $(OBJS:.out=.d)
 
 out.elf: $(LD) $(STARTUP).out $(OBJS)
-	$(ARMCC) $(ARMCFLAGS) -Wl,--gc-sections -T $(LD) $(OBJS) $(STARTUP).out $(LIBS) -o out.elf && \
+	$(ARMCC) $(ARMCFLAGS) -Wl,--gc-sections -T $(LD) $(OBJS) $(STARTUP).out $(LIBS) -o out.elf
+
+out.bin: out.elf
 	$(OBJCOPY) -S -O binary out.elf out.bin
 
 .PHONY: clean

@@ -94,9 +94,9 @@ void disable_capsense()
     CMU_ClockEnable(cmuClock_ACMP1, false);
     CMU_ClockEnable(cmuClock_PRS, false);
     CMU_ClockEnable(cmuClock_PCNT0, false);
-    GPIO_PinModeSet(gpioPortC, 0, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortC, 1, gpioModeInputPull, 0);
-    GPIO_PinModeSet(gpioPortC, 14, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortC, 0, gpioModeDisabled, 0);
+    GPIO_PinModeSet(gpioPortC, 1, gpioModeDisabled, 0);
+    GPIO_PinModeSet(gpioPortC, 14, gpioModeDisabled, 0);
 }
 
 void cycle_capsense()
@@ -525,7 +525,7 @@ void disable_le_capsense()
 
     CMU_ClockDivSet(cmuClock_LESENSE, cmuClkDiv_1);
 
-    GPIO_PinModeSet(gpioPortC, 14, gpioModeInputPull, 0);
+    GPIO_PinModeSet(gpioPortC, 14, gpioModeDisabled, 0);
 
     LESENSE_Reset();
 

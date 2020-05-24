@@ -162,7 +162,7 @@ static void handle_MODE_AWAKE_AT_REST()
 static void handle_MODE_SNOOZE()
 {
     // Make sure LDO is off
-    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModeInput, 0);
+    GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModeDisabled, 0);
 
     setup_le_capsense(LE_CAPSENSE_SLEEP);
 
@@ -628,6 +628,10 @@ int main()
 #endif
 
     common_init(watchdog_wakeup);
+
+    //for (;;) {
+    //    my_emu_enter_em2(false);
+    //}
 
 #ifdef TEST_MAIN
     return test_main();

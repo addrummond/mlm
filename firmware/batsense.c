@@ -13,8 +13,6 @@
 
 static int battery_voltage_in_10th_volts_helper()
 {
-    GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInput, 0);
-
     // Turn on the MOSFET so that battery voltage reaches the pin.
     // We also have to temporarily lower all of the other DPINs to make
     // sure that no LEDs turn on.
@@ -24,6 +22,7 @@ static int battery_voltage_in_10th_volts_helper()
     GPIO_PinModeSet(DPIN4_GPIO_PORT, DPIN4_GPIO_PIN, gpioModePushPull, 0);
     GPIO_PinModeSet(DPIN5_GPIO_PORT, DPIN5_GPIO_PIN, gpioModePushPull, 0);
     GPIO_PinModeSet(DPIN6_GPIO_PORT, DPIN6_GPIO_PIN, gpioModePushPull, 0);
+    GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModePushPull, 0);
 
     delay_ms(20);
 
@@ -69,7 +68,7 @@ static int battery_voltage_in_10th_volts_helper()
     DPIN_FOR_EACH(M)
 #undef M
 
-    GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeInputPull, 1);
+    GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeDisabled, 0);
 
     if (i == 100)
         return -1;

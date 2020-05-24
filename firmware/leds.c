@@ -73,19 +73,6 @@ static const int CYCLES_PER_FLASH = RTC_RAW_FREQ / 15;
 static const int8_t throb_progression[] = { 0, 2, 5, 7, 9, 10, 11, 12, 12, 11, 10, 9, 7, 5, 2, 0, -2, -5, -7, -9, -10, -11, -12, -12, -11, -10, -9, -7, -5, -2 };
 static const int THROB_MAG = 20;
 
-static unsigned normalize_led_number(unsigned n)
-{
-    // Make sure n is positive first, as result of % with negative operand is
-    // implementation-defined. Ok to use a loop, as this should never be called
-    // with a very large negative value.
-    while (n < 0)
-        n += LED_N;
-
-    n %= LED_N;
-
-    return n;
-}
-
 static uint32_t duty_cycle_for_ev(int32_t ev)
 {
     if (ev < 0)
@@ -139,13 +126,13 @@ static void led_off(unsigned n)
     TIMER_TypeDef *cat_timer = led_cat_timer[n];
 
     cat_timer->ROUTE = 0;
-    GPIO_PinModeSet(cat_port, cat_pin, gpioModeInput, 1);
-    GPIO_PinModeSet(an_port, an_pin, gpioModeInput, 1);
+    GPIO_PinModeSet(cat_port, cat_pin, gpioModeDisabled, 0);
+    GPIO_PinModeSet(an_port, an_pin, gpioModeDisabled, 0);
 }
 
 static void turnoff()
 {
-#define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeInput, 0);
+#define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeDisabled, 0);
     DPIN_FOR_EACH(M)
 #undef M
 
