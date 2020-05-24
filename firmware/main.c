@@ -618,7 +618,11 @@ int32_t deep_sleep_capsense_recalibration_counter __attribute__((section (".pers
 
 int main()
 {
-    CHIP_Init();
+    // We have to do without the chip errata as running this after every watchdog reset
+    // in deep sleep mode consumes too much current. I've verified that this function
+    // doesn't do anything that we need.
+    //
+    // CHIP_Init();
 
 #ifdef TEST_MAIN
     bool watchdog_wakeup = false;
@@ -661,25 +665,20 @@ int main()
         calibrate_capsense();
         calibrate_le_capsense();
     } else {
-        // So that we can use CYCCNT.
-        CoreDebug->DHCSR |= CoreDebug_DHCSR_C_DEBUGEN_Msk;
-        CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-
         setup_le_capsense(LE_CAPSENSE_SENSE);
         my_emu_enter_em2(true);
 
         if (! le_center_pad_is_touched(lesense_result)) {
             if (deep_sleep_capsense_recalibration_counter++ >= LE_CAPSENSE_DEEP_SLEEP_CALIBRATION_INTERVAL_SECONDS) {
-#ifdef DEBUG_DEEP_SLEEP
-                leds_on(0b11);
-                delay_ms_cyc(500);
-                leds_all_off();
-#endif
                 calibrate_le_capsense();
                 deep_sleep_capsense_recalibration_counter = 0;
             }
             go_into_deep_sleep();
         }
+
+        // So that we can use CYCCNT.
+        CoreDebug->DHCSR |= CoreDebug_DHCSR_C_DEBUGEN_Msk;
+        CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 
         disable_le_capsense();
     }
