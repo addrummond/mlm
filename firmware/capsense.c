@@ -265,7 +265,7 @@ static const uint16_t LESENSE_ACMP_VDD_SCALE = 0x37U;
     true,                     /* Enabled to store counter value in the result buffer. */                 \
     lesenseClkLF,             /* Use the LF clock for excitation timing. */                              \
     lesenseClkLF,             /* Use the LF clock for sample timing. */                                  \
-    0x000,                    /* Excitation time is set to ___ excitation clock cycles. */               \
+    0,                        /* Excitation time is set to ___ excitation clock cycles. */               \
     LE_PAD_CLOCK_COUNT,       /* Sample delay is set to ___ sample clock cycles. */                      \
     1,                        /* Measure delay is set to ___ excitation clock cycles.*/                  \
     LESENSE_ACMP_VDD_SCALE,   /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */               \
