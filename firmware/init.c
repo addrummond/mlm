@@ -84,12 +84,15 @@ void common_init(bool watchdog_wakeup)
     CMU_ClockEnable(cmuClock_CORELE, true);
     CMU_OscillatorEnable(cmuOsc_LFRCO, true, true);
     CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFRCO);
-    CMU_ClockEnable(cmuClock_RTC, true);
 
-    rtc_init();
+    if (! watchdog_wakeup) {
+        CMU_ClockEnable(cmuClock_RTC, true);
+        rtc_init();
+    }
 
     rtt_init();
     SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
 
-    gpio_pins_to_initial_states(true);
+    if (! watchdog_wakeup)
+        gpio_pins_to_initial_states(true);
 }

@@ -391,7 +391,7 @@ void setup_le_capsense(le_capsense_mode mode)
         LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_center_pad_count_to_threshold(le_calibration_center_pad_value));
     }
 
-    if (mode != LE_CAPSENSE_SENSE) {
+    if (mode == LE_CAPSENSE_SLEEP) {
         // Periodically wake up to recalibrate.
         SEGGER_RTT_printf(0, "Setting recalibration wakeup timer.\n");
         static const RTC_Init_TypeDef rtc_init = {

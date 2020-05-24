@@ -634,10 +634,6 @@ int main()
 
     common_init(watchdog_wakeup);
 
-    //for (;;) {
-    //    my_emu_enter_em2(false);
-    //}
-
 #ifdef TEST_MAIN
     return test_main();
 #else
@@ -681,6 +677,9 @@ int main()
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 
         disable_le_capsense();
+
+        CMU_ClockEnable(cmuClock_RTC, true);
+        rtc_init();
     }
 
     return real_main(watchdog_wakeup);
