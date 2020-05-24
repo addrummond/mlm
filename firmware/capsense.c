@@ -244,7 +244,7 @@ static const uint16_t LESENSE_ACMP_VDD_SCALE = 0x37U;
     lesenseClkLF,             /* Use the LF clock for sample timing. */                                  \
     0,                        /* Excitation time is set to 0 excitation clock cycles. */                 \
     LE_PAD_CLOCK_COUNT,       /* Sample delay */                                                         \
-    1,                        /* Measure delay */                                                        \
+    0,                        /* Measure delay */                                                        \
     LESENSE_ACMP_VDD_SCALE,   /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */               \
     lesenseSampleModeCounter, /* Counter will be used in comparison. */                                  \
     lesenseSetIntLevel,       /* Interrupt is generated if the sensor triggers. */                       \
@@ -267,7 +267,7 @@ static const uint16_t LESENSE_ACMP_VDD_SCALE = 0x37U;
     lesenseClkLF,             /* Use the LF clock for sample timing. */                                  \
     0,                        /* Excitation time is set to ___ excitation clock cycles. */               \
     LE_PAD_CLOCK_COUNT,       /* Sample delay is set to ___ sample clock cycles. */                      \
-    1,                        /* Measure delay is set to ___ excitation clock cycles.*/                  \
+    0,                        /* Measure delay is set to ___ excitation clock cycles.*/                  \
     LESENSE_ACMP_VDD_SCALE,   /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */               \
     lesenseSampleModeCounter, /* ACMP will be used in comparison. */                                     \
     lesenseSetIntLevel,       /* Interrupt is generated if the sensor triggers. */                       \
