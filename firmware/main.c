@@ -662,6 +662,11 @@ int main()
 
         if (! le_center_pad_is_touched(lesense_result)) {
             if (deep_sleep_capsense_recalibration_counter++ >= LE_CAPSENSE_DEEP_SLEEP_CALIBRATION_INTERVAL_SECONDS) {
+#ifdef DEBUG_DEEP_SLEEP
+                leds_on(0b11);
+                delay_ms_cyc(500);
+                leds_all_off();
+#endif
                 calibrate_le_capsense();
                 deep_sleep_capsense_recalibration_counter = 0;
             }
