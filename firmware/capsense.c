@@ -343,7 +343,7 @@ void setup_le_capsense(le_capsense_mode mode)
     CMU_ClockEnable(cmuClock_ACMP1, true);
     CMU_ClockEnable(cmuClock_LESENSE, true);
 
-    CMU_ClockDivSet(cmuClock_LESENSE, cmuClkDiv_1);
+    CMU_ClockDivSet(cmuClock_LESENSE, cmuClkDiv_16);
 
     GPIO_DriveModeSet(gpioPortC, gpioDriveModeStandard);
     GPIO_PinModeSet(gpioPortC, 14, gpioModeDisabled, 0);
