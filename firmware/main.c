@@ -665,7 +665,6 @@ int main()
                 calibrate_le_capsense();
                 deep_sleep_capsense_recalibration_counter = 0;
             }
-            disable_le_capsense();
             go_into_deep_sleep();
         }
 
