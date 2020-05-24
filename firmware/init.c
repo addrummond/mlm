@@ -14,6 +14,8 @@
 
 void gpio_pins_to_initial_states(bool include_capsense)
 {
+    // We disable debug pins a bit later on if the debugger is not attached.
+
     if (include_capsense) {
         GPIO_PinModeSet(gpioPortC, 0, gpioModeDisabled, 0);
         GPIO_PinModeSet(gpioPortC, 1, gpioModeDisabled, 0);
@@ -21,8 +23,6 @@ void gpio_pins_to_initial_states(bool include_capsense)
     }
 
     GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeDisabled, 0);
-    GPIO_PinModeSet(gpioPortF, 0, gpioModeDisabled, 0);
-    GPIO_PinModeSet(gpioPortF, 1, gpioModeDisabled, 0);
     GPIO_PinModeSet(gpioPortB, 14, gpioModeDisabled, 0);
     GPIO_PinModeSet(gpioPortB, 13, gpioModeDisabled, 0);
     GPIO_PinModeSet(gpioPortE, 13, gpioModeDisabled, 0);

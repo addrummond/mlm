@@ -5,6 +5,7 @@
 #include <em_acmp.h>
 #include <em_chip.h>
 #include <em_cmu.h>
+#include <em_dbg.h>
 #include <em_emu.h>
 #include <em_device.h>
 #include <em_emu.h>
@@ -648,6 +649,13 @@ int main()
         while (leds_on_for_cycles - base < RTC_RAW_FREQ * GRACE_PERIOD_SECONDS)
             WDOGn_Feed(WDOG); // make sure no reset is triggered if the watchdog is enabled
         leds_all_off();
+#endif
+
+#ifndef DEBUG
+        if (! DBG_Connected()) {
+            GPIO_DbgSWDClkEnable(false);
+            GPIO_DbgSWDIOEnable(false);
+        }
 #endif
 
         calibrate_capsense();
