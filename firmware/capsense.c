@@ -464,13 +464,9 @@ void recalibrate_le_capsense()
     int i, k;
     static uint8_t calibration_value_index = 0;
 
-    // This doesn't seem to be necessary, and it may somewhat increase the
-    // amount of time we spend in EM0 (which significantly increases average
-    // current consumption in sleep mode).
-    //
-    // Wait for current scan to finish while (LESENSE->STATUS &
-    // LESENSE_STATUS_SCANACTIVE)
-    //    ;
+    // Wait for current scan to finish
+    while (LESENSE->STATUS & LESENSE_STATUS_SCANACTIVE)
+        ;
 
     // Get position for first channel data in count buffer from lesense write pointer
     k = ((LESENSE->PTR & _LESENSE_PTR_WR_MASK) >> _LESENSE_PTR_WR_SHIFT);
