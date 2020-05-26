@@ -33,7 +33,7 @@
   )
 
   (setup
-    (last_trace_width 0.2)
+    (last_trace_width 0.25)
     (user_trace_width 0.14)
     (user_trace_width 0.18)
     (user_trace_width 0.2)
@@ -3764,10 +3764,10 @@
   (segment (start 107.335 74.605) (end 107.335 75.12) (width 0.3) (layer "F.Cu") (net 17) (tstamp e9fbd7fc-3e2c-4fe2-b831-6810511a2044))
   (segment (start 108.81 78.47) (end 108.81 76.615) (width 0.28) (layer "F.Cu") (net 32) (tstamp 59a64704-ccca-438f-b94e-09ee8bc9c7d3))
   (segment (start 108.81 76.615) (end 108.885 76.54) (width 0.28) (layer "F.Cu") (net 32) (tstamp d0776532-4a52-4d64-95a9-e56ac37aff65))
-  (segment (start 108.885 75.12) (end 109.165 75.4) (width 0.4) (layer "F.Cu") (net 18) (tstamp 98b1535f-66cf-4b34-8f5e-fac5b28f92d5))
-  (segment (start 109.165 75.4) (end 112.77 75.4) (width 0.4) (layer "F.Cu") (net 18) (tstamp 9c5e7290-c5a7-4e10-ad3e-d2894a028653))
+  (segment (start 108.885 75.12) (end 109.165 75.4) (width 0.3) (layer "F.Cu") (net 18) (tstamp 98b1535f-66cf-4b34-8f5e-fac5b28f92d5))
+  (segment (start 109.165 75.4) (end 112.77 75.4) (width 0.3) (layer "F.Cu") (net 18) (tstamp 9c5e7290-c5a7-4e10-ad3e-d2894a028653))
   (segment (start 114 76.8) (end 114.03 76.83) (width 0.4) (layer "F.Cu") (net 18) (tstamp 4734a5c9-c5ca-41a3-990c-7bceb56d6f1b))
-  (segment (start 112.77 75.4) (end 114 76.63) (width 0.4) (layer "F.Cu") (net 18) (tstamp 469563f5-7df3-4cd6-9ab7-515a577cd323))
+  (segment (start 112.77 75.4) (end 114 76.63) (width 0.3) (layer "F.Cu") (net 18) (tstamp 469563f5-7df3-4cd6-9ab7-515a577cd323))
   (segment (start 114 76.63) (end 114 76.8) (width 0.4) (layer "F.Cu") (net 18) (tstamp 3a88a1d7-7011-4d8c-a869-187cc3c56449))
   (via (at 104.06 75.01) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (net 9) (tstamp 7b45b70e-68f7-4b64-803d-7d8805d6c557))
   (segment (start 104.06 75.01) (end 104.06 74.835) (width 0.4) (layer "F.Cu") (net 9) (tstamp 35105b81-cee2-4b1e-988e-937a0c654200))
