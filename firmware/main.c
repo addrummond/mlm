@@ -165,7 +165,7 @@ static void handle_MODE_SNOOZE()
     // Make sure LDO is off
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModeDisabled, 0);
 
-    setup_le_capsense(LE_CAPSENSE_SLEEP);
+    setup_le_capsense_sleep();
 
     SEGGER_RTT_printf(0, "Entering EM2 for snooze\n");
     my_emu_enter_em2(true); // true = restore oscillators, clocks and voltage scaling
@@ -673,7 +673,7 @@ int main()
         GPIO_DbgSWDClkEnable(false);
         GPIO_DbgSWDIOEnable(false);
 
-        setup_le_capsense(LE_CAPSENSE_SENSE);
+        setup_le_capsense_oneshot();
         my_emu_enter_em2(true);
 
         if (! le_center_pad_is_touched(lesense_result)) {

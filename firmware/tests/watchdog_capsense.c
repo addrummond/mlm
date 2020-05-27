@@ -15,7 +15,7 @@ int test_main()
         WDOGn_Feed(WDOG);
     leds_all_off();
 
-    setup_le_capsense(LE_CAPSENSE_SENSE);
+    setup_le_capsense_oneshot();
     //EMY_EnterEM2(true);
     WDOGn_Feed(WDOG);
     my_emu_enter_em2();

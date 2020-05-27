@@ -16,15 +16,15 @@ typedef enum touch_position {
     LEFT_AND_RIGHT_BUTTONS = 3
 } touch_position;
 
-typedef enum le_capsense_mode {
-    LE_CAPSENSE_SENSE,
-    LE_CAPSENSE_SLEEP
-} le_capsense_mode;
-
 typedef enum press {
     PRESS_TAP,
     PRESS_HOLD
 } press;
+
+typedef enum le_capsense_mode {
+    LE_CAPSENSE_SENSE,
+    LE_CAPSENSE_SLEEP
+} le_capsense_mode;
 
 #define PAD_COUNT_MS       12 // we count alternations on each touch pad for this number of ms
 #define LE_PAD_CLOCK_COUNT 1
@@ -36,7 +36,8 @@ uint32_t get_touch_count_func(uint32_t *chan_value, uint32_t *chan, uint32_t mil
 #define get_touch_count(chan_value, chan, millisecond_sixteenths) get_touch_count_func((chan_value), (chan), (millisecond_sixteenths), __FILE__ ":" MACROUTILS_SYMBOL(__LINE__))
 void calibrate_capsense(void);
 void calibrate_le_capsense(void);
-void setup_le_capsense(le_capsense_mode mode);
+void setup_le_capsense_oneshot(void);
+void setup_le_capsense_sleep(void);
 void recalibrate_le_capsense(void);
 void disable_le_capsense(void);
 touch_position get_touch_position(uint32_t chan1, uint32_t chan2, uint32_t chan3);

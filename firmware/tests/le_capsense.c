@@ -4,7 +4,7 @@ int test_main()
 {
     for (;;) {
         SEGGER_RTT_printf(0, "LOOP\n");
-        setup_le_capsense(LE_CAPSENSE_SLEEP);
+        setup_le_capsense_sleep();
         my_emu_enter_em2(true);
         disable_le_capsense();
         setup_capsense();

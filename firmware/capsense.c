@@ -151,7 +151,7 @@ void calibrate_capsense()
 
 void calibrate_le_capsense()
 {
-    setup_le_capsense(LE_CAPSENSE_SENSE);
+    setup_le_capsense_oneshot();
     my_emu_enter_em2(true);
     le_calibration_center_pad_value = lesense_result;
     disable_le_capsense();
@@ -336,10 +336,8 @@ static uint32_t le_center_pad_count_to_threshold(uint32_t count)
     return count * THRESHOLD_FRAC / 256;
 }
 
-void setup_le_capsense(le_capsense_mode mode)
+static void setup_le_capsense_helper(const LESENSE_ChDesc_TypeDef *chan_config, const LESENSE_ScanMode_TypeDef scan_mode, uint32_t scan_freq)
 {
-    le_mode = mode;
-
     CMU_ClockEnable(cmuClock_ACMP1, true);
     CMU_ClockEnable(cmuClock_LESENSE, true);
 
@@ -370,40 +368,48 @@ void setup_le_capsense(le_capsense_mode mode)
     while (LESENSE_STATUS_SCANACTIVE & LESENSE_StatusGet())
         ;
     LESENSE_ResultBufferClear();
-    LESENSE_ScanFreqSet(mode == LE_CAPSENSE_SENSE ? 0 : 8, 0);
+    LESENSE_ScanFreqSet(scan_freq, 0);
     LESENSE_ClkDivSet(lesenseClkLF, lesenseClkDiv_1);
 
-    if (mode == LE_CAPSENSE_SENSE) {
-        LESENSE_ChannelConfig(&chanConfigSense, 14);
-        LESENSE_IntEnable(LESENSE_IEN_SCANCOMPLETE);
-    } else {
-        LESENSE_ChannelConfig(&chanConfigSleep, 14);
-        LESENSE_IntDisable(LESENSE_IEN_SCANCOMPLETE);
-    }
+    LESENSE_ChannelConfig(chan_config, 14);
 
     NVIC_EnableIRQ(LESENSE_IRQn);
 
-    LESENSE_ScanModeSet(mode == LE_CAPSENSE_SLEEP ? lesenseScanStartPeriodic : lesenseScanStartOneShot, true);
+    LESENSE_ScanModeSet(scan_mode, true);
+}
 
-    if (mode == LE_CAPSENSE_SLEEP) {
-        while (!(LESENSE->STATUS & LESENSE_STATUS_BUFHALFFULL))
-            ;
-        LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_center_pad_count_to_threshold(le_calibration_center_pad_value));
+void setup_le_capsense_oneshot()
+{
+    le_mode = LE_CAPSENSE_SENSE;
+    setup_le_capsense_helper(&chanConfigSense, lesenseScanStartOneShot, 0);
+    LESENSE_IntEnable(LESENSE_IEN_SCANCOMPLETE);
+}
 
-        // Periodically wake up to recalibrate.
-        SEGGER_RTT_printf(0, "Setting recalibration wakeup timer.\n");
-        static const RTC_Init_TypeDef rtc_init = {
-            .enable   = true,
-            .debugRun = false,
-            .comp0Top = true
-        };
-        RTC_Init(&rtc_init);
-        RTC_IntEnable(RTC_IEN_COMP0);
-        NVIC_EnableIRQ(RTC_IRQn);
-        set_rtc_clock_div(cmuClkDiv_32768);
-        RTC_CompareSet(0, RTC->CNT + LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS);
-        RTC_IntClear(RTC_IFC_COMP0);
-    }
+void setup_le_capsense_sleep()
+{
+    le_mode = LE_CAPSENSE_SLEEP;
+
+    setup_le_capsense_helper(&chanConfigSleep, lesenseScanStartPeriodic, 8);
+
+    LESENSE_IntDisable(LESENSE_IEN_SCANCOMPLETE);
+
+    while (!(LESENSE->STATUS & LESENSE_STATUS_BUFHALFFULL))
+        ;
+    LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_center_pad_count_to_threshold(le_calibration_center_pad_value));
+
+    // Periodically wake up to recalibrate.
+    SEGGER_RTT_printf(0, "Setting recalibration wakeup timer.\n");
+    static const RTC_Init_TypeDef rtc_init = {
+        .enable   = true,
+        .debugRun = false,
+        .comp0Top = true
+    };
+    RTC_Init(&rtc_init);
+    RTC_IntEnable(RTC_IEN_COMP0);
+    NVIC_EnableIRQ(RTC_IRQn);
+    set_rtc_clock_div(cmuClkDiv_32768);
+    RTC_CompareSet(0, RTC->CNT + LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS);
+    RTC_IntClear(RTC_IFC_COMP0);
 }
 
 uint32_t lesense_result;
