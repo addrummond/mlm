@@ -653,14 +653,26 @@ int main()
 
 #ifndef DEBUG
         if (! DBG_Connected()) {
+            GPIO_PinModeSet(gpioPortF, 1, gpioModeDisabled, 0);
+            GPIO_PinModeSet(gpioPortF, 0, gpioModeDisabled, 0);
             GPIO_DbgSWDClkEnable(false);
             GPIO_DbgSWDIOEnable(false);
+        } else {
+            // Give visual indication that (we think that) debugger is connected.
+            leds_on(0b101);
+            uint32_t base = leds_on_for_cycles;
+            while (leds_on_for_cycles - base < RTC_RAW_FREQ)
+                WDOGn_Feed(WDOG);
+            leds_all_off();
         }
 #endif
 
         calibrate_capsense();
         calibrate_le_capsense();
     } else {
+        GPIO_DbgSWDClkEnable(false);
+        GPIO_DbgSWDIOEnable(false);
+
         setup_le_capsense(LE_CAPSENSE_SENSE);
         my_emu_enter_em2(true);
 
