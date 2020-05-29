@@ -36,6 +36,11 @@ int test_main(void);
 
 static void go_into_deep_sleep()
 {
+    SEGGER_RTT_printf(0, "Enter deep sleep (unless in DEBUG mode).\n");
+
+#ifdef DEBUG
+    return;
+#else
     CMU_ClockEnable(cmuClock_CORELE, true);
 
     EMU_EM23Init_TypeDef dcdcInit = EMU_EM23INIT_DEFAULT;
@@ -58,13 +63,9 @@ static void go_into_deep_sleep()
     WDOGn_Init(WDOG, &wInit);
     WDOGn_Feed(WDOG);
 
-    SEGGER_RTT_printf(0, "Going into deep sleep (unless in DEBUG mode).\n");
-
-    // Trying to test watchdog reset with the debugger attached never seems to
-    // work reliably.
-#ifndef DEBUG
     RMU->CTRL &= ~0b111;
     RMU->CTRL |= 1; // limited watchdog reset
+
     my_emu_enter_em3(false);
 #endif
 }
@@ -87,6 +88,9 @@ static void go_into_deep_sleep_with_indication()
 
 static void handle_MODE_JUST_WOKEN()
 {
+    static const int32_t DEEP_SLEEP_TIMING_FUDGE_FACTOR_NUMERATOR = 3;
+    static const int32_t DEEP_SLEEP_TIMING_FUDGE_FACTOR_DENOMINATOR = 2;
+
     static const int32_t deep_sleep_timeout_seconds =
 #ifdef DEBUG_DEEP_SLEEP
         DEEP_SLEEP_TIMEOUT_SECONDS_DEBUG_MODE;
@@ -96,22 +100,22 @@ static void handle_MODE_JUST_WOKEN()
 
     if (! g_state.watchdog_wakeup) {
         while (! check_lesense_irq_handler()) {
-            if (g_state.deep_sleep_counter++ > deep_sleep_timeout_seconds/LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS) {
+            if ((g_state.deep_sleep_counter++) * DEEP_SLEEP_TIMING_FUDGE_FACTOR_NUMERATOR / DEEP_SLEEP_TIMING_FUDGE_FACTOR_DENOMINATOR > deep_sleep_timeout_seconds/LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS) {
                 // We've been sleeping for a while now and nothing has happened.
                 // Time to go into deep sleep.
                 go_into_deep_sleep_with_indication();
-                return; // not reached
+                // in DEBUG mode we fall through to here
             }
 
             recalibrate_le_capsense();
-            SEGGER_RTT_printf(0, "Entering EM2 for snooze following calibration\n");
+            SEGGER_RTT_printf(0, "Enter EM2 for snooze after calib.\n");
             my_emu_enter_em2(true); // true = restore oscillators, clocks and voltage scaling
             SEGGER_RTT_printf(0, "Woken up [2]!\n");
         }
         disable_le_capsense();
 
-        int v = battery_voltage_in_10th_volts();
 #ifndef DEBUG
+        int v = battery_voltage_in_10th_volts();
         g_state.bat_known_healthy = (v >= 27);
 #else
         g_state.bat_known_healthy = false;
@@ -143,7 +147,7 @@ static void handle_MODE_JUST_WOKEN()
         g_state.last_reading_flags |= LAST_READING_FLAGS_FRESH;
         g_state.mode = MODE_AWAKE_AT_REST;
     } else {
-        SEGGER_RTT_printf(0, "Warning: unknown press\n");
+        SEGGER_RTT_printf(0, "Unknown press\n");
     }
 }
 
@@ -151,7 +155,6 @@ static void handle_MODE_AWAKE_AT_REST()
 {
     // Display the current reading, if any.
     if (fresh_reading_is_saved()) {
-        SEGGER_RTT_printf(0, "Fresh reading saved\n");
         g_state.mode = MODE_DISPLAY_READING;
         g_state.last_reading_flags &= ~(int32_t)LAST_READING_FLAGS_FRESH;
     } else {
@@ -170,7 +173,7 @@ static void handle_MODE_SNOOZE()
     SEGGER_RTT_printf(0, "Entering EM2 for snooze\n");
     my_emu_enter_em2(true); // true = restore oscillators, clocks and voltage scaling
 
-    SEGGER_RTT_printf(0, "Woken up!\n");
+    SEGGER_RTT_printf(0, "Woken!\n");
     g_state.mode = MODE_JUST_WOKEN;
 }
 
@@ -304,7 +307,7 @@ static void handle_MODE_DISPLAY_READING()
         }
 
         if (leds_on_for_cycles - base_cycles >= DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
-            SEGGER_RTT_printf(0, "Reading display timeout\n");
+            SEGGER_RTT_printf(0, "Reading timeout\n");
             break;
         }
 
@@ -396,7 +399,7 @@ static void handle_MODE_SETTING_ISO()
                         
 #ifdef DEBUG
                         int32_t iso = iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third);
-                        SEGGER_RTT_printf(0, "ISO set to %u (i) (dial pos %u)\n", iso, g_state.iso_dial_pos);
+                        SEGGER_RTT_printf(0, "ISO -> %u (i) (dial pos %u)\n", iso, g_state.iso_dial_pos);
 #endif
                         
                         leds = 1 << iso_dial_pos_to_led_n(g_state.iso_dial_pos);
@@ -407,7 +410,7 @@ static void handle_MODE_SETTING_ISO()
                             leds |= 1 << LED_PLUS_1_3_N;
                         leds_change_mask(leds);
 
-                        SEGGER_RTT_printf(0, "ISO set to raw val of %u\n", iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third));
+                        SEGGER_RTT_printf(0, "ISO -> raw %u\n", iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third));
 
                         if (cycled) {
                             cycle_capsense();
@@ -424,7 +427,7 @@ static void handle_MODE_SETTING_ISO()
         }
 
         if (leds_on_for_cycles - base_cycles >= DISPLAY_READING_TIME_SECONDS * RTC_RAW_FREQ) {
-            SEGGER_RTT_printf(0, "Reading display timeout (in ISO set mode)\n");
+            SEGGER_RTT_printf(0, "Reading timeout (ISO mode)\n");
             break;
         }
 
@@ -432,10 +435,9 @@ static void handle_MODE_SETTING_ISO()
     }
 
     leds_all_off();
-    SEGGER_RTT_printf(0, "Disabling capsense\n");
     disable_capsense();
 
-    SEGGER_RTT_printf(0, "Going into MODE_SNOOZE\n");
+    SEGGER_RTT_printf(0, "Enter MODE_SNOOZE\n");
     g_state.mode = MODE_SNOOZE;
 
     return;
@@ -481,9 +483,7 @@ static void handle_MODE_DOING_READING()
     leds_on((1 << display_reading_interrupt_cycle_iso_mask) | (1 << display_reading_interrupt_cycle_mask1) | (1 << display_reading_interrupt_cycle_mask2));
 
     // Turn on the LDO to power up the sensor.
-    SEGGER_RTT_printf(0, "Turning on LDO.\n");
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
-    SEGGER_RTT_printf(0, "LDO turned on\n");
     delay_ms_cyc(10); // make sure LDO has time to start up (datasheet says 1ms startup time is typical, so 10 is more than enough)
     sensor_init();
     delay_ms_cyc(100); // sensor requires 100ms initial startup time.
@@ -571,32 +571,32 @@ static void state_loop()
     for (;;) {
         switch (g_state.mode) {
             case MODE_JUST_WOKEN: {
-                SEGGER_RTT_printf(0, "JUST_WOKEN\n");
+                SEGGER_RTT_printf(0, "M=JW\n");
 
                 handle_MODE_JUST_WOKEN();
             } break;
             case MODE_AWAKE_AT_REST: {
-                SEGGER_RTT_printf(0, "AWAKE_AT_REST\n");
+                SEGGER_RTT_printf(0, "M=AAR\n");
 
                 handle_MODE_AWAKE_AT_REST();
             } break;
             case MODE_DOING_READING: {
-                SEGGER_RTT_printf(0, "DOING_READING\n");
+                SEGGER_RTT_printf(0, "M=RD\n");
 
                 handle_MODE_DOING_READING();
             } break;
             case MODE_DISPLAY_READING: {
-                SEGGER_RTT_printf(0, "DISPLAY_READING\n");
+                SEGGER_RTT_printf(0, "M=D_RD\n");
 
                 handle_MODE_DISPLAY_READING();
             } break;
             case MODE_SETTING_ISO: {
-                SEGGER_RTT_printf(0, "SETTING_ISO\n");
+                SEGGER_RTT_printf(0, "M=SISO\n");
 
                 handle_MODE_SETTING_ISO();
             } break;
             case MODE_SNOOZE: {
-                SEGGER_RTT_printf(0, "MODE_SNOOZE\n");
+                SEGGER_RTT_printf(0, "M=SNZ\n");
 
                 handle_MODE_SNOOZE();
             } break;

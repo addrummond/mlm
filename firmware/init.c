@@ -91,7 +91,7 @@ void common_init(bool watchdog_wakeup)
     }
 
     rtt_init();
-    SEGGER_RTT_printf(0, "\n\nHello RTT console; core clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
+    SEGGER_RTT_printf(0, "\n\nCore clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
 
     if (! watchdog_wakeup)
         gpio_pins_to_initial_states(true);

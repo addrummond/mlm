@@ -146,7 +146,7 @@ void calibrate_capsense()
         ellapsed = delay_ms(PAD_COUNT_MS);
     } while (chans_done != 0b111);
 
-    SEGGER_RTT_printf(0, "Capsense calibration: %u %u %u\n", calibration_values[0], calibration_values[1], calibration_values[2]);
+    SEGGER_RTT_printf(0, "Touch calibration: %u %u %u\n", calibration_values[0], calibration_values[1], calibration_values[2]);
 }
 
 void calibrate_le_capsense()
@@ -156,7 +156,7 @@ void calibrate_le_capsense()
     le_calibration_center_pad_value = lesense_result;
     disable_le_capsense();
 
-    SEGGER_RTT_printf(0, "LE capsense calibration: %u\n", le_calibration_center_pad_value);
+    SEGGER_RTT_printf(0, "LE touch calibration: %u\n", le_calibration_center_pad_value);
 }
 
 touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2)
@@ -177,8 +177,6 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
     uint32_t rat2 = (chan2 << 8) / (chan0 + chan1);
     uint32_t rat3 = (chan0 << 8) / chan2;
     uint32_t rat4 = (chan1 << 8) / chan2;
-
-    //SEGGER_RTT_printf(0, "%u %u %u (%u %u %u)\n", chan0, chan1, chan2, calibration_values[0], calibration_values[1], calibration_values[2]);
 
     if (rat3 < THRESHOLD_FRAC * rat3nopress / 256 && rat4 < rat4nopress * THRESHOLD_FRAC / 256) {
         return LEFT_AND_RIGHT_BUTTONS;
@@ -398,7 +396,7 @@ void setup_le_capsense_sleep()
     LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_center_pad_count_to_threshold(le_calibration_center_pad_value));
 
     // Periodically wake up to recalibrate.
-    SEGGER_RTT_printf(0, "Setting recalibration wakeup timer.\n");
+    SEGGER_RTT_printf(0, "Set recal. wakeup timer.\n");
     static const RTC_Init_TypeDef rtc_init = {
         .enable   = true,
         .debugRun = false,
@@ -460,7 +458,7 @@ static uint32_t get_max_value(volatile uint32_t* A, int N){
 // Adapted from example code in AN0028.
 void recalibrate_le_capsense()
 {
-    SEGGER_RTT_printf(0, "Recalibrating capsense.\n");
+    SEGGER_RTT_printf(0, "Recal. capsense.\n");
 
     static uint32_t channels_used_mask;
     static const int num_channels_used = 1;
