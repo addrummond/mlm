@@ -216,6 +216,7 @@ static void handle_MODE_DISPLAY_READING()
 
     leds_all_off();
     set_led_throb_mask(0);
+    set_led_flash_mask(0);
     leds_on(led_mask_for_reading(ap_index, ss_index, third));
 
     setup_capsense();
@@ -535,6 +536,7 @@ static void handle_MODE_DOING_READING()
         ev_iso_aperture_to_shutter(g_state.last_reading_ev, iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
         SEGGER_RTT_printf(0, "Third: %s%u\n", sign_of(third), iabs(third));
         set_led_throb_mask(0);
+        set_led_flash_mask(0);
         leds_on(led_mask_for_reading(ap_index, ss_index, third));
 
         chans[0] = 0, chans[1] = 0, chans[2] = 0;
