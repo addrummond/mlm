@@ -88,8 +88,8 @@ static void go_into_deep_sleep_with_indication()
 
 static void handle_MODE_JUST_WOKEN()
 {
-    static const int32_t DEEP_SLEEP_TIMING_FUDGE_FACTOR_NUMERATOR = 3;
-    static const int32_t DEEP_SLEEP_TIMING_FUDGE_FACTOR_DENOMINATOR = 2;
+    static const int32_t DEEP_SLEEP_TIMING_FUDGE_FACTOR_NUMERATOR = 6;
+    static const int32_t DEEP_SLEEP_TIMING_FUDGE_FACTOR_DENOMINATOR = 5;
 
     static const int32_t deep_sleep_timeout_seconds =
 #ifdef DEBUG_DEEP_SLEEP
