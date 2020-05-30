@@ -9,7 +9,6 @@
 #include <leds.h>
 #include <macroutils.h>
 #include <stdint.h>
-#include <time.h>
 
 static int battery_voltage_in_10th_volts_helper()
 {
