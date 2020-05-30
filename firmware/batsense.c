@@ -58,6 +58,7 @@ static int battery_voltage_in_10th_volts_helper()
     }
 
     CMU_ClockEnable(cmuClock_ACMP1, false);
+    // ACMP1 will have been disabled at end of last loop iteration
 
     // Turn off the MOSFET and set the other DPINs back to their default state.
 #define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeDisabled, 0);
