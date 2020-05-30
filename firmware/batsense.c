@@ -64,7 +64,7 @@ static int battery_voltage_in_10th_volts_helper()
     DPIN_FOR_EACH(M)
 #undef M
 
-    if (i == 100)
+    if (i == 50)
         return -1;
     
     return (330 * avg) / 640;
