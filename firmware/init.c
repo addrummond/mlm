@@ -12,24 +12,24 @@
 #include <rtt.h>
 #include <time.h>
 
-void gpio_pins_to_initial_states(bool include_capsense)
+void gpio_pins_to_initial_states()
 {
     // We disable debug pins a bit later on if the debugger is not attached.
 
-    if (include_capsense) {
-        GPIO_PinModeSet(gpioPortC, 0, gpioModeDisabled, 0);
-        GPIO_PinModeSet(gpioPortC, 1, gpioModeDisabled, 0);
-        GPIO_PinModeSet(gpioPortC, 14, gpioModeDisabled, 0);
-    }
-
+    GPIO_PinModeSet(gpioPortC, 0, gpioModeDisabled, 0);
+    GPIO_PinModeSet(gpioPortC, 1, gpioModeDisabled, 0);
+    GPIO_PinModeSet(gpioPortC, 14, gpioModeDisabled, 0);
     GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeDisabled, 0);
+
     GPIO_PinModeSet(gpioPortB, 14, gpioModeDisabled, 0);
     GPIO_PinModeSet(gpioPortB, 13, gpioModeDisabled, 0);
     GPIO_PinModeSet(gpioPortE, 13, gpioModeDisabled, 0);
     GPIO_PinModeSet(gpioPortE, 12, gpioModeDisabled, 0);
+
 #define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeDisabled, 0);
     DPIN_FOR_EACH(M)
 #undef M
+
     GPIO_PinModeSet(gpioPortF, 2, gpioModeDisabled, 0);
 }
 
@@ -94,5 +94,5 @@ void common_init(bool watchdog_wakeup)
     SEGGER_RTT_printf(0, "\n\nCore clock freq = %u.\n", CMU_ClockFreqGet(cmuClock_CORE));
 
     if (! watchdog_wakeup)
-        gpio_pins_to_initial_states(true);
+        gpio_pins_to_initial_states();
 }

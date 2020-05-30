@@ -12,7 +12,7 @@ static void before_sleep()
         CoreDebug->DHCSR &= ~CoreDebug_DHCSR_C_DEBUGEN_Msk;
         CoreDebug->DEMCR &= ~CoreDebug_DEMCR_TRCENA_Msk;
     }
-    gpio_pins_to_initial_states(false);
+    gpio_pins_to_initial_states();
 }
 
 static void on_awake()

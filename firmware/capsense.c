@@ -49,10 +49,6 @@ static const PCNT_Init_TypeDef initPCNT =
 
 void setup_capsense()
 {
-    GPIO_PinModeSet(gpioPortC, 0, gpioModeInput, 0);
-    GPIO_PinModeSet(gpioPortC, 1, gpioModeInput, 0);
-    GPIO_PinModeSet(gpioPortC, 14, gpioModeInput, 0);
-
     ACMP_CapsenseInit_TypeDef capsenseInit = ACMP_CAPSENSE_INIT_DEFAULT;
     CMU_ClockEnable(cmuClock_ACMP0, true);
     CMU_ClockEnable(cmuClock_ACMP1, true);
@@ -96,9 +92,6 @@ void disable_capsense()
     CMU_ClockEnable(cmuClock_ACMP1, false);
     CMU_ClockEnable(cmuClock_PRS, false);
     CMU_ClockEnable(cmuClock_PCNT0, false);
-    GPIO_PinModeSet(gpioPortC, 0, gpioModeDisabled, 0);
-    GPIO_PinModeSet(gpioPortC, 1, gpioModeDisabled, 0);
-    GPIO_PinModeSet(gpioPortC, 14, gpioModeDisabled, 0);
 }
 
 void cycle_capsense()
@@ -347,7 +340,6 @@ static void setup_le_capsense_helper(const LESENSE_ChDesc_TypeDef *chan_config, 
     CMU_ClockDivSet(cmuClock_LESENSE, cmuClkDiv_16);
 
     GPIO_DriveModeSet(gpioPortC, gpioDriveModeStandard);
-    GPIO_PinModeSet(gpioPortC, 14, gpioModeDisabled, 0);
 
     static CONST_IN_RAM ACMP_CapsenseInit_TypeDef initACMP = {
         .fullBias                 = true,
@@ -528,8 +520,6 @@ void disable_le_capsense()
     CMU_ClockEnable(cmuClock_LESENSE, false);
 
     CMU_ClockDivSet(cmuClock_LESENSE, cmuClkDiv_1);
-
-    GPIO_PinModeSet(gpioPortC, 14, gpioModeDisabled, 0);
 
     LESENSE_Reset();
 
