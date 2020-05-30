@@ -1,4 +1,5 @@
 #include <capsense.h>
+#include <const.h>
 #include <em_acmp.h>
 #include <em_cmu.h>
 #include <em_emu.h>
@@ -275,10 +276,10 @@ static const uint16_t LESENSE_ACMP_VDD_SCALE = 0x37U;
     lesenseCompModeLess       /* Compare mode has been set to trigger interrupt on "less". */            \
   }
 
-static const LESENSE_ChDesc_TypeDef chanConfigSense = LESENSE_CAPSENSE_CH_CONF_SENSE;
-static const LESENSE_ChDesc_TypeDef chanConfigSleep = LESENSE_CAPSENSE_CH_CONF_SLEEP;
+static CONST_IN_RAM LESENSE_ChDesc_TypeDef chanConfigSense = LESENSE_CAPSENSE_CH_CONF_SENSE;
+static CONST_IN_RAM LESENSE_ChDesc_TypeDef chanConfigSleep = LESENSE_CAPSENSE_CH_CONF_SLEEP;
 
-static const LESENSE_Init_TypeDef initLESENSE =
+static CONST_IN_RAM LESENSE_Init_TypeDef initLESENSE =
 {
     .coreCtrl = {
         .scanStart    = lesenseScanStartPeriodic,
@@ -346,7 +347,7 @@ static void setup_le_capsense_helper(const LESENSE_ChDesc_TypeDef *chan_config, 
     GPIO_DriveModeSet(gpioPortC, gpioDriveModeStandard);
     GPIO_PinModeSet(gpioPortC, 14, gpioModeDisabled, 0);
 
-    static const ACMP_CapsenseInit_TypeDef initACMP = {
+    static CONST_IN_RAM ACMP_CapsenseInit_TypeDef initACMP = {
         .fullBias                 = true,
         .halfBias                 = true,
         .biasProg                 = 0x7,
@@ -399,7 +400,7 @@ void setup_le_capsense_sleep()
 
     // Periodically wake up to recalibrate.
     SEGGER_RTT_printf(0, "Set recal. wakeup timer.\n");
-    static const RTC_Init_TypeDef rtc_init = {
+    static CONST_IN_RAM RTC_Init_TypeDef rtc_init = {
         .enable   = true,
         .debugRun = false,
         .comp0Top = true
