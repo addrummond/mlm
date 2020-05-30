@@ -34,7 +34,7 @@ static int battery_voltage_in_10th_volts_helper()
     int i;
 
     uint32_t avg;
-    for (i = 0; i < 50 && high - low > 1; ++i) { // i counter is just to ensure that loop is never infinite
+    for (i = 50; i > 0 && high - low > 1; --i) { // i counter is just to ensure that loop is never infinite
         ACMP_Init_TypeDef acmp1_init = ACMP_INIT_DEFAULT;
         acmp1_init.enable = false;
         acmp1_init.vddLevel = (high + low) / 2;
@@ -64,7 +64,7 @@ static int battery_voltage_in_10th_volts_helper()
     DPIN_FOR_EACH(M)
 #undef M
 
-    if (i == 50)
+    if (i == 0)
         return -1;
     
     return (330 * avg) / 640;
