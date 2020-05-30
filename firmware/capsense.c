@@ -157,32 +157,36 @@ void calibrate_le_capsense()
     SEGGER_RTT_printf(0, "LE touch calibration: %u\n", le_calibration_center_pad_value);
 }
 
+static uint32_t rat0nopress, rat1nopress, rat2nopress, rat3nopress, rat4nopress;
+
 touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2)
 {
     // Generous margin here because temperature changes can have quite a large effect.
     if (chan0 > calibration_values[0] * 3 || chan1 > calibration_values[1] * 3 || chan2 > calibration_values[2] * 3)
         return NO_TOUCH_DETECTED;
 
-    uint32_t rat0nopress = (calibration_values[0] << 8) / calibration_values[2];
-    uint32_t rat1nopress = (calibration_values[1] << 8) / calibration_values[2];
-    uint32_t rat2nopress = (calibration_values[2] << 8) / (calibration_values[0] + calibration_values[1]);
-    
-    uint32_t rat3nopress = (calibration_values[0] << 8) / calibration_values[2];
-    uint32_t rat4nopress = (calibration_values[1] << 8) / calibration_values[2];
+    if (rat0nopress == 0) {
+        rat0nopress = (calibration_values[0] << 8) / calibration_values[2];
+        rat1nopress = (calibration_values[1] << 8) / calibration_values[2];
+        rat2nopress = (calibration_values[2] << 8) / (calibration_values[0] + calibration_values[1]);
+
+        rat3nopress = (calibration_values[0] << 8) / calibration_values[1];
+        rat4nopress = (calibration_values[1] << 8) / calibration_values[0];
+    }
 
     uint32_t rat0 = (chan0 << 8) / chan2;
     uint32_t rat1 = (chan1 << 8) / chan2;
     uint32_t rat2 = (chan2 << 8) / (chan0 + chan1);
-    uint32_t rat3 = (chan0 << 8) / chan2;
-    uint32_t rat4 = (chan1 << 8) / chan2;
+    uint32_t rat3 = (chan0 << 8) / chan1;
+    uint32_t rat4 = (chan1 << 8) / chan0;
 
-    if (rat3 < THRESHOLD_FRAC * rat3nopress / 256 && rat4 < rat4nopress * THRESHOLD_FRAC / 256) {
+    if (rat0 < THRESHOLD_FRAC * rat0nopress / 256 && rat1 < rat1nopress * THRESHOLD_FRAC / 256) {
         return LEFT_AND_RIGHT_BUTTONS;
     } else if (rat2 < THRESHOLD_FRAC * rat2nopress / 256) {
         return CENTER_BUTTON;
-    } else if (rat0 < LEFT_RIGHT_THRESHOLD_FRAC * rat0nopress / 256) {
+    } else if (rat0 < LEFT_RIGHT_THRESHOLD_FRAC * rat0nopress / 256 && rat3 < LEFT_RIGHT_THRESHOLD_FRAC * rat3nopress / 256) {
         return RIGHT_BUTTON;
-    } else if (rat1 < LEFT_RIGHT_THRESHOLD_FRAC * rat1nopress / 256) {
+    } else if (rat1 < LEFT_RIGHT_THRESHOLD_FRAC * rat1nopress / 256 && rat4 < LEFT_RIGHT_THRESHOLD_FRAC * rat4nopress / 256) {
         return LEFT_BUTTON;
     }
 
@@ -565,4 +569,13 @@ press get_pad_press_func(touch_position touch_pos, uint32_t nloops)
     }
 
     return p;
+}
+
+void reset_capsense_state()
+{
+    rat0nopress = 0;
+    rat1nopress = 0;
+    rat2nopress = 0;
+    rat3nopress = 0;
+    rat4nopress = 0;
 }

@@ -46,6 +46,7 @@ press get_pad_press_func(touch_position touch_pos, uint32_t nloops);
 #define get_pad_press(touch_pos, ms) get_pad_press_func((touch_pos), (ms) / PAD_COUNT_MS)
 void reset_lesense_irq_handler_state(void);
 bool check_lesense_irq_handler(void);
+void reset_capsense_state(void);
 
 extern uint32_t lesense_result;
 

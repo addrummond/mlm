@@ -124,6 +124,7 @@ static void handle_MODE_JUST_WOKEN()
     } else {
         reset_lesense_irq_handler_state();
         reset_led_state();
+        reset_capsense_state();
         SEGGER_RTT_printf(0, "Watchdog wake\n");
     }
 
