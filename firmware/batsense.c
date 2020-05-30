@@ -16,15 +16,12 @@ static int battery_voltage_in_10th_volts_helper()
     // Turn on the MOSFET so that battery voltage reaches the pin.
     // We also have to temporarily lower all of the other DPINs to make
     // sure that no LEDs turn on.
-    GPIO_PinModeSet(DPIN3_GPIO_PORT, DPIN3_GPIO_PIN, gpioModePushPull, 0);
-    GPIO_PinModeSet(DPIN1_GPIO_PORT, DPIN1_GPIO_PIN, gpioModePushPull, 0);
-    GPIO_PinModeSet(DPIN2_GPIO_PORT, DPIN2_GPIO_PIN, gpioModePushPull, 0);
-    GPIO_PinModeSet(DPIN4_GPIO_PORT, DPIN4_GPIO_PIN, gpioModePushPull, 0);
-    GPIO_PinModeSet(DPIN5_GPIO_PORT, DPIN5_GPIO_PIN, gpioModePushPull, 0);
-    GPIO_PinModeSet(DPIN6_GPIO_PORT, DPIN6_GPIO_PIN, gpioModePushPull, 0);
-    GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModePushPull, 0);
+#define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModePushPull, 0);
+    DPIN_FOR_EACH(M)
+#undef M
 
-    delay_ms(20);
+    // Disable GPIO as we're using ACMP on this pin.
+    GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeDisabled, 0);
 
     // We don't have a proper ADC on this model of EFM32, but we can set the ACMP
     // reference voltage in 64ths of VREG and do a binary search. As the
@@ -38,7 +35,7 @@ static int battery_voltage_in_10th_volts_helper()
     int i;
 
     uint32_t avg;
-    for (i = 0; i < 100 && high - low > 1; ++i) { // i counter is just to ensure that loop is never infinite
+    for (i = 0; i < 50 && high - low > 1; ++i) { // i counter is just to ensure that loop is never infinite
         ACMP_Init_TypeDef acmp1_init = ACMP_INIT_DEFAULT;
         acmp1_init.enable = false;
         acmp1_init.vddLevel = (high + low) / 2;
@@ -64,17 +61,14 @@ static int battery_voltage_in_10th_volts_helper()
     CMU_ClockEnable(cmuClock_ACMP1, false);
 
     // Turn off the MOSFET and set the other DPINs back to their default state.
-#define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeInput, 0);
+#define M(n) GPIO_PinModeSet(DPIN ## n ## _GPIO_PORT, DPIN ## n ## _GPIO_PIN, gpioModeDisabled, 0);
     DPIN_FOR_EACH(M)
 #undef M
-
-    GPIO_PinModeSet(BATSENSE_PORT, BATSENSE_PIN, gpioModeDisabled, 0);
 
     if (i == 100)
         return -1;
     
-    // VREG tends to measure at around 3.42V in practice.
-    return (342 * avg) / 640;
+    return (330 * avg) / 640;
 }
 
 int battery_voltage_in_10th_volts()

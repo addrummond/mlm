@@ -108,23 +108,23 @@ static void handle_MODE_JUST_WOKEN()
             }
 
             recalibrate_le_capsense();
-            SEGGER_RTT_printf(0, "Enter EM2 for snooze after calib.\n");
+            SEGGER_RTT_printf(0, "EM2 snooze after calib.\n");
             my_emu_enter_em2(true); // true = restore oscillators, clocks and voltage scaling
             SEGGER_RTT_printf(0, "Woken up [2]!\n");
         }
         disable_le_capsense();
 
-#ifndef DEBUG
         int v = battery_voltage_in_10th_volts();
         g_state.bat_known_healthy = (v >= 27);
-#else
+        SEGGER_RTT_printf(0, "BKH %u %u\n", v, g_state.bat_known_healthy);
+#ifdef DEBUG
         g_state.bat_known_healthy = false;
 #endif
 
     } else {
         reset_lesense_irq_handler_state();
         reset_led_state();
-        SEGGER_RTT_printf(0, "Watchdog wakeup.\n");
+        SEGGER_RTT_printf(0, "Watchdog wake\n");
     }
 
     g_state.watchdog_wakeup = false;
@@ -147,7 +147,7 @@ static void handle_MODE_JUST_WOKEN()
         g_state.last_reading_flags |= LAST_READING_FLAGS_FRESH;
         g_state.mode = MODE_AWAKE_AT_REST;
     } else {
-        SEGGER_RTT_printf(0, "Unknown press\n");
+        SEGGER_RTT_printf(0, "Unknown but\n");
     }
 }
 
@@ -170,7 +170,7 @@ static void handle_MODE_SNOOZE()
 
     setup_le_capsense_sleep();
 
-    SEGGER_RTT_printf(0, "Entering EM2 for snooze\n");
+    SEGGER_RTT_printf(0, "EM2 for snooze\n");
     my_emu_enter_em2(true); // true = restore oscillators, clocks and voltage scaling
 
     SEGGER_RTT_printf(0, "Woken!\n");
