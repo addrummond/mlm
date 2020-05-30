@@ -446,8 +446,6 @@ static void handle_MODE_SETTING_ISO()
 handle_center_press:
     SEGGER_RTT_printf(0, "ISO button press\n");
     leds_all_off();
-    disable_capsense();
-    setup_capsense();
     press p = get_pad_press(CENTER_BUTTON, LONG_PRESS_MS);
     disable_capsense();
     if (p == PRESS_HOLD)
