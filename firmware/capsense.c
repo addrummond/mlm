@@ -24,6 +24,7 @@ static volatile uint32_t old_count;
 
 uint32_t calibration_values[3] __attribute__((section (".persistent")));
 uint32_t le_calibration_center_pad_value __attribute__((section (".persistent")));
+uint32_t le_calibration_center_pad_threshold __attribute__((section (".persistent")));
 
 static const uint32_t THRESHOLD_FRAC = 223;
 // The left and right buttons are often pressed with the edge of the thumb, so a little more sensitivity is needed.
@@ -154,6 +155,7 @@ void calibrate_le_capsense()
     setup_le_capsense_oneshot();
     my_emu_enter_em2(true);
     le_calibration_center_pad_value = lesense_result;
+    le_calibration_center_pad_threshold = le_calibration_center_pad_value * THRESHOLD_FRAC / 256;
     disable_le_capsense();
 
     SEGGER_RTT_printf(0, "LE touch calibration: %u\n", le_calibration_center_pad_value);
@@ -193,7 +195,7 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
 
 bool le_center_pad_is_touched(uint32_t chan2)
 {
-    return chan2 != 0 && chan2 < le_calibration_center_pad_value * THRESHOLD_FRAC / 256;
+    return chan2 != 0 && chan2 < le_calibration_center_pad_threshold;
 }
 
 uint32_t get_touch_count_func(uint32_t *chan_value, uint32_t *chan, uint32_t millisecond_sixteenths, const char *src_pos)
@@ -498,6 +500,7 @@ void recalibrate_le_capsense()
             channel_max_value[i] = get_max_value(calibration_value[i], NUMBER_OF_LE_CALIBRATION_VALUES);
 
             le_calibration_center_pad_value = channel_max_value[i];
+            le_calibration_center_pad_threshold = le_calibration_center_pad_value * THRESHOLD_FRAC / 256;
             LESENSE_ChannelThresSet(14, LESENSE_ACMP_VDD_SCALE, le_center_pad_count_to_threshold(le_calibration_center_pad_value));
         }
     }

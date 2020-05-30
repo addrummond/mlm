@@ -672,9 +672,6 @@ int main()
         calibrate_capsense();
         calibrate_le_capsense();
     } else {
-        GPIO_DbgSWDClkEnable(false);
-        GPIO_DbgSWDIOEnable(false);
-
         setup_le_capsense_oneshot();
         my_emu_enter_em2(true);
 
