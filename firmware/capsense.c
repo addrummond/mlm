@@ -148,6 +148,8 @@ void calibrate_capsense()
         ellapsed = delay_ms(PAD_COUNT_MS);
     } while (chans_done != 0b111);
 
+    disable_capsense();
+
     SEGGER_RTT_printf(0, "Touch calibration: %u %u %u\n", calibration_values[0], calibration_values[1], calibration_values[2]);
 }
 
