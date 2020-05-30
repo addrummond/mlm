@@ -18,6 +18,9 @@ int32_t iso_dial_pos_and_third_to_iso(int pos, int third)
         return pos - 5 + ISO_64;
     if (pos >= 19)
         return 3*(pos - 19) + ISO_1600 + third;
+
+    // Should not get here.
+    return ISO_100;
 }
 
 int iso_dial_pos_to_led_n(int pos)
