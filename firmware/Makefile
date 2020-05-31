@@ -21,7 +21,7 @@ override CFLAGS += -I./
 ifdef DEBUG
     # Override seems to be necessary here too because it's used in the original
     # definition.
-    override ARMCFLAGS += -DDEBUG
+    override ARMCFLAGS += -DDEBUG -Os
 else
     override ARMCFLAGS += -O2
 endif
