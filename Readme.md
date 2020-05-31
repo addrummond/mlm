@@ -1,4 +1,4 @@
-<img src="https://user-images.githubusercontent.com/120347/83353534-29f4b880-a34b-11ea-9bee-5ac0af204313.jpg" width="250px">
+<img src="https://user-images.githubusercontent.com/120347/83353560-5c061a80-a34b-11ea-853b-c11924ef79d6.jpg" width="250px">
 
 This is a simple ambient light meter using a Liteon LTR-303ALS light sensor and an EFM32 Tiny Gecko microcontroller.
 It is powered by a single CR2032 coin cell.
