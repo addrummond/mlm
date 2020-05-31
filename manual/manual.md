@@ -50,7 +50,7 @@ When a new battery is inserted, the light for f8 will turn on for around 10
 seconds. When this light goes out, initial calibration of the touch pads is
 performed (which takes a fraction of a second). For best results, rest the meter
 on the case while the light is still on and wait for a second after the light goes
-out before touching it.
+out before touching the meter.
 
 ## Changing the aperture and shutter speed.
 
