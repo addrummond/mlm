@@ -533,7 +533,7 @@ static void handle_MODE_DOING_READING()
     if (get_touch_position(chans[0], chans[1], chans[2]) == CENTER_BUTTON) {
         int32_t iso = iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third);
         int ap_index, ss_index, third;
-        ev_iso_aperture_to_shutter(g_state.last_reading_ev, iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
+        ev_iso_aperture_to_shutter(g_state.last_reading_ev, iso, g_state.last_ap, &ap_index, &ss_index, &third);
         SEGGER_RTT_printf(0, "Third: %s%u\n", sign_of(third), iabs(third));
         set_led_throb_mask(0);
         set_led_flash_mask(0);
