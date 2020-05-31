@@ -27,9 +27,9 @@ uint32_t calibration_values[3] __attribute__((section (".persistent")));
 uint32_t le_calibration_center_pad_value __attribute__((section (".persistent")));
 uint32_t le_calibration_center_pad_threshold __attribute__((section (".persistent")));
 
-static const uint32_t THRESHOLD_FRAC = 223;
+static const uint32_t THRESHOLD_FRAC = 218;
 // The left and right buttons are often pressed with the edge of the thumb, so a little more sensitivity is needed.
-static const uint32_t LEFT_RIGHT_THRESHOLD_FRAC = 227;
+static const uint32_t LEFT_RIGHT_THRESHOLD_FRAC = 223;
 
 static const PCNT_Init_TypeDef initPCNT =
 {
