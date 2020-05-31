@@ -31,6 +31,7 @@ typedef struct state {
     int32_t last_reading_gain;
     int32_t last_reading_ev;
     int32_t last_reading_flags;
+    int32_t last_ap;
     int32_t iso_dial_pos;
     int32_t iso_third; // 0, -1 or 1
     int32_t compensation; // in units of 1/3 stop

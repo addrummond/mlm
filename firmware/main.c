@@ -211,7 +211,7 @@ static void handle_MODE_DISPLAY_READING()
 {
     int32_t iso = iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third);
     int ap_index, ss_index, third;
-    ev_iso_aperture_to_shutter(g_state.last_reading_ev, iso, F8_AP_INDEX, &ap_index, &ss_index, &third);
+    ev_iso_aperture_to_shutter(g_state.last_reading_ev, iso, g_state.last_ap, &ap_index, &ss_index, &third);
     bool using_long_ss = ss_index < SS_INDEX_MIN;
     SEGGER_RTT_printf(0, "ISOi=%u, api=%s%u, ssi=%s%u\n", iso, sign_of(ap_index), iabs(ap_index), sign_of(ss_index), iabs(ss_index));
 
@@ -289,6 +289,7 @@ static void handle_MODE_DISPLAY_READING()
                         }
                         else {
                             int r = shift_exposure_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index, using_long_ss);
+                            g_state.last_ap = ap_index;
                             uint32_t mask = led_mask_for_reading(ap_index, ss_index, third);
                             leds_change_mask(mask);
                             if (r != 0) {
