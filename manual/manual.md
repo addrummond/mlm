@@ -108,8 +108,7 @@ In this circumstance, the meter indicates exposures longer than one second by
 turning on three shutter speed lights rather than one. The number corresponding
 to the middle light should be interpreted as a number of seconds. For example,
 if the lights corresponding to 2, 4 and 8 are lit up, this indicates an exposure
-of four seconds. Note that with film, exposures longer than one second typically
-require compensation for reciprocity failure.
+of four seconds.
 
 ## Out of range indication
 
