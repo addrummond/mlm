@@ -13,18 +13,6 @@ inside the wheel indicate adjustments of ±⅓ stop.
 The meter is suitable for taking ambient light readings under most lighting
 conditions. It does not have flash metering functionality.
 
-## Battery
-
-The meter is powered by a single CR2032 coin cell. The cell should be inserted
-with the positive side facing away from the circuit board. The meter won't be damaged
-if the cell is inserted the wrong way round, but will not function.
-
-When a new battery is inserted, the light for f8 will turn on for around 10
-seconds. When this light goes out, initial calibration of the touch pads is
-performed (which takes a fraction of a second). For best results, rest the meter
-on the case while the light is still on and wait for a second after the light goes
-out before touching it.
-
 ## Turning the meter on
 
 The meter does not have an on/off switch. It is always ready to detect a press
@@ -51,6 +39,18 @@ reading is complete, the lights stop cycling and the reading is displayed.
 Let go of the center pad once the reading is complete.
 
 Read off the aperture and shutter speed.
+
+## Battery
+
+The meter is powered by a single CR2032 coin cell. The cell should be inserted
+with the positive side facing away from the circuit board. The meter won't be damaged
+if the cell is inserted the wrong way round, but will not function.
+
+When a new battery is inserted, the light for f8 will turn on for around 10
+seconds. When this light goes out, initial calibration of the touch pads is
+performed (which takes a fraction of a second). For best results, rest the meter
+on the case while the light is still on and wait for a second after the light goes
+out before touching it.
 
 ## Changing the aperture and shutter speed.
 
