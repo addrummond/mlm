@@ -184,9 +184,9 @@ touch_position get_touch_position(uint32_t chan0, uint32_t chan1, uint32_t chan2
         return LEFT_AND_RIGHT_BUTTONS;
     } else if (rat2 < THRESHOLD_FRAC * rat2nopress / 256) {
         return CENTER_BUTTON;
-    } else if (rat0 < LEFT_RIGHT_THRESHOLD_FRAC * rat0nopress / 256 && rat3 < LEFT_RIGHT_THRESHOLD_FRAC * rat3nopress / 256) {
+    } else if (rat0 < LEFT_RIGHT_THRESHOLD_FRAC * rat0nopress / 256 && rat3 < THRESHOLD_FRAC * rat3nopress / 256) {
         return RIGHT_BUTTON;
-    } else if (rat1 < LEFT_RIGHT_THRESHOLD_FRAC * rat1nopress / 256 && rat4 < LEFT_RIGHT_THRESHOLD_FRAC * rat4nopress / 256) {
+    } else if (rat1 < LEFT_RIGHT_THRESHOLD_FRAC * rat1nopress / 256 && rat4 < THRESHOLD_FRAC * rat4nopress / 256) {
         return LEFT_BUTTON;
     }
 
