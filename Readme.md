@@ -9,6 +9,8 @@ adjustments.
 The hardware design and software are largely complete. (This will work if you
 build one.)
 
+The user manual is available in `manual/manual.md`.
+
 The bottom side of the PCB (the side with no components mounted) is intended to
 be used as the top panel of the case. This works best with a standard 1.6mm PCB
 thickness.
