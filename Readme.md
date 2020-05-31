@@ -26,3 +26,6 @@ effective flash metering. A different design would therefore be required for
 this purpose (probably using a discrete photodiode).
 
 See `firmware/Readme.md` for some incomplete notes on the dev environment.
+
+Note that a recent (as of June 2020) development version of KiCad will be
+required to open the board and schema files.
