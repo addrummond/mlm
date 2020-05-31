@@ -1,3 +1,5 @@
+![alt text](https://user-images.githubusercontent.com/120347/83353458-a2a74500-a34a-11ea-92e3-68c57e3f8b9e.jpg)
+
 This is a simple ambient light meter using a Liteon LTR-303ALS light sensor and an EFM32 Tiny Gecko microcontroller.
 It is powered by a single CR2032 coin cell.
 The firmware is written in C and the PCB is designed using KiCad.
