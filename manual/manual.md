@@ -2,16 +2,11 @@
 
 ## Overview
 
-The $NAME is a reflective light meter with a range of EV -3.5 to 19 at ISO
-100. The field of view is 40°. This is the horizontal field of view of an 50mm
-lens on full frame.
+**Mode:** reflective
 
-The meter has three touch pads (center, left and right). Readings and other
-information are displayed on a wheel made up of 24 lights. Two additional lights
-inside the wheel indicate adjustments of ±⅓ stop.
+**Range:** EV -3.5 to 19 at ISO 100
 
-The meter is suitable for taking ambient light readings under most lighting
-conditions. It does not have flash metering functionality.
+**Field of view:** 40° (horizontal FOV of 50mm lens on full frame)
 
 ## Turning the meter on
 
