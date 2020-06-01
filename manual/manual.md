@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Mode:** reflective, ambient light
+**Mode:** reflective
 
 **Range:** EV -3.5 to 19 at ISO 100
 
