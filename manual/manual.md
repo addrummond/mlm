@@ -2,14 +2,11 @@
 
 ## Overview
 
-**Mode:** reflective
+**Mode:** reflective, ambient light
 
 **Range:** EV -3.5 to 19 at ISO 100
 
 **Field of view:** 40° (horizontal FOV of 50mm lens on full frame)
-
-The meter is suitable for taking ambient light readings under most lighting
-conditions. It does not have flash metering functionality.
 
 ## Turning the meter on
 
