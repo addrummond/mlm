@@ -13,7 +13,8 @@ be used as the top panel of the case. This works best with a standard 1.6mm PCB
 thickness.
 
 The case is 3D printed. It's best to use multi-jet fusion, as PLA and ABS are
-usually not very light tight. The Fusion 360 design is exported in
+usually not very light tight. (You could use PLA/ABS and then paint the inside of the case black.)
+The Fusion 360 design for the case is exported in
 `case/case.f3d`. The PCB attaches using five M1.6 4mm countersunk screws.
 
 The device functions as a reflective light meter. The same design could be
