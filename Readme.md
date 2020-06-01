@@ -4,7 +4,7 @@ This is a simple ambient light meter using a Liteon LTR-303ALS light sensor and
 an EFM32 Tiny Gecko microcontroller. It is powered by a single CR2032 coin cell.
 The firmware is written in C and the PCB is designed using KiCad. Readings are
 displayed using a circle of 24 LEDs, with two additional LEDs indicating ±⅓ stop
-adjustments.
+adjustments. The user interface consists of three touch sensitive pads.
 
 The user manual is available in `manual/manual.md`.
 
