@@ -6,9 +6,6 @@ The firmware is written in C and the PCB is designed using KiCad. Readings are
 displayed using a circle of 24 LEDs, with two additional LEDs indicating ±⅓ stop
 adjustments.
 
-The hardware design and software are largely complete. (This will work if you
-build one.)
-
 The user manual is available in `manual/manual.md`.
 
 The bottom side of the PCB (the side with no components mounted) is intended to
