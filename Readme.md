@@ -16,6 +16,7 @@ The case is 3D printed. It's best to use multi-jet fusion, as PLA and ABS are
 usually not very light tight. (You could use PLA/ABS and then paint the inside of the case black.)
 The Fusion 360 design for the case is exported in
 `case/case.f3d`. The PCB attaches using five M1.6 4mm countersunk screws.
+The dimples under the LEDs should be painted white using acrylic paint and then given a gloss varnish.
 
 The device functions as a reflective light meter. The same design could be
 adapted for a spot meter or incident light meter by placing a lens or diffuser
