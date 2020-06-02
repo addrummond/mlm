@@ -75,7 +75,7 @@ int32_t tempsensor_get_reading()
     do {
         delay_ms_cyc(25);
         reading = read_reg16(TEMPSENSOR_I2C_ADDR);
-    } while (reading == 0 && ++tries < 11);
+    } while (reading == 0 && tries++ < 10);
 
     return (int32_t)reading;
 }
