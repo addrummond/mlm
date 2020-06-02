@@ -213,9 +213,8 @@ static void led_rtc_count_callback()
         last_flash_cycles = leds_on_for_cycles;
     }
 
-    int32_t dc = current_duty_cycle;
-    if (dc > target_duty_cycle)
-        --current_duty_cycle;
+    int32_t dc = current_duty_cycle - (dc > target_duty_cycle);
+
     if (throb_mask & (1 << current_mask_n)) {
         if (dc - THROB_MAG < DUTY_CYCLE_MIN)
             dc = THROB_MAG + DUTY_CYCLE_MIN;
