@@ -1,6 +1,7 @@
 #include <config.h>
 #include <dwt.h>
 #include <em_cmu.h>
+#include <em_core.h>
 #include <em_rtc.h>
 #include <rtt.h>
 #include <time.h>
@@ -24,11 +25,14 @@ uint32_t delay_ms(int ms)
     return ((cnt * 16) * 1000) / (RTC_RAW_FREQ >> clock_div_rightshift);
 }
 
-// Returns the actual time delayed for in 16ths of a millisecond.
-uint32_t delay_ms_cyc_func(uint32_t tocks, uint32_t tick_cycles)
+void delay_ms_cyc_prepare_func()
 {
-    *DWT_CTRL |= 1U; // Enable cycle counter
+    *DWT_CYCCNT = 0;
+    *DWT_CTRL |= 1U;
+}
 
+uint32_t delay_ms_cyc_loop_func(uint32_t tocks, uint32_t tick_cycles)
+{
     for (; tocks > 0; --tocks) {
         *DWT_CYCCNT = 0;
 
@@ -57,4 +61,18 @@ void set_rtc_clock_div_func(CMU_ClkDiv_TypeDef div, unsigned rightshift)
 int get_rtc_freq()
 {
     return RTC_RAW_FREQ >> clock_div_rightshift;
+}
+
+static CORE_DECLARE_IRQ_STATE;
+
+int int_disable()
+{
+    CORE_ENTER_ATOMIC();
+
+    return 0;
+}
+
+void int_enable()
+{
+    CORE_EXIT_ATOMIC();
 }

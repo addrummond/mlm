@@ -228,8 +228,10 @@ static void handle_MODE_DISPLAY_READING()
     bool in_center_button_dead_zone = true;
     uint32_t ellapsed;
     for (unsigned i = 0;; ++i) {
-        get_touch_count(0, 0, 0);
-        ellapsed = delay_ms_cyc(PAD_COUNT_MS);
+        delay_ms_cyc_prepare {
+            get_touch_count(0, 0, 0); // clear any nonsense value
+        }
+        ellapsed = delay_ms_cyc_loop(PAD_COUNT_MS);
 
         uint32_t count, chan;
         get_touch_count(&count, &chan, ellapsed);
@@ -255,9 +257,10 @@ static void handle_MODE_DISPLAY_READING()
                             int misses = 0;
                             touch_counts[0] = 0, touch_counts[1] = 0, touch_counts[2] = 0;
                             for (unsigned j = 0;; ++j) {
-                                get_touch_count(0, 0, 0);
-
-                                ellapsed = delay_ms_cyc(PAD_COUNT_MS);
+                                delay_ms_cyc_prepare {
+                                    get_touch_count(0, 0, 0); // clear any nonsense value
+                                }
+                                ellapsed = delay_ms_cyc_loop(PAD_COUNT_MS);
 
                                 get_touch_count(&count, &chan, ellapsed);
                                 touch_counts[chan] = count;
@@ -357,9 +360,11 @@ static void handle_MODE_SETTING_ISO()
     uint32_t base_cycles = leds_on_for_cycles;
     int zero_touch_position = INVALID_TOUCH_POSITION;
     uint32_t touch_counts[] = { 0, 0, 0 };
-    get_touch_count(0, 0, 0);
     for (;;) {
-        uint32_t ellapsed = delay_ms_cyc(PAD_COUNT_MS);
+        delay_ms_cyc_prepare {
+            get_touch_count(0, 0, 0);
+        }
+        uint32_t ellapsed = delay_ms_cyc_loop(PAD_COUNT_MS);
         uint32_t count, chan;
         get_touch_count(&count, &chan, ellapsed);
         touch_counts[chan] = count;
@@ -522,9 +527,11 @@ static void handle_MODE_DOING_READING()
     // regular display reading mode.
     setup_capsense();
     uint32_t chans[] = { 0, 0, 0 };
-    get_touch_count(0, 0, 0); // clear any nonsense value
     do {
-        uint32_t ellapsed = delay_ms_cyc(PAD_COUNT_MS);
+        delay_ms_cyc_prepare {
+            get_touch_count(0, 0, 0); // clear any nonsense value
+        }
+        uint32_t ellapsed = delay_ms_cyc_loop(PAD_COUNT_MS);
         uint32_t count, chan;
         get_touch_count(&count, &chan, ellapsed);
         chans[chan] = count;
@@ -540,10 +547,12 @@ static void handle_MODE_DOING_READING()
         leds_on(led_mask_for_reading(ap_index, ss_index, third));
 
         chans[0] = 0, chans[1] = 0, chans[2] = 0;
-        get_touch_count(0, 0, 0); // clear any nonsense value
         int misses = 0;
         for (;;) {
-            uint32_t ellapsed = delay_ms_cyc(PAD_COUNT_MS);
+            delay_ms_cyc_prepare {
+                get_touch_count(0, 0, 0); // clear any nonsense value
+            }
+            uint32_t ellapsed = delay_ms_cyc_loop(PAD_COUNT_MS);
             uint32_t count, chan;
             get_touch_count(&count, &chan, ellapsed);
             chans[chan] = count;

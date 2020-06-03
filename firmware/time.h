@@ -13,12 +13,19 @@
 #define RTC_CMU_CLK_DIV   MACROUTILS_CONCAT(cmuClkDiv_, RTC_CLK_DIV)
 
 uint32_t delay_ms(int ms);
-uint32_t delay_ms_cyc_func(uint32_t tocks, uint32_t tick_cycles);
+void delay_ms_cyc_prepare_func();
+uint32_t delay_ms_cyc_loop_func(uint32_t tocks, uint32_t tick_cycles);
 void set_rtc_clock_div_func(CMU_ClkDiv_TypeDef div, unsigned rightshift);
 int get_rtc_freq(void);
+int int_disable(void);
+void int_enable(void);
 
-// Counting too high on DWT_CYCCNT seems to lead to obscure problems.
-#define delay_ms_cyc(ms) delay_ms_cyc_func((ms) / 256, (((ms) % 256) * (CPU_CLOCK_FREQ_HZ / 1000)))
+#define delay_ms_cyc_loop(ms) delay_ms_cyc_loop_func((ms) / 256, (((ms) % 256) * (CPU_CLOCK_FREQ_HZ / 1000)))
+#define delay_ms_cyc(ms) (int_disable(), delay_ms_cyc_prepare_func(), int_enable(), delay_ms_cyc_loop((ms)))
+#define delay_ms_cyc_prepare \
+    for ( int MACRO_LOOP_COUNTER = (int_disable(), 0); \
+          MACRO_LOOP_COUNTER++ == 0; \
+          delay_ms_cyc_prepare_func(), int_enable() )
 
 #define RTC_CLOCK_DIV_RIGHTSHIFT_1     0
 #define RTC_CLOCK_DIV_RIGHTSHIFT_32    5
