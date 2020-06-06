@@ -26,7 +26,7 @@ The LTR-303ALS integrates over a period of 50-400ms, which is far too long for
 effective flash metering. A different design would therefore be required for
 this purpose (probably using a discrete photodiode).
 
-See `firmware/Readme.md` for some incomplete notes on the dev environment.
+See `firmware/Readme.md` for notes on the dev toolchain.
 
 Note that a recent (as of June 2020) development version of KiCad will be
 required to open the board and schema files.
