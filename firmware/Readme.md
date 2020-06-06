@@ -30,7 +30,7 @@ power up). This is the default behavior when `DEBUG=1`.
 
 * `GRACE=1` Overrides the aforementioned default behavior when `DEBUG=1`.
 
-* `NO_RTT=1` Disables RTT (already disabled when `DEBUG=1`).
+* `NO_RTT=1` Disables RTT (already disabled unless `DEBUG=1`).
 
 * `LEDS_WRONG_WAY_ROUND=1` Set this if you have soldered all of the LEDs the 'wrong' way round. (As every LED lead is connected to a GPIO pin, it does not really matter which way round the LEDs are as long as they have a consistent orientation.)
 
