@@ -19,6 +19,8 @@ usually not very light tight. (You could use PLA/ABS and then paint the inside o
 The Fusion 360 design for the case is exported in
 `case/case.f3d`. The PCB attaches using five M1.6 4mm countersunk screws.
 The dimples under the LEDs should be painted white and then given a gloss varnish.
+A 10x10x2mm piece of transparent acrylic should be glued in place over the sensor
+window. (If you don't to add this, adjust `WINDOW_ATTENUATION_STOPS` in `config.h`.)
 
 The device functions as a reflective light meter. The same design could be
 adapted for a spot meter or incident light meter by placing a lens or diffuser
