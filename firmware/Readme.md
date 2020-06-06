@@ -84,7 +84,7 @@ and then connect the debugging leads. Even then, you may occasionally
 find that the TPS610981 gets into a weird state. If this happens, just remove
 the battery. It takes coin cells a little while to recover from being shorted,
 but after a few minutes, the coin cell's open circuit voltage should be back to normal
-(though the it will no doubt be somewhat depleted).
+(though it will no doubt be somewhat depleted).
 
 * It is necessary to do a `monitor reset` and `monitor halt` before loading new
 firmware, since otherwise things like counters and interrupts can get screwed
