@@ -1,4 +1,5 @@
-#include <dwt.h>
+#include <efm32tg108f32.h>
+#include <core_cm3.h>
 #include <em_cmu.h>
 #include <em_dbg.h>
 #include <em_emu.h>
@@ -7,7 +8,7 @@
 
 static void before_sleep()
 {
-    *DWT_CTRL &= ~1U;
+    DWT->CTRL &= ~1U;
     if (! DBG_Connected()) {
         CoreDebug->DHCSR &= ~CoreDebug_DHCSR_C_DEBUGEN_Msk;
         CoreDebug->DEMCR &= ~CoreDebug_DEMCR_TRCENA_Msk;

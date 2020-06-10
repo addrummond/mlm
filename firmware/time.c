@@ -1,5 +1,6 @@
 #include <config.h>
-#include <dwt.h>
+#include <efm32tg108f32.h>
+#include <core_cm3.h>
 #include <em_cmu.h>
 #include <em_core.h>
 #include <em_rtc.h>
@@ -34,20 +35,20 @@ void delay_ms_cyc_prepare_func()
 uint32_t delay_ms_cyc_loop_func(uint32_t tocks, uint32_t tick_cycles)
 {
     for (; tocks > 0; --tocks) {
-        *DWT_CYCCNT = 0;
+        DWT->CYCCNT = 0;
 
-        while (*DWT_CYCCNT < CPU_CLOCK_FREQ_HZ/1000)
+        while (DWT->CYCCNT < CPU_CLOCK_FREQ_HZ/1000)
             __NOP(), __NOP(), __NOP(), __NOP();
     }
 
     uint32_t last;
 
-    *DWT_CYCCNT = 0;
-    while ((last = *DWT_CYCCNT) < tick_cycles) {
+    DWT->CYCCNT = 0;
+    while ((last = DWT->CYCCNT) < tick_cycles) {
         __NOP(), __NOP(), __NOP(), __NOP();
     }
 
-    *DWT_CTRL &= ~1U;
+    DWT->CTRL &= ~1U;
 
     return ((tocks * 256) * 16) + ((last * 16) / (CPU_CLOCK_FREQ_HZ/1000));
 }
