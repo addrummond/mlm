@@ -649,6 +649,10 @@ int main()
     return test_main();
 #else
 
+    // So that we can use CYCCNT.
+    CoreDebug->DHCSR |= CoreDebug_DHCSR_C_DEBUGEN_Msk;
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+
     if (! watchdog_wakeup) {
         deep_sleep_capsense_recalibration_counter = 0;
 
@@ -691,10 +695,6 @@ int main()
             }
             go_into_deep_sleep();
         }
-
-        // So that we can use CYCCNT.
-        CoreDebug->DHCSR |= CoreDebug_DHCSR_C_DEBUGEN_Msk;
-        CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 
         disable_le_capsense();
 
