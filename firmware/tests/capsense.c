@@ -6,9 +6,9 @@ int test_main()
 
     // Turn on the LDO to power up the temp sensor.
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
-    delay_ms(100); // make sure LDO has time to start up and sensor has time to
+    delay_ms_cyc(100); // make sure LDO has time to start up and sensor has time to
     tempsensor_init();
-    delay_ms(100);
+    delay_ms_cyc(100);
 
     setup_capsense();
 
@@ -43,7 +43,7 @@ int test_main()
         
         cycle_capsense();
 
-        delay_ms(PAD_COUNT_MS);
+        delay_ms_cyc(PAD_COUNT_MS);
     }
 
     return 0;

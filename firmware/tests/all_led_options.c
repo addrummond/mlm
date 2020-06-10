@@ -38,12 +38,12 @@ static const uint8_t led_cat_pins[] = {
                 GPIO_PinModeSet(port1, pin1, gpioModePushPull, 1);
                 GPIO_PinModeSet(port2, pin2, gpioModePushPull, 0);
 
-                delay_ms(1000);
+                delay_ms_cyc(1000);
 
                 GPIO_PinModeSet(port1, pin1, gpioModePushPull, 0);
                 GPIO_PinModeSet(port2, pin2, gpioModePushPull, 1);
 
-                delay_ms(1000);
+                delay_ms_cyc(1000);
             }
         }
     }

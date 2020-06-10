@@ -30,7 +30,7 @@ int test_main()
         CMU_ClockSelectSet(cmuClock_RTC, cmuSelect_LFRCO);
         CMU_ClockDivSet(cmuClock_RTC, RTC_CMU_CLK_DIV);
         CMU_ClockEnable(cmuClock_RTC, true);
-        delay_ms(1000);
+        delay_ms_cyc(1000);
         //leds_on(0b00011);
         //base_cycles = leds_on_for_cycles;
         //while (leds_on_for_cycles < base_cycles + RTC_RAW_FREQ)

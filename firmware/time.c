@@ -10,26 +10,10 @@
 static int clock_div_rightshift;
 
 // Returns the actual time delayed for in 16ths of a millisecond.
-uint32_t delay_ms(int ms)
-{
-    uint32_t endValue = (ms * (RTC_RAW_FREQ >> clock_div_rightshift)) / 1000;
-    RTC->CNT = 0;
-
-    RTC->CTRL |= RTC_CTRL_EN;
-
-    uint32_t cnt;
-    while ((cnt = RTC->CNT) < endValue)
-        ;
-
-    RTC->CTRL &= ~RTC_CTRL_EN;
-
-    return ((cnt * 16) * 1000) / (RTC_RAW_FREQ >> clock_div_rightshift);
-}
-
 void delay_ms_cyc_prepare_func()
 {
-    *DWT_CYCCNT = 0;
-    *DWT_CTRL |= 1U;
+    DWT->CYCCNT = 0;
+    DWT->CTRL |= 1U;
 }
 
 uint32_t delay_ms_cyc_loop_func(uint32_t tocks, uint32_t tick_cycles)
@@ -66,11 +50,9 @@ int get_rtc_freq()
 
 static CORE_DECLARE_IRQ_STATE;
 
-int int_disable()
+void int_disable()
 {
     CORE_ENTER_ATOMIC();
-
-    return 0;
 }
 
 void int_enable()

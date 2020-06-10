@@ -5,15 +5,15 @@ int test_main()
     // Turn on the LDO to power up the sensor.
     GPIO_PinModeSet(REGMODE_PORT, REGMODE_PIN, gpioModePushPull, 1);
     SEGGER_RTT_printf(0, "LDO turned on\n");
-    delay_ms(100); // make sure LDO has time to start up and sensor has time to
+    delay_ms_cyc(100); // make sure LDO has time to start up and sensor has time to
                    // power up
     sensor_init();
-    delay_ms(100);
+    delay_ms_cyc(100);
 
     // Turn the sensor on an give it time to get ready. (We have to set a gain
     // value when we turn the sensor on, but the choice here is immaterial.)
     sensor_turn_on(GAIN_1X);
-    delay_ms(10);
+    delay_ms_cyc(10);
 
     for (;;) {
         int32_t gain, itime;

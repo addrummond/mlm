@@ -1,4 +1,5 @@
 #include <capsense.h>
+#include <core_cm3.h>
 #include <config.h>
 #include <em_cmu.h>
 #include <em_emu.h>
@@ -95,4 +96,8 @@ void common_init(bool watchdog_wakeup)
 
     if (! watchdog_wakeup)
         gpio_pins_to_initial_states();
+
+    // So that we can use CYCCNT.
+    CoreDebug->DHCSR |= CoreDebug_DHCSR_C_DEBUGEN_Msk;
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 }

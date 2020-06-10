@@ -124,7 +124,7 @@ void calibrate_capsense()
     setup_capsense();
 
     get_touch_count(0, 0, 0); // clear any nonsense values
-    uint32_t ellapsed = delay_ms(PAD_COUNT_MS);
+    uint32_t ellapsed = delay_ms_cyc(PAD_COUNT_MS);
 
     uint32_t count, chan;
     uint32_t chans_done = 0;
@@ -138,7 +138,7 @@ void calibrate_capsense()
         cycle_capsense();
         get_touch_count(0, 0, 0); // clear any nonsense value
 
-        ellapsed = delay_ms(PAD_COUNT_MS);
+        ellapsed = delay_ms_cyc(PAD_COUNT_MS);
     } while (chans_done != 0b111);
 
     disable_capsense();
