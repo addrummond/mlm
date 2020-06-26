@@ -79,7 +79,7 @@ static uint32_t duty_cycle_for_ev(int32_t ev)
         return DUTY_CYCLE_MIN;
 
     // Go to full brightness by EV 10 @ ISO 100.
-    int32_t dc = ev * (COUNT/10);
+    int32_t dc = (ev * DUTY_CYCLE_MAX) / 10;
     int32_t dcr = dc & ((1 << EV_BPS)-1);
     dc >>= EV_BPS;
     if (dcr >= (1 << EV_BPS)/2)
@@ -90,7 +90,7 @@ static uint32_t duty_cycle_for_ev(int32_t ev)
     if (dc > DUTY_CYCLE_MAX)
         dc = DUTY_CYCLE_MAX;
 
-    return COUNT - (uint32_t)dc;
+    return DUTY_CYCLE_MAX - dc;
 }
 
 static uint32_t get_duty_cycle()
@@ -213,7 +213,9 @@ static void led_rtc_count_callback()
         last_flash_cycles = leds_on_for_cycles;
     }
 
-    int32_t dc = current_duty_cycle - (current_duty_cycle > target_duty_cycle);
+    int32_t dc = current_duty_cycle;
+    if (current_duty_cycle > target_duty_cycle)
+        --current_duty_cycle;
 
     if (throb_mask & (1 << current_mask_n)) {
         if (dc - THROB_MAG < DUTY_CYCLE_MIN)
@@ -291,7 +293,7 @@ void leds_on(uint32_t mask)
     }
 #endif
 
-    current_duty_cycle = COUNT;
+    current_duty_cycle = DUTY_CYCLE_MAX;
     target_duty_cycle = get_duty_cycle();
 
     RTC_Enable(false);
