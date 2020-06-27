@@ -203,6 +203,11 @@ uint32_t get_touch_count_func(uint32_t *chan_value, uint32_t *chan, uint32_t mil
     if (chan != 0)
         *chan = (touch_acmp << 1) | touch_chan;
 
+    if (millisecond_sixteenths > PAD_COUNT_MS*16*4) {
+        if (chan_value != 0)
+            *chan_value = ((1 << 30)-1) | (1 << 30);
+    }
+
     uint32_t raw_count = PCNT0->CNT;
 
     uint32_t uncompensated_count;
