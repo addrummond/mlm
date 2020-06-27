@@ -131,10 +131,7 @@ int32_t lux_to_reflective_ev(int32_t lux)
     ev += TOFIXP(int32_t, 2.6711635357704604);
 
     // The window over the sensor attenuates the light, so compensate for this.
-    if (1024 > (1 << EV_BPS))
-        ev += TOFIXP(int32_t, WINDOW_ATTENUATION_STOPS);
-    else
-        ev += TOFIXP(int32_t, WINDOW_ATTENUATION_STOPS);
+    ev += TOFIXP(int32_t, WINDOW_ATTENUATION_STOPS);
 
     // Compensate for the restricted FOV imposed by the window.
     ev += TOFIXP(int32_t, WINDOW_FOV_ATTENUATION_STOPS);
