@@ -21,7 +21,6 @@ void set_state_to_default(mode initial_mode)
     g_state.led_brightness_ev_ref = 5 << EV_BPS;
     g_state.iso_dial_pos = ISO_100_DIAL_POS;
     g_state.iso_third = 0;
-    g_state.compensation = 0;
     g_state.deep_sleep_counter = 0;
     g_state.watchdog_wakeup = false;
     g_state.bat_known_healthy = false;
