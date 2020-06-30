@@ -1,6 +1,6 @@
 <img src="https://user-images.githubusercontent.com/120347/83353560-5c061a80-a34b-11ea-853b-c11924ef79d6.jpg" width="250px">
 
-56x87mm
+56x87x7mm
 
 This is a simple ambient light meter using a Liteon LTR-303ALS light sensor and
 an EFM32 Tiny Gecko microcontroller. It is powered by a single CR2032 coin cell.
@@ -15,12 +15,13 @@ be used as the top panel of the case. This works best with a standard 1.6mm PCB
 thickness.
 
 The case is 3D printed. It's best to use multi-jet fusion, as PLA and ABS are
-usually not very light tight. (You could use PLA/ABS and then paint the inside of the case black.)
-The Fusion 360 design for the case is exported in
-`case/case.f3d`. The PCB attaches using five M1.6 4mm countersunk screws.
-The dimples under the LEDs should be painted white and then given a gloss varnish.
-A 10x10x2mm piece of transparent acrylic should be glued in place over the sensor
-window. (If you don't to add this, adjust `WINDOW_ATTENUATION_STOPS` in `config.h`.)
+usually not very light tight. (You could use PLA/ABS and then paint the inside
+of the case black.) The Fusion 360 design for the case is exported in
+`case/case.f3d`. The PCB attaches using five M1.6 4mm countersunk screws. The
+dimples under the LEDs should be painted white and then given a gloss varnish. A
+10x10x2mm piece of transparent acrylic should be glued in place over the sensor
+window. (If you don't want to add this, adjust `WINDOW_ATTENUATION_STOPS` in
+`config.h`.)
 
 The device functions as a reflective light meter. The same design could be
 adapted for a spot meter or incident light meter by placing a lens or diffuser
