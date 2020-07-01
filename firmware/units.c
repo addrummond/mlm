@@ -144,7 +144,7 @@ int32_t lux_to_reflective_ev(int32_t lux)
 //     https://github.com/automote/LTR303/issues/2
 //
 // The lux formula given is as follows. Note that the unit for ALS_INT is
-// 1/10ths of a second.
+// tenths of a second.
 //
 // RATIO = CH1/(CH0+CH1)
 // IF (RATIO < 0.45)
