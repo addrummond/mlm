@@ -78,8 +78,8 @@ From the point of view of using the device normally, I believe that I've solved
 this problem by bumping up the input capacitance slightly and making firmware
 changes to reduce current spiking on startup. However, when the debugger is
 connected, things are less predictable. I recommend using the 3.3V power out
-of the STK3200 while programming and debugging the device (just attach a crocodile clip to the
-coin cell retainer). If you really want to use battery power while debugging,
+of the STK3200 while programming and debugging the device. (Just attach a crocodile clip to the
+coin cell retainer.) If you really want to use battery power while debugging,
 it's best to power up the device first
 and then connect the debugging leads. Even then, you may occasionally
 find that the TPS610981 gets into a weird state. If this happens, just remove
