@@ -1,3 +1,5 @@
+**Note**: These calculations are for a larger window than the one in the current design. See `case/fov/fov/__init__.py` for up to date calculations.
+
 ```
               ↔ 10mm
       -------------------- <-  upper surface of window
