@@ -1,5 +1,7 @@
 <img src="https://user-images.githubusercontent.com/120347/83353560-5c061a80-a34b-11ea-853b-c11924ef79d6.jpg" width="250px">
 
+# Mimimalist Light Meter
+
 56x87x7.5mm
 
 This is a simple ambient light meter using a Liteon LTR-303ALS light sensor and
@@ -38,4 +40,13 @@ The design includes a temperature sensor. So far I have not found a use for this
 degree). The temperature sensor can be ommitted without code changes.
 
 Note that a recent (as of June 2020) development version of KiCad will be
-required to open the board and schema files.
+required to open the board and schema files. Each component in the schematic has
+an `MPN` (manufacturer part number) property.
+
+## Known issues
+
+* Occasional glitches with touch sensing.
+
+* Lights a little dim in bright daylight.
+
+I anticipate fixing these in future revisions.
