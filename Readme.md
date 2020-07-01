@@ -4,7 +4,7 @@
 
 # Mimimalist Light Meter
 
-56x87x7.5mm
+Dimensions: 87×56x7.5mm
 
 This is a simple ambient light meter using a Liteon LTR-303ALS light sensor and
 an EFM32 Tiny Gecko microcontroller. It is powered by a single CR2032 coin cell.
