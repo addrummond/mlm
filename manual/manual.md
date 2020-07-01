@@ -18,8 +18,7 @@ mode. In this mode it may be necessary to press and hold the center pad for up
 to a second before the meter responds.
 
 Due to careful use of low energy sleep modes, the battery drains very slowly
-when the meter is not in use. If you use the meter at least once every couple of
-months then there is no point in removing the battery.
+when the meter is not in use.
 
 The meter cannot be woken up by pressing the left or right pads.
 
