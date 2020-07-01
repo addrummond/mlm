@@ -49,6 +49,6 @@ an `MPN` (manufacturer part number) property.
 
 * Occasional glitches with touch sensing.
 
-* Lights a little dim in bright daylight.
+* LEDs a little dim in bright daylight.
 
 I anticipate fixing these in future revisions.
