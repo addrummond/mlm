@@ -82,11 +82,12 @@ set ISO is indicated by a single pulsing light. Tap the left and right pads to
 adjust, then tap the center pad to confirm and return to the reading display.
 
 All ISO numbers shown on the inside of the wheel are full stop ISOs. Third stop
-ISOs are shown as bullets. If one of these ISOs is selected, you can adjust it
-by ±⅓ stop by pressing and holding the left or right pads until one of the ±⅓
-stop indication lights turns on. The left light means“go ⅓ stop
-counterclockwise” (i.e., decrease the ISO number slightly), while the right
-light means “go ⅓ stop clockwise” (i.e., increase the ISO number slightly).
+ISOs are shown as bullets. You can select a third stop ISO that has no
+corresponding bullet by selecting the nearest full stop ISO and then holding the
+left or right pad until one of the ±⅓ stop indication lights turns on. The left
+light means “go ⅓ stop counterclockwise” (i.e., decrease the ISO number
+slightly), while the right light means “go ⅓ stop clockwise” (i.e., increase the
+ISO number slightly).
 
 When a reading is in progress, one light stays on uninterrupted while the others
 cycle. This light indicates the currently selected ISO (or the nearest full stop
@@ -101,8 +102,8 @@ be low enough that no corresponding exposure can be displayed in the usual way.
 In this circumstance, the meter indicates exposures longer than one second by
 turning on three shutter speed lights rather than one. The number corresponding
 to the middle light should be interpreted as a number of seconds. For example,
-if the lights corresponding to 2, 4 and 8 are lit up, this indicates an exposure
-of four seconds.
+if the lights for 2, 4 and 8 are lit up, this indicates an exposure of four
+seconds.
 
 ## Out of range indication
 
