@@ -37,9 +37,16 @@ The LTR-303ALS integrates over a period of 50-400ms, which is far too long for
 effective flash metering. A different design would therefore be required for
 this purpose (probably using a discrete photodiode).
 
-The design includes a temperature sensor. So far I have not found a use for this
-(as the LTR-303ALS is internally temperature compensated to an acceptable
-degree). The temperature sensor can be ommitted without code changes.
+The design includes a AT30TS74-SS8M-B temperature sensor. So far I have not
+found a use for this (as the LTR-303ALS sensor is internally temperature
+compensated to an acceptable degree). The temperature sensor can be ommitted
+without code changes.
+
+The board includes a microcurrent amplifier in the bottom right corner of the
+'top' side. This is intended to make it easier to measure the power consumption
+of the device, but it's still in the development stage, so don't expect it to
+work properly. You can omit all of the components in this zone. The solder
+bridge JP1 should be closed.
 
 Note that a recent (as of June 2020) development version of KiCad will be
 required to open the board and schema files. Each component in the schematic has

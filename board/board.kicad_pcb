@@ -33,7 +33,7 @@
   )
 
   (setup
-    (last_trace_width 0.3)
+    (last_trace_width 0.25)
     (user_trace_width 0.14)
     (user_trace_width 0.18)
     (user_trace_width 0.2)
@@ -562,7 +562,7 @@
     (tags "solder jumper open")
     (path "/8513c0bc-149c-418d-89b0-f17f2d8f5316")
     (attr virtual)
-    (fp_text reference "JP1" (at 0 -1.8 90) (layer "F.SilkS")
+    (fp_text reference "JP1" (at -1.11 -1.8 90) (layer "F.SilkS")
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value "SolderJumper_2_Bridged" (at 0 1.9 90) (layer "F.Fab")
