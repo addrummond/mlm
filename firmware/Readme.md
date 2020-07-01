@@ -51,6 +51,7 @@ Start gdb using
     arm-none-eabi-gdb
 
 Commands for setting up semihosting are in `.gdbinit` in the `firmware` dir.
+They'll be run automatically if you start GDB from within this dir.
 
 Use RTT (https://www.segger.com/jlink-rtt.html) to log debug output. See
 functions defined in firmware/rrt/SEGGER_RTT.h (e.g. `SEGGER_RTT_printf`).
