@@ -203,19 +203,21 @@ uint32_t get_touch_count_func(uint32_t *chan_value, uint32_t *chan, uint32_t mil
     if (chan != 0)
         *chan = (touch_acmp << 1) | touch_chan;
 
-    if (millisecond_sixteenths > PAD_COUNT_MS*16*4) {
+    uint32_t raw_count = PCNT0->CNT;
+
+    if (millisecond_sixteenths > PAD_COUNT_MS*16*2) {
         if (chan_value != 0)
             *chan_value = ((1 << 30)-1) | (1 << 30);
+        old_count = raw_count;
+        return raw_count;
     }
-
-    uint32_t raw_count = PCNT0->CNT;
 
     uint32_t uncompensated_count;
     if (chan_value != 0) {
         if (raw_count >= old_count)
             uncompensated_count = raw_count - old_count;
         else
-            uncompensated_count = (1 << PCNT0_CNT_SIZE) - old_count + raw_count;
+            uncompensated_count = (1 << PCNT0_CNT_SIZE) + raw_count - old_count;
 
         // An issue that (I think/hope) only arises when the debugger is attached.
 #ifdef DEBUG
@@ -224,7 +226,7 @@ uint32_t get_touch_count_func(uint32_t *chan_value, uint32_t *chan, uint32_t mil
 #endif
 
         // Note that millisecond_sixteenths should always be >= (PAD_COUNT_MS * 16)
-        uint32_t compensated_count = uncompensated_count * (PAD_COUNT_MS * 16) / millisecond_sixteenths;
+        uint32_t compensated_count = (uncompensated_count * (PAD_COUNT_MS * 16)) / millisecond_sixteenths;
         *chan_value = compensated_count;
     }
 
