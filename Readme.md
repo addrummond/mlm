@@ -16,22 +16,22 @@ thickness.
 
 The case is 3D printed. It's best to use multi-jet fusion, as PLA and ABS are
 usually not very light tight. (You could use PLA/ABS and then paint the inside
-of the case black.) The Fusion 360 design for the case is exported in
-`case/case.f3d`. The PCB attaches using five M1.6 4mm countersunk screws. The
-dimples under the LEDs should be painted white and then given a gloss varnish. A
-10x10x2mm piece of transparent acrylic should be glued in place over the sensor
-window. (If you don't want to add this, adjust `WINDOW_ATTENUATION_STOPS` in
-`config.h`.)
+of the case black.) The STL file and Fusion 360 design for the case are in the
+`case` directory. The PCB attaches to the case using five M1.6 4mm countersunk
+screws. The dimples under the LEDs should be painted white and then given a
+gloss varnish. A 10x10x2mm piece of transparent acrylic should be glued in place
+over the sensor window. (If you don't add this, adjust
+`WINDOW_ATTENUATION_STOPS` in `config.h`.)
 
 The device functions as a reflective light meter. The same design could be
 adapted for a spot meter or incident light meter by placing a lens or diffuser
 over the sensor.
 
+See `firmware/Readme.md` for notes on the dev toolchain.
+
 The LTR-303ALS integrates over a period of 50-400ms, which is far too long for
 effective flash metering. A different design would therefore be required for
 this purpose (probably using a discrete photodiode).
-
-See `firmware/Readme.md` for notes on the dev toolchain.
 
 Note that a recent (as of June 2020) development version of KiCad will be
 required to open the board and schema files.
