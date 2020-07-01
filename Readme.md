@@ -23,7 +23,7 @@ and ABS are usually not very light tight. (You could use PLA/ABS and then paint
 the inside of the case black.) The STL file and Fusion 360 design for the case
 are in the `case` directory. The PCB attaches to the case using five M1.6 4mm
 countersunk screws. The dimples under the LEDs should be painted white and then
-given a gloss varnish. A 10x10x2mm piece of transparent acrylic should be glued
+given a gloss varnish. A 10×10×2mm piece of transparent acrylic should be glued
 in place over the sensor window. (If you don't add this, adjust
 `WINDOW_ATTENUATION_STOPS` in `config.h`.)
 
