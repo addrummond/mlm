@@ -204,11 +204,11 @@ void ev_to_shutter_iso100_f8(int32_t ev, int *ss_index_out, int *third_out)
     int ss_index = whole - 6;
     int third = 0;
 
-    if (frac > (1 << EV_BPS)/3) {
-        third = 1;
-    } else if (frac > (2 << EV_BPS)/3) {
+    if (frac > (2 << EV_BPS)/3) {
         ++ss_index;
         third = -1;
+    } else if (frac > (1 << EV_BPS)/3) {
+        third = 1;
     }
 
     if (ss_index_out != NULL)
