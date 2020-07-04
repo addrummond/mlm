@@ -40,8 +40,6 @@ ERC_CheckBusToBusConflicts=1
 ERC_CheckBusToNetConflicts=1
 [ModEditFrame]
 version=1
-[sheetnames]
-1=9d15d177-861b-48f8-b67e-969e14e8b813:
 [pcbnew]
 version=1
 PageLayoutDescrFile=
@@ -295,3 +293,5 @@ uViaDrill=0.1
 dPairWidth=0.2
 dPairGap=0.25
 dPairViaGap=0.25
+[sheetnames]
+1=ccfcc185-1c20-402b-877b-15e1265e9ec9:

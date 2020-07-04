@@ -34,11 +34,11 @@ The device functions as a reflective light meter. The same design could be
 adapted for a spot meter or incident light meter by placing a lens or diffuser
 over the sensor.
 
-See `firmware/Readme.md` for notes on the dev toolchain.
-
 The LTR-303ALS integrates over a period of 50-400ms, which is far too long for
 effective flash metering. A different design would therefore be required for
 this purpose (probably using a discrete photodiode).
+
+See `firmware/Readme.md` for notes on the dev toolchain.
 
 The design includes a AT30TS74-SS8M-B temperature sensor. So far I have not
 found a use for this (as the LTR-303ALS sensor is internally temperature
@@ -53,7 +53,7 @@ bridge JP1 should be closed.
 
 Note that a recent (as of June 2020) development version of KiCad will be
 required to open the board and schema files. Each component in the schematic has
-an `MPN` (manufacturer part number) property.
+a `MAN` (manufacturer) and `MPN` (manufacturer part number) property.
 
 ## Known issues
 
