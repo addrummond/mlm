@@ -82,6 +82,8 @@ void setup_capsense()
 
 void disable_capsense()
 {
+    PCNT_PRSInputEnable(PCNT0, pcntPRSInputS0, false);
+    PCNT_Enable(PCNT0, pcntModeDisable);
     ACMP0->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
     ACMP1->CTRL &= ~ACMP_CTRL_IRISE_ENABLED;
     ACMP_Disable(ACMP0);
@@ -96,6 +98,8 @@ void disable_capsense()
 
 void cycle_capsense()
 {
+    PCNT_PRSInputEnable(PCNT0, pcntPRSInputS0, false);
+
     if (touch_acmp == 0) {
         if (touch_chan == 0) {
             ACMP_CapsenseChannelSet(ACMP0, acmpChannel1);
@@ -117,13 +121,26 @@ void cycle_capsense()
         touch_acmp = 0;
         touch_chan = 0;
     }
+
+    PCNT_PRSInputEnable(PCNT0, pcntPRSInputS0, true);
+
+    // Sync up to end PCNT initialization
+    while (PCNT0->SYNCBUSY)
+    {
+        PRS_LevelSet(PRS_SWLEVEL_CH0LEVEL, PRS_SWLEVEL_CH0LEVEL);
+        PRS_LevelSet(~PRS_SWLEVEL_CH0LEVEL, PRS_SWLEVEL_CH0LEVEL);
+    }
+
+    old_count = PCNT0->CNT;
 }
 
 void calibrate_capsense()
 {
     setup_capsense();
 
-    get_touch_count(0, 0, 0); // clear any nonsense values
+    delay_ms_cyc_prepare {
+        get_touch_count(0, 0, 0); // clear any nonsense values
+    }
     uint32_t ellapsed = delay_ms_cyc(PAD_COUNT_MS);
 
     uint32_t count, chan;
@@ -136,7 +153,9 @@ void calibrate_capsense()
         }
         
         cycle_capsense();
-        get_touch_count(0, 0, 0); // clear any nonsense value
+        delay_ms_cyc_prepare {
+            get_touch_count(0, 0, 0); // clear any nonsense value
+        }
 
         ellapsed = delay_ms_cyc(PAD_COUNT_MS);
     } while (chans_done != 0b111);
@@ -208,7 +227,7 @@ uint32_t get_touch_count_func(uint32_t *chan_value, uint32_t *chan, uint32_t mil
     if (millisecond_sixteenths > PAD_COUNT_MS*16*2) {
         if (chan_value != 0)
             *chan_value = ((1 << 30)-1) | (1 << 30);
-        old_count = raw_count;
+        old_count = PCNT0->CNT;
         return raw_count;
     }
 
@@ -217,20 +236,21 @@ uint32_t get_touch_count_func(uint32_t *chan_value, uint32_t *chan, uint32_t mil
         if (raw_count >= old_count)
             uncompensated_count = raw_count - old_count;
         else
-            uncompensated_count = (1 << PCNT0_CNT_SIZE) + raw_count - old_count;
-
-        // An issue that (I think/hope) only arises when the debugger is attached.
-#ifdef DEBUG
-        if (uncompensated_count > 60000)
-            SEGGER_RTT_printf(0, "[%s] c=%u WEIRD %u %u -> %u\n", src_pos, *chan, *chan_value, old_count, raw_count);
-#endif
+            uncompensated_count = ((1 << PCNT0_CNT_SIZE) + raw_count) - old_count;
 
         // Note that millisecond_sixteenths should always be >= (PAD_COUNT_MS * 16)
         uint32_t compensated_count = (uncompensated_count * (PAD_COUNT_MS * 16)) / millisecond_sixteenths;
         *chan_value = compensated_count;
+
+        // This was useful for diagnosing a bug which I think is fixed now (but not completely sure yet!)
+#ifdef DEBUG
+        if (uncompensated_count > 60000)
+            SEGGER_RTT_printf(0, "[%s] c=%u WEIRD %u old=%u raw=%u comp=%u ms=%u\n", src_pos, *chan, *chan_value, old_count, raw_count, compensated_count, millisecond_sixteenths);
+#endif
     }
 
-    old_count = raw_count;
+    old_count = PCNT0->CNT;
+
     return raw_count;
 }
 
@@ -547,7 +567,9 @@ press get_pad_press_func(touch_position touch_pos, uint32_t nloops)
     uint32_t chans[] = { 0, 0, 0 };
     uint32_t ellapsed;
     for (uint32_t i = 0;; ++i) {
-        get_touch_count(0, 0, 0); // clear any nonsense value
+        delay_ms_cyc_prepare {
+            get_touch_count(0, 0, 0); // clear any nonsense value
+        }
         ellapsed = delay_ms_cyc(PAD_COUNT_MS);
 
         uint32_t count, chan;
