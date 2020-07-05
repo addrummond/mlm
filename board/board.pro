@@ -1,4 +1,4 @@
-update=Saturday, 04 July 2020 at 15:36:36
+update=Sunday, 05 July 2020 at 19:52:33
 version=1
 last_client=kicad
 [general]
@@ -40,6 +40,8 @@ ERC_CheckBusToBusConflicts=1
 ERC_CheckBusToNetConflicts=1
 [ModEditFrame]
 version=1
+[sheetnames]
+1=ccfcc185-1c20-402b-877b-15e1265e9ec9:
 [pcbnew]
 version=1
 PageLayoutDescrFile=
@@ -293,5 +295,3 @@ uViaDrill=0.1
 dPairWidth=0.2
 dPairGap=0.25
 dPairViaGap=0.25
-[sheetnames]
-1=ccfcc185-1c20-402b-877b-15e1265e9ec9:
