@@ -10,6 +10,7 @@
 #include <em_device.h>
 #include <em_emu.h>
 #include <em_gpio.h>
+#include <em_pcnt.h>
 #include <em_prs.h>
 #include <em_rmu.h>
 #include <em_rtc.h>
@@ -122,6 +123,7 @@ static void handle_MODE_JUST_WOKEN()
 #endif
 
     } else {
+        PCNT_Reset(PCNT0);
         reset_lesense_irq_handler_state();
         reset_led_state();
         reset_capsense_state();
