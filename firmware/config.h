@@ -28,10 +28,4 @@
 
 #define WINDOW_FOV_ATTENUATION_STOPS                        1.54
 
-// TODO: move these out of config.h
-#define REGMODE_PORT                                        gpioPortF
-#define REGMODE_PIN                                         2
-#define BATSENSE_PORT                                       gpioPortC
-#define BATSENSE_PIN                                        15
-
 #endif

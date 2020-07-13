@@ -10,6 +10,7 @@
 #include <em_wdog.h>
 #include <leds.h>
 #include <myemu.h>
+#include <pins.h>
 #include <rtt.h>
 #include <time.h>
 

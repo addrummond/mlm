@@ -8,6 +8,7 @@
 #include <em_gpio.h>
 #include <leds.h>
 #include <macroutils.h>
+#include <pins.h>
 #include <stdint.h>
 
 static int battery_voltage_in_10th_volts_helper()

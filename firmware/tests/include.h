@@ -22,6 +22,7 @@
 #include <iso.h>
 #include <leds.h>
 #include <myemu.h>
+#include <pins.h>
 #include <rtc.h>
 #include <rtt.h>
 #include <sensor.h>
