@@ -1,3 +1,9 @@
+The license below applies to all code and design files in this
+repository EXCEPT files in firmware/efm32 and firmware/rtt.
+
+------------------------------------------------------------------------
+
+
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
