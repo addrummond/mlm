@@ -57,10 +57,8 @@ Note that a recent (as of June 2020) development version of KiCad will be
 required to open the board and schema files. Each component in the schematic has
 a `MAN` (manufacturer) and `MPN` (manufacturer part number) property.
 
-## Known issues
-
-* Occasional glitches with touch sensing.
+## Known issue
 
 * LEDs a little dim in bright daylight.
 
-I anticipate fixing these in future revisions.
+I anticipate fixing this in future revisions.
