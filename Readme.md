@@ -60,6 +60,8 @@ Note that a recent (as of June 2020) development version of KiCad will be
 required to open the board and schema files. Each component in the schematic has
 a `MAN` (manufacturer) and `MPN` (manufacturer part number) property.
 
+I recommend using the [interactive BOM](https://github.com/openscopeproject/InteractiveHtmlBom) plugin for KiCad to aid manual placement of components.
+
 ## Known issue
 
 * LEDs a little dim in bright daylight.
