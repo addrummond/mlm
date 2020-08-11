@@ -4,7 +4,7 @@
 
 ## User manual
 
-The user manual is [here](https://github.com/addrummond/mlm/tree/master/manual).
+The user manual is [here](https://github.com/addrummond/mlm/blob/master/manual/manual.md).
 
 ## Overview
 
