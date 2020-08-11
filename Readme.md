@@ -1,10 +1,14 @@
-**[User manual](https://github.com/addrummond/mlm/tree/master/manual)**
+# Mimimalist Light Meter
+
+[user manual](https://github.com/addrummond/mlm/tree/master/manual)**
 
 <img src="https://user-images.githubusercontent.com/120347/86258444-bf85a100-bbb2-11ea-91e5-7cb454e6880c.jpg" width="250px">  <img src="https://user-images.githubusercontent.com/120347/86258443-beed0a80-bbb2-11ea-8225-8dd4185c6486.jpg" width="250px">  <img src="https://user-images.githubusercontent.com/120347/86258426-ba285680-bbb2-11ea-8737-4603d1c740bd.jpg" width="250px">
 
+## User manual
 
+The user manual is [here]([user manual](https://github.com/addrummond/mlm/tree/master/manual).
 
-# Mimimalist Light Meter
+## Overview
 
 This is a simple ambient light meter using a Liteon LTR-303ALS light sensor and
 an EFM32 Tiny Gecko ARM microcontroller. It is powered by a single CR2032 coin cell.
@@ -16,8 +20,6 @@ The goal of the project is to make available a simple, compact and inexpensive
 light meter suitable for analogue photography. 
 
 Dimensions: 87×56x7.5mm
-
-The user manual is available in `manual/manual.md`.
 
 The bottom side of the PCB (the side with no components mounted) is intended to
 be used as the top panel of the case. This works best with a standard 1.6mm PCB
@@ -40,7 +42,11 @@ The LTR-303ALS integrates over a period of 50-400ms, which is far too long for
 effective flash metering. A different design would therefore be required for
 this purpose (probably using a discrete photodiode).
 
+## Build notes
+
 See `firmware/Readme.md` for notes on the dev toolchain.
+
+**The solder bridge JP1 should be closed.**
 
 The design includes a AT30TS74-SS8M-B temperature sensor. So far I have not
 found a use for this (as the LTR-303ALS sensor is internally temperature
@@ -50,8 +56,7 @@ without code changes.
 The board includes a microcurrent amplifier in the bottom right corner of the
 'top' side. This is intended to make it easier to measure the power consumption
 of the device, but it's still in the development stage, so don't expect it to
-work properly. You can omit all of the components in this zone. The solder
-bridge JP1 should be closed.
+work properly. You can omit all of the components in this zone. (There is a border around these components on the silkscreen.)
 
 Note that a recent (as of June 2020) development version of KiCad will be
 required to open the board and schema files. Each component in the schematic has
