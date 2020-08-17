@@ -137,11 +137,11 @@ static void get_mode(sensor_reading r, int32_t *itime, int *itime_key, int32_t *
                 int64_t ch1 = (rat * NOMINAL_MAX_CHAN) / (100 - rat);
                 if (rat < 45)
                     // * 10 because itime is in 100ths here, but 10ths in formula
-                    max = ((17743*NOMINAL_MAX_CHAN + 11059*(int64_t)ch1) * 100) / (int64_t)gains[j] / (int64_t)itimes[i];
+                    max = ((17743*NOMINAL_MAX_CHAN + 11059*ch1) * 100) / (int64_t)gains[j] / (int64_t)itimes[i];
                 else if (rat < 64)
-                    max = ((42785*NOMINAL_MAX_CHAN - 19548*(int64_t)ch1) * 100) / (int64_t)gains[j] / (int64_t)itimes[i];
+                    max = ((42785*NOMINAL_MAX_CHAN - 19548*ch1) * 100) / (int64_t)gains[j] / (int64_t)itimes[i];
                 else // if (rat < 0.85)
-                    max = ((5926*NOMINAL_MAX_CHAN + 1185*(int64_t)ch1) * 100) / (int64_t)gains[j] / (int64_t)itimes[i];
+                    max = ((5926*NOMINAL_MAX_CHAN + 1185*ch1) * 100) / (int64_t)gains[j] / (int64_t)itimes[i];
 
                 // max is in lux*10000. Convert to 1 << EV_BPS
                 // + 1 so that we get a slight underestimate rather than a slight overestimate.
