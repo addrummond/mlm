@@ -115,8 +115,7 @@ int32_t lux_to_reflective_ev(int32_t lux)
     }
 
     // This comes from the 2.5 constant in the lux formula.
-    lux *= 2;
-    lux /= 5;
+    lux = lux * 2 / 5;
 
     int32_t ev = log_base2(lux);
 
