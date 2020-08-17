@@ -68,24 +68,24 @@ parameters.
 
 ## Notes
 
-* An unfortunate feature of the TPS610981 boost converter is that it has a tendency to misbehave
-during startup if there is an initial current spike and the power source has
-a high impedance. Coin cells, especially when at less than full capacity,
-have a relatively high impedance. I am still not sure exactly what happens, but the
-issue appears to be the same (unsolved) one that you can read about in
-[this forum post](http://e2e.ti.com/support/power-management/f/196/t/827996?TPS610981-Converter-in-latch-up-mode).
-From the point of view of using the device normally, I believe that I've solved
-this problem by bumping up the input capacitance slightly and making firmware
-changes to reduce current spiking on startup. However, when the debugger is
-connected, things are less predictable. I recommend using the 3.3V power out
-of the STK3200 while programming and debugging the device. (Just attach a crocodile clip to the
-coin cell retainer.) If you really want to use battery power while debugging,
-it's best to power up the device first
-and then connect the debugging leads. Even then, you may occasionally
-find that the TPS610981 gets into a weird state. If this happens, just remove
-the battery. It takes coin cells a little while to recover from being shorted,
-but after a few minutes, the coin cell's open circuit voltage should be back to normal
-(though the cell will no doubt be somewhat the worse for wear).
+* An unfortunate feature of the TPS610981 boost converter is that it has a
+  tendency to misbehave during startup if there is an initial current spike and
+  the power source has a high impedance. Coin cells, especially when at less
+  than full capacity, have a relatively high impedance. I am still not sure
+  exactly what happens, but the issue appears to be the same (unsolved) one that
+  you can read about in [this forum
+  post](http://e2e.ti.com/support/power-management/f/196/t/827996?TPS610981-Converter-in-latch-up-mode).
+  From the point of view of using the device normally, I believe that I've
+  solved this problem by bumping up the input capacitance slightly and making
+  firmware changes to reduce current spiking on startup. However, when the
+  debugger is connected, things are less predictable. I recommend using the 3.3V
+  power out of the STK3200 while programming and debugging the device. (Just
+  attach a crocodile clip to the coin cell retainer.) If you really want to use
+  battery power while debugging, it's best to power up the device first and then
+  connect the debugging leads. Even then, you may occasionally find that the
+  TPS610981 gets into a weird state. If this happens, just remove the cell. In
+  this state, the cell appears to be effectively shorted, so it can take it a
+  little while to recover.
 
 * It is necessary to do a `monitor reset` and `monitor halt` before loading new
 firmware, since otherwise things like counters and interrupts can get screwed
