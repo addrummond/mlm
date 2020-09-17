@@ -44,17 +44,10 @@ this purpose (probably using a discrete photodiode).
 
 See `firmware/Readme.md` for notes on the dev toolchain.
 
-**The solder bridge JP1 should be closed.**
-
 The design includes a AT30TS74-SS8M-B temperature sensor. So far I have not
 found a use for this (as the LTR-303ALS sensor is internally temperature
 compensated to an acceptable degree). The temperature sensor can be ommitted
 without code changes.
-
-The board includes a microcurrent amplifier in the bottom right corner of the
-'top' side. This is intended to make it easier to measure the power consumption
-of the device, but it's still in the development stage, so don't expect it to
-work properly. You can omit all of the components in this zone. (There is a border around these components on the silkscreen.)
 
 Note that a recent (as of June 2020) development version of KiCad will be
 required to open the board and schema files. Each component in the schematic has
