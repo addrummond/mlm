@@ -12,22 +12,10 @@ def pts_to_zone(layer, pts):
     )
 )""" % (layer, pts_expr)
 
-def pts_to_zone(layer, pts):
-    pts_expr = ' '.join(["(xy %f %f)" % p for p in pts])
-    return """(zone (net 0) (net_name "") (layer "%s") (tstamp 0) (hatch none 0.508)
-  (connect_pads (clearance 0.1))
-  (min_thickness 0.254)
-  (keepout (tracks allowed) (vias allowed) (copperpour not_allowed))
-  (fill (thermal_gap 0.508) (thermal_bridge_width 0.508))
-  (polygon
-    (pts %s)
-  )
-)""" % (layer, pts_expr)
-
 CENTER = (100, 100)
 RAD = 17.5
 N = 24
-KEEPOUT_DIAM = 3.7
+KEEPOUT_DIAM = 3.3
 KEEPOUT_FACES = 64
 YSQUASH = 0.61
 LAYER = "B.Cu"
