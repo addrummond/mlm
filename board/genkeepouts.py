@@ -2,6 +2,18 @@ import math
 
 def pts_to_zone(layer, pts):
     pts_expr = ' '.join(["(xy %f %f)" % p for p in pts])
+    return """(zone (net 0) (net_name "") (layer "%s") (tstamp 046d8e5f-78d7-41d0-8003-fee655b1485a) (hatch none 0.508)
+    (connect_pads (clearance 0))
+    (min_thickness 0.254)
+    (keepout (tracks allowed) (vias allowed) (pads allowed ) (copperpour not_allowed) (footprints allowed))
+    (fill (thermal_gap 0.508) (thermal_bridge_width 0.508))
+    (polygon
+      (pts %s)
+    )
+)""" % (layer, pts_expr)
+
+def pts_to_zone(layer, pts):
+    pts_expr = ' '.join(["(xy %f %f)" % p for p in pts])
     return """(zone (net 0) (net_name "") (layer "%s") (tstamp 0) (hatch none 0.508)
   (connect_pads (clearance 0.1))
   (min_thickness 0.254)
