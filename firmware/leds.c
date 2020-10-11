@@ -154,6 +154,7 @@ static volatile int last_flash_cycles;
 static volatile bool flash_on;
 static volatile uint32_t target_duty_cycle;
 static volatile uint32_t current_duty_cycle;
+static volatile uint32_t duty_cycle_counter;
 
 void reset_led_state()
 {
@@ -214,8 +215,13 @@ static void led_rtc_count_callback()
     }
 
     int32_t dc = current_duty_cycle;
-    if (current_duty_cycle > target_duty_cycle)
-        --current_duty_cycle;
+    if (current_duty_cycle > target_duty_cycle) {
+        ++duty_cycle_counter;
+        if (duty_cycle_counter >= CYCLES_PER_COUNTER_DECREMENT) {
+            --current_duty_cycle;
+            duty_cycle_counter = 0;
+        }
+    }
 
     if (throb_mask & (1 << current_mask_n)) {
         if (dc - THROB_MAG < DUTY_CYCLE_MIN)
@@ -295,6 +301,7 @@ void leds_on(uint32_t mask)
 
     current_duty_cycle = DUTY_CYCLE_MAX;
     target_duty_cycle = get_duty_cycle();
+    duty_cycle_counter = 0;
 
     RTC_Enable(false);
 
