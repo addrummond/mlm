@@ -1,6 +1,6 @@
 import math
 
-def pts_to_zone(layer, pts):
+def pts_to_zone(layer, mask_layer, pts):
     pts_expr = ' '.join(["(xy %f %f)" % p for p in pts])
     return """(zone (net 0) (net_name "") (layer "%s") (tstamp 046d8e5f-78d7-41d0-8003-fee655b1485a) (hatch none 0.508)
     (connect_pads (clearance 0))
@@ -10,7 +10,21 @@ def pts_to_zone(layer, pts):
     (polygon
       (pts %s)
     )
-)""" % (layer, pts_expr)
+)
+(zone (net 0) (net_name "") (layer "%s") (tstamp e3fe6fc1-f965-414c-b8a7-28d98e3d32cf) (hatch edge 0.508)
+(connect_pads (clearance 0.3))
+(min_thickness 0.254) (filled_areas_thickness no)
+(fill yes (thermal_gap 0.508) (thermal_bridge_width 0.508))
+(polygon
+    (pts %s)
+)
+(filled_polygon
+    (layer "%s")
+    (island)
+    (pts %s)
+)
+)
+""" % (layer, pts_expr, mask_layer, pts_expr, mask_layer, pts_expr)
 
 CENTER = (100, 100)
 RAD = 17.5
@@ -19,6 +33,7 @@ KEEPOUT_DIAM = 3.3
 KEEPOUT_FACES = 64
 YSQUASH = 0.61
 LAYER = "B.Cu"
+MASK_LAYER = "B.Mask"
 
 def pts_for(angle):
     pts = []
@@ -38,13 +53,13 @@ for i in range(N):
     y = CENTER[1] + math.sin(angle) * RAD
 
     pts = [(xx + x, yy + y) for (xx, yy) in pts_for(angle)]
-    zones.append(pts_to_zone(LAYER, pts))
+    zones.append(pts_to_zone(LAYER, MASK_LAYER, pts))
 
 # +/- 1/3 leds
 langle = (140.19442890773481 + 90) * math.pi / 180.0
 rangle = -langle
-zones.append(pts_to_zone(LAYER, [(x + 92.5, y + 91) for (x, y) in pts_for(langle)]))
-zones.append(pts_to_zone(LAYER, [(x + 107.5, y + 91) for (x, y) in pts_for(rangle)]))
+zones.append(pts_to_zone(LAYER, MASK_LAYER, [(x + 92.5, y + 91) for (x, y) in pts_for(langle)]))
+zones.append(pts_to_zone(LAYER, MASK_LAYER, [(x + 107.5, y + 91) for (x, y) in pts_for(rangle)]))
 
 for z in zones:
     print(z)
