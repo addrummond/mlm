@@ -170,6 +170,7 @@ void reset_led_state()
     flash_on = false;
     target_duty_cycle = 0;
     current_duty_cycle = 0;
+    duty_cycle_counter = 0;
 }
 
 void set_led_throb_mask(uint32_t mask)
