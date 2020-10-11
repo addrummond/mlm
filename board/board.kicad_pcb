@@ -4107,7 +4107,10 @@
   (segment (start 107.32 119.21) (end 108.44 119.21) (width 0.2) (layer "F.Cu") (net 11) (tstamp b1c9379b-5542-4921-8177-604530682f41))
   (segment (start 120.42 112) (end 120.42 110.62) (width 0.28) (layer "F.Cu") (net 11) (tstamp b9008ef5-5632-42ca-98e5-8c2bf591b8c0))
   (segment (start 114.67 117.725) (end 114.7 117.695) (width 0.127) (layer "F.Cu") (net 11) (tstamp ce9d7c02-2cc3-4fb1-9217-0ebe9f31ee6c))
+  (segment (start 108.44 119.21) (end 109.2 118.45) (width 0.3) (layer "F.Cu") (net 11) (tstamp d16eade6-4481-442d-b8fa-1bc53c783bf7))
+  (segment (start 108.44 119.21) (end 108.82 119.21) (width 0.3) (layer "F.Cu") (net 11) (tstamp dacbbb8d-3f9b-42dd-892e-7dffea45073a))
   (segment (start 118.67 117.5) (end 118.67 117.34) (width 0.2) (layer "F.Cu") (net 11) (tstamp e5cf9fe1-18d3-431e-a401-0c9a833b7640))
+  (segment (start 108.82 119.21) (end 109.3 118.73) (width 0.3) (layer "F.Cu") (net 11) (tstamp e90e9245-a9d8-462a-a489-c40ed72ba98f))
   (segment (start 105.91 66.15) (end 105.91 64.85) (width 0.2) (layer "F.Cu") (net 12) (tstamp 1999474b-f676-499b-8873-3246ca10b6a9))
   (segment (start 106.25 66.49) (end 105.91 66.15) (width 0.2) (layer "F.Cu") (net 12) (tstamp 27bc1ef9-92b8-4498-a8e5-62d191ec0a1c))
   (segment (start 103 64.58) (end 101.625 65.955) (width 0.2) (layer "F.Cu") (net 12) (tstamp 5d451882-d1cc-419b-af40-e887fe40d85c))
@@ -5272,7 +5275,7 @@
     (priority 5)
     (connect_pads (clearance 0.3))
     (min_thickness 0.4) (filled_areas_thickness no)
-    (fill yes (thermal_gap 0.1) (thermal_bridge_width 0.41) (smoothing fillet))
+    (fill yes (thermal_gap 0.3) (thermal_bridge_width 0.41) (smoothing fillet))
     (polygon
       (pts
         (xy 109.1 119.73)
