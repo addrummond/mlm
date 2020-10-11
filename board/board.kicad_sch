@@ -6796,7 +6796,7 @@
     (uuid "684a6a55-19df-41c4-8df7-ad8b5e1629e7")
     (property "Reference" "L1" (id 0) (at 24.13 157.099 0))
     (property "Value" "2u2" (id 1) (at 17.78 156.87 0))
-    (property "Footprint" "mlm:VLS3015CX-4R7M-1" (id 2) (at 17.78 154.94 0)
+    (property "Footprint" "mlm:NRS4010T2R2MDGG" (id 2) (at 17.78 154.94 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 17.78 154.94 0)
@@ -8208,7 +8208,7 @@
       (reference "J4") (unit 1) (value " ") (footprint "mlm:TOUCHPAD")
     )
     (path "/684a6a55-19df-41c4-8df7-ad8b5e1629e7"
-      (reference "L1") (unit 1) (value "2u2") (footprint "mlm:VLS3015CX-4R7M-1")
+      (reference "L1") (unit 1) (value "2u2") (footprint "mlm:NRS4010T2R2MDGG")
     )
     (path "/3777c052-8d7f-48be-8f35-be4b3f40b0ff"
       (reference "L2") (unit 1) (value "1k") (footprint "mlm:0805")
