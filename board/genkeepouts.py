@@ -1,8 +1,14 @@
 import math
 
+id = 0
+def get_id():
+  global id
+  id += 1
+  return "%i" % id
+
 def pts_to_zone(layer, mask_layer, pts):
     pts_expr = ' '.join(["(xy %f %f)" % p for p in pts])
-    return """(zone (net 0) (net_name "") (layer "%s") (tstamp 046d8e5f-78d7-41d0-8003-fee655b1485a) (hatch none 0.508)
+    return """(zone (net 0) (net_name "") (layer "%s") (tstamp %s) (hatch none 0.508)
     (connect_pads (clearance 0))
     (min_thickness 0.254)
     (keepout (tracks allowed) (vias allowed) (pads allowed ) (copperpour not_allowed) (footprints allowed))
@@ -11,7 +17,7 @@ def pts_to_zone(layer, mask_layer, pts):
       (pts %s)
     )
 )
-(zone (net 0) (net_name "") (layer "%s") (tstamp e3fe6fc1-f965-414c-b8a7-28d98e3d32cf) (hatch edge 0.508)
+(zone (net 0) (net_name "") (layer "%s") (tstamp %s) (hatch edge 0.508)
 (connect_pads (clearance 0.3))
 (min_thickness 0.254) (filled_areas_thickness no)
 (fill yes (thermal_gap 0.508) (thermal_bridge_width 0.508))
@@ -24,7 +30,7 @@ def pts_to_zone(layer, mask_layer, pts):
     (pts %s)
 )
 )
-""" % (layer, pts_expr, mask_layer, pts_expr, mask_layer, pts_expr)
+""" % (layer, get_id(), pts_expr, mask_layer, get_id(), pts_expr, mask_layer, pts_expr)
 
 CENTER = (100, 100)
 RAD = 17.5
