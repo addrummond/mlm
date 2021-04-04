@@ -1,6 +1,11 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+// Define this to disable deep sleep mode. Recommended, as it doesn't seem to be
+// very successful in reducing power consumption over the regular sleep mode,
+// and may occasionally cause startup issues with the boost converter.
+#define DISABLE_DEEP_SLEEP
+
 #define LONG_PRESS_MS                                       300
 #define ISO_LONG_PRESS_MS                                   600
 #define DOUBLE_BUTTON_SLOP_MS                               300

@@ -40,9 +40,6 @@ static void go_into_deep_sleep()
 {
     SEGGER_RTT_printf(0, "Enter deep sleep (unless in DEBUG mode).\n");
 
-#ifdef DEBUG
-    return;
-#else
     CMU_ClockEnable(cmuClock_CORELE, true);
 
     EMU_EM23Init_TypeDef dcdcInit = EMU_EM23INIT_DEFAULT;
@@ -69,7 +66,6 @@ static void go_into_deep_sleep()
     RMU->CTRL |= 1; // limited watchdog reset
 
     my_emu_enter_em3(false);
-#endif
 }
 
 static void go_into_deep_sleep_with_indication()
@@ -102,12 +98,13 @@ static void handle_MODE_JUST_WOKEN()
 
     if (! g_state.watchdog_wakeup) {
         while (! check_lesense_irq_handler()) {
+#if !defined(DEBUG) && !defined(DISABLE_DEEP_SLEEP)
             if ((g_state.deep_sleep_counter++) * DEEP_SLEEP_TIMING_FUDGE_FACTOR_NUMERATOR / DEEP_SLEEP_TIMING_FUDGE_FACTOR_DENOMINATOR > deep_sleep_timeout_seconds/LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS) {
                 // We've been sleeping for a while now and nothing has happened.
                 // Time to go into deep sleep.
                 go_into_deep_sleep_with_indication();
-                // in DEBUG mode we fall through to here
             }
+#endif
 
             recalibrate_le_capsense();
             SEGGER_RTT_printf(0, "EM2 snooze after calib.\n");

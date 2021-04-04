@@ -13,10 +13,6 @@
 The meter does not have an on/off switch. It is always ready to detect a press
 of the center pad. (It cannot be worken up by pressing the left or right pads.)
 
-If the meter has remained used for around 6 hours, it goes into “deep sleep”
-mode. In this mode it may be necessary to press and hold the center pad for up
-to a second before the meter responds.
-
 Due to careful use of low energy sleep modes, the battery drains very slowly
 when the meter is not in use.
 
