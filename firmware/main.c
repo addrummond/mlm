@@ -166,7 +166,6 @@ static void handle_MODE_AWAKE_AT_REST()
     }
 }
 
-
 static void handle_MODE_SNOOZE()
 {
     // Make sure LDO is off
