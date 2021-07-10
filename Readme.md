@@ -44,14 +44,10 @@ this purpose (probably using a discrete photodiode).
 
 See `firmware/Readme.md` for notes on the dev toolchain.
 
-The design includes a AT30TS74-SS8M-B temperature sensor. So far I have not
-found a use for this (as the LTR-303ALS sensor is internally temperature
-compensated to an acceptable degree). The temperature sensor can be ommitted
-without code changes.
-
 Note that a recent (as of June 2020) development version of KiCad will be
-required to open the board and schema files. Each component in the schematic has
-a `MAN` (manufacturer) and `MPN` (manufacturer part number) property.
+required to open the board and schema files. Version 5.99.0-3928-g3c8396cd0 is
+know to work. Each component in the schematic has a `MAN` (manufacturer) and
+`MPN` (manufacturer part number) property.
 
 I recommend using the [interactive BOM](https://github.com/openscopeproject/InteractiveHtmlBom) plugin for KiCad to aid manual placement of components.
 
