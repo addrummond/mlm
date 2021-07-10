@@ -31,8 +31,7 @@ Read off the aperture and shutter speed.
 ## Battery
 
 The meter is powered by a single CR2032 coin cell. The cell should be inserted
-with the positive side facing away from the circuit board. The meter won't be damaged
-if the cell is inserted the wrong way round, but will not function.
+with the positive side facing away from the circuit board.
 
 When a new battery is inserted, the light for f8 will turn on for around 10
 seconds. When this light goes out, initial calibration of the touch pads is
