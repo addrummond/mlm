@@ -46,7 +46,7 @@ See `firmware/Readme.md` for notes on the dev toolchain.
 
 Note that a recent (as of June 2020) development version of KiCad will be
 required to open the board and schema files. Version 5.99.0-3928-g3c8396cd0 is
-know to work. Each component in the schematic has a `MAN` (manufacturer) and
+known to work. Each component in the schematic has a `MAN` (manufacturer) and
 `MPN` (manufacturer part number) property.
 
 I recommend using the [interactive BOM](https://github.com/openscopeproject/InteractiveHtmlBom) plugin for KiCad to aid manual placement of components.
