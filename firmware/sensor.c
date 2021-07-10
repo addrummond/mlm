@@ -256,4 +256,3 @@ void sensor_wait_till_ready()
         delay_ms_cyc(10); // save some current (less i2c communication)
     } while (!(status & 0b100));
 }
-
