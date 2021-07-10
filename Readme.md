@@ -54,5 +54,3 @@ I recommend using the [interactive BOM](https://github.com/openscopeproject/Inte
 ## Known issue
 
 * LEDs a little dim in bright daylight.
-
-I anticipate fixing this in future revisions.
