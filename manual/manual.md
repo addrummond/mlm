@@ -78,8 +78,8 @@ All ISO numbers shown on the inside of the wheel are full stop ISOs. Third stop
 ISOs are shown as bullets. You can select a third stop ISO that has no
 corresponding bullet by selecting the nearest full stop ISO and then holding the
 left or right pad until one of the ±⅓ stop indication lights turns on. The left
-light means “go ⅓ stop counterclockwise” (i.e., decrease the ISO number
-slightly), while the right light means “go ⅓ stop clockwise” (i.e., increase the
+light means “go ⅓ stop counterclockwise” (i.e. decrease the ISO number
+slightly), while the right light means “go ⅓ stop clockwise” (i.e. increase the
 ISO number slightly).
 
 When a reading is in progress, one light stays on uninterrupted while the others
