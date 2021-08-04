@@ -9,13 +9,13 @@
 
 static int clock_div_rightshift;
 
-// Returns the actual time delayed for in 16ths of a millisecond.
 void delay_ms_cyc_prepare_func()
 {
     DWT->CYCCNT = 0;
     DWT->CTRL |= 1U;
 }
 
+// Returns the actual time delayed for in 16ths of a millisecond.
 uint32_t delay_ms_cyc_loop_func(uint32_t tocks, uint32_t tick_cycles)
 {
     for (; tocks > 0; --tocks) {
