@@ -34,7 +34,7 @@ uint32_t delay_ms_cyc_loop_func(uint32_t tocks, uint32_t tick_cycles)
 
     DWT->CTRL &= ~1U;
 
-    return ((tocks * 256) * 16) + ((last * 16) / (CPU_CLOCK_FREQ_HZ/1000));
+    return (tocks * 256 * 16) + ((last * 16) / (CPU_CLOCK_FREQ_HZ/1000));
 }
 
 void set_rtc_clock_div_func(CMU_ClkDiv_TypeDef div, unsigned rightshift)
