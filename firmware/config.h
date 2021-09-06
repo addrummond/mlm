@@ -22,7 +22,7 @@
 
 // You'll need to tweak the logic in
 // display_reading_interrupt_cycle_interrupt_handler in main.c if you change
-// this. 400Hz gives an 80Hz refresh rate per LED when 5 are showing.
+// this.
 #define LED_REFRESH_RATE_HZ                                 1200
 #define CYCLES_PER_COUNTER_DECREMENT                        4
 
