@@ -84,6 +84,21 @@ static void go_into_deep_sleep_with_indication()
     go_into_deep_sleep();
 }
 
+static void maybe_sleep_deeper()
+{
+#if !defined(DEBUG)
+#   ifdef DISABLE_DEEP_SLEEP
+    if ((g_state.deep_sleep_counter++) * DEEP_SLEEP_TIMING_FUDGE_FACTOR_NUMERATOR / DEEP_SLEEP_TIMING_FUDGE_FACTOR_DENOMINATOR > deep_sleep_timeout_seconds/LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS) {
+        // We've been sleeping for a while now and nothing has happened.
+        // Time to go into deep sleep.
+        go_into_deep_sleep_with_indication();
+    }
+#   else
+    le_capsense_slow_scan();
+#   endif
+#endif
+}
+
 static void handle_MODE_JUST_WOKEN()
 {
     static const int32_t DEEP_SLEEP_TIMING_FUDGE_FACTOR_NUMERATOR = 6;
@@ -98,19 +113,14 @@ static void handle_MODE_JUST_WOKEN()
 
     if (! g_state.watchdog_wakeup) {
         while (! check_lesense_irq_handler()) {
-#if !defined(DEBUG) && !defined(DISABLE_DEEP_SLEEP)
-            if ((g_state.deep_sleep_counter++) * DEEP_SLEEP_TIMING_FUDGE_FACTOR_NUMERATOR / DEEP_SLEEP_TIMING_FUDGE_FACTOR_DENOMINATOR > deep_sleep_timeout_seconds/LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS) {
-                // We've been sleeping for a while now and nothing has happened.
-                // Time to go into deep sleep.
-                go_into_deep_sleep_with_indication();
-            }
-#endif
+            maybe_sleep_deeper();
 
             recalibrate_le_capsense();
             SEGGER_RTT_printf(0, "EM2 snooze after calib.\n");
             my_emu_enter_em2(true); // true = restore oscillators, clocks and voltage scaling
             SEGGER_RTT_printf(0, "Woken up [2]!\n");
         }
+
         disable_le_capsense();
 
         int v = battery_voltage_in_10th_volts();
