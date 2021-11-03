@@ -408,7 +408,7 @@ void setup_le_capsense_sleep()
 {
     le_mode = LE_CAPSENSE_SLEEP;
 
-    setup_le_capsense_helper(&chanConfigSleep, lesenseScanStartPeriodic, 8);
+    setup_le_capsense_helper(&chanConfigSleep, lesenseScanStartPeriodic, NORMAL_PAD_SCAN_HZ);
 
     LESENSE_IntDisable(LESENSE_IEN_SCANCOMPLETE);
 
@@ -429,6 +429,11 @@ void setup_le_capsense_sleep()
     set_rtc_clock_div(cmuClkDiv_32768);
     RTC_CompareSet(0, RTC->CNT + LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS);
     RTC_IntClear(RTC_IFC_COMP0);
+}
+
+void le_capsense_slow_scan()
+{
+    LESENSE_ScanFreqSet(0, SLOW_PAD_SCAN_HZ);
 }
 
 uint32_t lesense_result;

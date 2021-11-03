@@ -28,6 +28,8 @@ typedef enum le_capsense_mode {
 
 #define PAD_COUNT_MS       16 // we count alternations on each touch pad for this number of ms
 #define LE_PAD_CLOCK_COUNT 1
+#define NORMAL_PAD_SCAN_HZ 8
+#define SLOW_PAD_SCAN_HZ   1
 
 void setup_capsense(void);
 void disable_capsense(void);
@@ -47,6 +49,7 @@ press get_pad_press_func(touch_position touch_pos, uint32_t nloops);
 void reset_lesense_irq_handler_state(void);
 bool check_lesense_irq_handler(void);
 void reset_capsense_state(void);
+void le_capsense_slow_scan(void);
 
 extern uint32_t lesense_result;
 
