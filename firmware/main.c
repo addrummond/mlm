@@ -614,39 +614,10 @@ static void state_loop()
     }
 }
 
-static int real_main(bool watchdog_wakeup)
-{
-    set_state_to_default(watchdog_wakeup ? MODE_JUST_WOKEN : MODE_SNOOZE);
-    g_state.watchdog_wakeup = watchdog_wakeup;
-
-    state_loop();
-
-    return 0;
-}
-
 int32_t deep_sleep_capsense_recalibration_counter __attribute__((section (".persistent")));
 
-int main()
+static int real_main(bool watchdog_wakeup)
 {
-    // We have to do without the chip errata as running this after every watchdog reset
-    // in deep sleep mode consumes too much current. I've verified that this function
-    // doesn't do anything that we need.
-    //
-    // CHIP_Init();
-
-#if defined(TEST_MAIN) || defined(DISABLE_DEEP_SLEEP)
-    bool watchdog_wakeup = false;
-#else
-    uint32_t reset_cause = RMU_ResetCauseGet();
-    RMU_ResetCauseClear();
-    bool watchdog_wakeup = ((reset_cause & RMU_RSTCAUSE_WDOGRST) != 0);
-#endif
-
-    common_init(watchdog_wakeup);
-
-#ifdef TEST_MAIN
-    return test_main();
-#else
 
     if (! watchdog_wakeup) {
         deep_sleep_capsense_recalibration_counter = 0;
@@ -697,6 +668,35 @@ int main()
         rtc_init();
     }
 
+    set_state_to_default(watchdog_wakeup ? MODE_JUST_WOKEN : MODE_SNOOZE);
+    g_state.watchdog_wakeup = watchdog_wakeup;
+
+    state_loop();
+
+    return 0;
+}
+
+int main()
+{
+    // We have to do without the chip errata as running this after every watchdog reset
+    // in deep sleep mode consumes too much current. I've verified that this function
+    // doesn't do anything that we need.
+    //
+    // CHIP_Init();
+
+#if defined(TEST_MAIN) || defined(DISABLE_DEEP_SLEEP)
+    bool watchdog_wakeup = false;
+#else
+    uint32_t reset_cause = RMU_ResetCauseGet();
+    RMU_ResetCauseClear();
+    bool watchdog_wakeup = ((reset_cause & RMU_RSTCAUSE_WDOGRST) != 0);
+#endif
+
+    common_init(watchdog_wakeup);
+
+#ifdef TEST_MAIN
+    return test_main();
+#else
     return real_main(watchdog_wakeup);
 #endif
 }
