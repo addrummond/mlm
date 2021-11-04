@@ -406,11 +406,6 @@ static void handle_MODE_SETTING_ISO()
                             g_state.iso_third = mag;
                         }
                         
-#ifdef DEBUG
-                        int32_t iso = iso_dial_pos_and_third_to_iso(g_state.iso_dial_pos, g_state.iso_third);
-                        SEGGER_RTT_printf(0, "ISO -> %u (i) (dial pos %u)\n", iso, g_state.iso_dial_pos);
-#endif
-                        
                         leds = 1 << iso_dial_pos_to_led_n(g_state.iso_dial_pos);
                         set_led_throb_mask(leds);
                         if (g_state.iso_third == -1)
