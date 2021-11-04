@@ -644,7 +644,7 @@ int main()
     //
     // CHIP_Init();
 
-#ifdef TEST_MAIN
+#if defined(TEST_MAIN) || defined(DISABLE_DEEP_SLEEP)
     bool watchdog_wakeup = false;
 #else
     uint32_t reset_cause = RMU_ResetCauseGet();
