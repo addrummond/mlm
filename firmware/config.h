@@ -6,8 +6,8 @@
 // and may occasionally cause startup issues with the boost converter.
 #define DISABLE_DEEP_SLEEP
 
-#define NORMAL_PAD_SCAN_HZ 33
-#define SLOW_PAD_SCAN_HZ   1
+#define NORMAL_PAD_SCAN_HZ                                  33
+#define SLOW_PAD_SCAN_HZ                                    1
 
 #define LONG_PRESS_MS                                       300
 #define ISO_LONG_PRESS_MS                                   600
