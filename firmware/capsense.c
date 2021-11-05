@@ -387,7 +387,7 @@ static void setup_le_capsense_helper(const LESENSE_ChDesc_TypeDef *chan_config, 
     while (LESENSE_STATUS_SCANACTIVE & LESENSE_StatusGet())
         ;
     LESENSE_ResultBufferClear();
-    LESENSE_ScanFreqSet(scan_freq, 0);
+    LESENSE_ScanFreqSet(0, scan_freq);
     LESENSE_ClkDivSet(lesenseClkLF, lesenseClkDiv_1);
 
     LESENSE_ChannelConfig(chan_config, 14);
