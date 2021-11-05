@@ -84,6 +84,22 @@ static void go_into_deep_sleep_with_indication()
     go_into_deep_sleep();
 }
 
+static void go_into_fake_deep_sleep_with_indication()
+{
+    // A visual indication that it's going into fake deep sleep mode is sometimes
+    // useful for debugging.
+#ifdef DEBUG_DEEP_SLEEP
+    leds_all_off();
+    leds_on(0b11);
+    uint32_t start = leds_on_for_cycles;
+    while (leds_on_for_cycles - start < RTC_RAW_FREQ)
+        ;
+    leds_all_off();
+#endif
+
+    le_capsense_slow_scan();
+}
+
 static void maybe_sleep_deeper()
 {
     static const int32_t DEEP_SLEEP_TIMING_FUDGE_FACTOR_NUMERATOR = 6;
@@ -98,13 +114,13 @@ static void maybe_sleep_deeper()
 
 #if !defined(DEBUG)
 #   ifdef DISABLE_DEEP_SLEEP
+    go_into_fake_deep_sleep_with_indication();
+#   else
     if ((g_state.deep_sleep_counter++) * DEEP_SLEEP_TIMING_FUDGE_FACTOR_NUMERATOR / DEEP_SLEEP_TIMING_FUDGE_FACTOR_DENOMINATOR > deep_sleep_timeout_seconds/LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS) {
         // We've been sleeping for a while now and nothing has happened.
         // Time to go into deep sleep.
         go_into_deep_sleep_with_indication();
     }
-#   else
-    le_capsense_slow_scan();
 #   endif
 #endif
 }

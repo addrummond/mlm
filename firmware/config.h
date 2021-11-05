@@ -6,14 +6,17 @@
 // and may occasionally cause startup issues with the boost converter.
 #define DISABLE_DEEP_SLEEP
 
+#define NORMAL_PAD_SCAN_HZ 40
+#define SLOW_PAD_SCAN_HZ   1
+
 #define LONG_PRESS_MS                                       300
 #define ISO_LONG_PRESS_MS                                   600
 #define DOUBLE_BUTTON_SLOP_MS                               300
 #define CENTER_BUTTON_DEAD_ZONE_MS                          200
 
 #define LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS            10
-#define DEEP_SLEEP_TIMEOUT_SECONDS                          (6*60*60)
-#define DEEP_SLEEP_TIMEOUT_SECONDS_DEBUG_MODE               10
+#define DEEP_SLEEP_TIMEOUT_SECONDS                          (1*60*60)
+#define DEEP_SLEEP_TIMEOUT_SECONDS_DEBUG_MODE               20
 #define LE_CAPSENSE_DEEP_SLEEP_CALIBRATION_INTERVAL_SECONDS 30
 
 #define MISSES_REQUIRED_TO_BREAK_HOLD                       2

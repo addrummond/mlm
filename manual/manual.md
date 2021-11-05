@@ -16,6 +16,10 @@ of the center pad. (It cannot be worken up by pressing the left or right pads.)
 Due to careful use of low energy sleep modes, the battery drains very slowly
 when the meter is not in use.
 
+After around an hour without use, the meter goes into a deeper sleep mode.
+To wake the meter from this mode, you may need to hold down the center pad for
+up to one second.
+
 ## Basic operation
 
 Take a reading by pointing the sensor window towards the subject and 
