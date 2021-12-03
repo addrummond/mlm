@@ -313,11 +313,9 @@ static void handle_MODE_DISPLAY_READING()
                         }
 
                         if (tp == LEFT_AND_RIGHT_BUTTONS && get_pad_press(LEFT_AND_RIGHT_BUTTONS, ISO_LONG_PRESS_MS) == PRESS_HOLD) {
-                            leds_all_off();
-                            disable_capsense();
-                            g_state.mode = MODE_SETTING_ISO;
-                            return;
-                        } else {
+                            goto handle_double_button_press;
+                        }
+                        else {
                             int r = shift_exposure_wheel(tp == RIGHT_BUTTON ? 1 : -1, &ap_index, &ss_index, using_long_ss);
                             g_state.last_ap = ap_index;
                             uint32_t mask = led_mask_for_reading(ap_index, ss_index, third);
@@ -330,14 +328,7 @@ static void handle_MODE_DISPLAY_READING()
                             }
                         }
                     } else if (tp == CENTER_BUTTON && ! in_center_button_dead_zone) {
-                        leds_all_off();
-                        press p = get_pad_press(CENTER_BUTTON, LONG_PRESS_MS);
-                        disable_capsense();
-                        if (p == PRESS_HOLD)
-                            g_state.mode = MODE_DOING_READING;
-                        else if (p == PRESS_TAP)
-                            g_state.mode = MODE_SNOOZE;
-                        return;
+                        goto handle_center_press;
                     }
                     zero_touch_position = tp;
                 } else {
@@ -358,6 +349,23 @@ static void handle_MODE_DISPLAY_READING()
     leds_all_off();
 
     g_state.mode = MODE_SNOOZE;
+
+    return;
+
+handle_center_press:
+    leds_all_off();
+    press p = get_pad_press(CENTER_BUTTON, LONG_PRESS_MS);
+    disable_capsense();
+    if (p == PRESS_HOLD)
+        g_state.mode = MODE_DOING_READING;
+    else if (p == PRESS_TAP)
+        g_state.mode = MODE_SNOOZE;
+    return;
+
+handle_double_button_press:
+    leds_all_off();
+    disable_capsense();
+    g_state.mode = MODE_SETTING_ISO;
 }
 
 static void handle_MODE_SETTING_ISO()
@@ -437,17 +445,7 @@ static void handle_MODE_SETTING_ISO()
                             cycle_capsense();
                         }
                     } else if (tp == CENTER_BUTTON) {
-                        SEGGER_RTT_printf(0, "ISO button press\n");
-
-                        leds_all_off();
-                        press p = get_pad_press(CENTER_BUTTON, LONG_PRESS_MS);
-                        disable_capsense();
-                        if (p == PRESS_HOLD)
-                            g_state.mode = MODE_DOING_READING;
-                        else if (p == PRESS_TAP)
-                            g_state.mode = MODE_SNOOZE;
-
-                        return;
+                        goto handle_center_press;
                     }
                     zero_touch_position = tp;
                 } else {
@@ -469,6 +467,18 @@ static void handle_MODE_SETTING_ISO()
 
     SEGGER_RTT_printf(0, "Enter MODE_SNOOZE\n");
     g_state.mode = MODE_SNOOZE;
+
+    return;
+
+handle_center_press:
+    SEGGER_RTT_printf(0, "ISO button press\n");
+    leds_all_off();
+    press p = get_pad_press(CENTER_BUTTON, LONG_PRESS_MS);
+    disable_capsense();
+    if (p == PRESS_HOLD)
+        g_state.mode = MODE_DOING_READING;
+    else if (p == PRESS_TAP)
+        g_state.mode = MODE_SNOOZE;
 }
 
 static uint32_t display_reading_interrupt_cycle_mask1;
