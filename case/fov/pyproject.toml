@@ -5,7 +5,7 @@ description = ""
 authors = ["Alex Drummond <a.d.drummond@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 numpy = "^1.18.3"
 shapely = "^1.7.0"
 
