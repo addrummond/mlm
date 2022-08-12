@@ -112,16 +112,16 @@ static void maybe_sleep_deeper()
         DEEP_SLEEP_TIMEOUT_SECONDS;
 #endif
 
-#if !defined(DEBUG)
-#   ifdef DISABLE_DEEP_SLEEP
-    go_into_fake_deep_sleep_with_indication();
-#   else
+#ifndef DEBUG
     if ((g_state.deep_sleep_counter++) * DEEP_SLEEP_TIMING_FUDGE_FACTOR_NUMERATOR / DEEP_SLEEP_TIMING_FUDGE_FACTOR_DENOMINATOR > deep_sleep_timeout_seconds/LE_CAPSENSE_CALIBRATION_INTERVAL_SECONDS) {
         // We've been sleeping for a while now and nothing has happened.
         // Time to go into deep sleep.
+#ifdef DISABLE_DEEP_SLEEP
+        go_into_fake_deep_sleep_with_indication();
+#else
         go_into_deep_sleep_with_indication();
+#endif
     }
-#   endif
 #endif
 }
 
