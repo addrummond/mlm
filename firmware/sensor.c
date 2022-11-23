@@ -140,7 +140,7 @@ static void get_mode(sensor_reading r, int32_t *itime, int *itime_key, int32_t *
                     max = ((17743*NOMINAL_MAX_CHAN + 11059*ch1) * 100) / (int64_t)gains[j] / (int64_t)itimes[i];
                 else if (rat < 64)
                     max = ((42785*NOMINAL_MAX_CHAN - 19548*ch1) * 100) / (int64_t)gains[j] / (int64_t)itimes[i];
-                else // if (rat < 0.85)
+                else
                     max = ((5926*NOMINAL_MAX_CHAN + 1185*ch1) * 100) / (int64_t)gains[j] / (int64_t)itimes[i];
 
                 // max is in lux*10000. Convert to 1 << EV_BPS
